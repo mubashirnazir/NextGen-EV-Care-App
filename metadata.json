@@ -1,0 +1,7 @@
+{
+  "name": "Next Gen EV Care",
+  "description": "Professional electric bike and scooty care, custom conversions, battery diagnostics, and smart calculators.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
