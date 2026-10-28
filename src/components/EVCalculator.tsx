@@ -43,7 +43,7 @@ interface VehiclePreset {
 
 const VEHICLE_PRESETS: VehiclePreset[] = [
   {
-    name: 'Metro E8S / Yadea T5',
+    name: 'Metro E8S / Yadea T5 / Other Brands',
     badge: 'Popular Scooty',
     voltage: 60,
     capacityAh: 30,
@@ -53,8 +53,8 @@ const VEHICLE_PRESETS: VehiclePreset[] = [
     description: 'Standard 60V 30Ah setup'
   },
   {
-    name: 'Honda CD 70 EV Conversion',
-    badge: 'Local Conversion',
+    name: 'Power Pack Scooty /Local Converted',
+    badge: 'Full Power Pack',
     voltage: 72,
     capacityAh: 35,
     motorWatts: 2000,
@@ -63,7 +63,7 @@ const VEHICLE_PRESETS: VehiclePreset[] = [
     description: 'High performance 72V 35Ah pack'
   },
   {
-    name: 'Road Prince / City E-Bike',
+    name: 'Economy City E-Bike',
     badge: 'Light Commuter',
     voltage: 48,
     capacityAh: 20,
@@ -1057,6 +1057,11 @@ export const EVCalculator: React.FC = () => {
                         {aiPriceInfo.source} · {aiPriceInfo.summary}
                       </p>
                     )}
+
+                    <p className="text-[10px] text-slate-400/90 leading-tight border-t border-slate-800/80 pt-1.5 flex items-start gap-1">
+                      <span className="text-emerald-400 font-semibold shrink-0">* Note:</span>
+                      <span>AI-generated info related to EV scooty behaviors is an advisory benchmark and not fully implemented on your specific vehicle.</span>
+                    </p>
                   </div>
                 )}
 
@@ -1242,6 +1247,11 @@ export const EVCalculator: React.FC = () => {
                 Free Diagnostic Checkup <ChevronRight className="w-3.5 h-3.5" />
               </a>
             </div>
+
+            {/* Small Advisory Note */}
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 text-center sm:text-left px-1">
+              * Note: AI-generated info related to EV scooty behaviors is an advisory benchmark and not fully implemented on your specific vehicle.
+            </p>
 
           </div>
 
@@ -1941,6 +1951,12 @@ export const EVCalculator: React.FC = () => {
                     </span>
                   </li>
                 </ul>
+
+                {/* Small Advisory Note */}
+                <p className="text-[10px] text-slate-400 leading-tight border-t border-slate-800/80 pt-2 flex items-start gap-1">
+                  <span className="text-emerald-400 font-semibold shrink-0">* Note:</span>
+                  <span>AI-generated info related to EV scooty behaviors is an advisory benchmark and not fully implemented on your specific vehicle.</span>
+                </p>
               </div>
 
             </div>

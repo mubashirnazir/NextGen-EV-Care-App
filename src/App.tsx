@@ -17,6 +17,7 @@ import { ContactSection } from './components/ContactSection';
 import { AdminDashboard } from './components/AdminDashboard';
 import { PrivacyModal } from './components/PrivacyModal';
 import { WhatsAppWidget } from './components/WhatsAppWidget';
+import { DidYouKnowToast } from './components/DidYouKnowToast';
 import { Footer } from './components/Footer';
 
 export default function App() {
@@ -212,6 +213,11 @@ export default function App() {
           />
         )}
       </main>
+
+      {/* Did You Know? Pro Maintenance Tips Toast Notification (Homepage only) */}
+      {activeTab === 'home' && (
+        <DidYouKnowToast setActiveTab={setActiveTab} />
+      )}
 
       {/* WhatsApp Floating Chat Widget */}
       <WhatsAppWidget />

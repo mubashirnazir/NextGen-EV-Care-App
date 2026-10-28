@@ -39,9 +39,13 @@ export const Footer: React.FC<FooterProps> = ({
           
           {/* Brand Col */}
           <div className="md:col-span-1 space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 dark:text-emerald-400">
-                <Zap className="w-4 h-4 fill-emerald-500/20 text-emerald-500" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-800 flex items-center justify-center shadow-xs shrink-0">
+                <img
+                  src="/logo.png"
+                  alt="Next Gen EV Care Logo"
+                  className="w-full h-full object-contain"
+                />
               </div>
               <span className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
                 Next Gen <span className="text-emerald-600 dark:text-emerald-400">EV Care</span>

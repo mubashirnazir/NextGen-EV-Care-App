@@ -110,11 +110,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Brand Logo & Title */}
           <button
             onClick={() => handleNavClick('home')}
-            className="flex items-center gap-2 sm:gap-2.5 text-left group shrink-0 focus:outline-none min-w-0"
+            className="flex items-center gap-2.5 sm:gap-3 text-left group shrink-0 focus:outline-none min-w-0"
             aria-label="Next Gen EV Care Home"
           >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 dark:text-emerald-400 group-hover:bg-emerald-500/20 group-hover:border-emerald-400 transition-colors shrink-0">
-              <Zap className="w-5 h-5 fill-emerald-500/20" />
+            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-800 flex items-center justify-center shadow-xs group-hover:border-emerald-500/50 group-hover:shadow-emerald-500/10 transition-all shrink-0">
+              <img
+                src="/logo.png"
+                alt="Next Gen EV Care Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div className="truncate">
               <span className="text-sm sm:text-base md:text-lg font-bold tracking-tight text-slate-900 dark:text-white whitespace-nowrap block leading-tight">
@@ -250,6 +254,17 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Drawer Menu Container */}
           <div className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-2xl max-h-[calc(100vh-95px)] overflow-y-auto p-4 space-y-4">
+            
+            {/* Mobile Drawer Brand Header */}
+            <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-slate-800/80">
+              <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 p-1 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
+                <img src="/logo.png" alt="Next Gen EV Care" className="w-full h-full object-contain" />
+              </div>
+              <div>
+                <span className="text-sm font-bold text-slate-900 dark:text-white">Next Gen <span className="text-emerald-500">EV Care</span></span>
+                <span className="block text-[10px] text-slate-500 dark:text-slate-400">Door-to-Door EV Diagnostics & Repairs</span>
+              </div>
+            </div>
             
             {/* Navigation Links with Icons */}
             <div className="space-y-1">

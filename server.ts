@@ -41,19 +41,19 @@ app.post('/api/pakistan-energy-rates', async (req, res) => {
 
     const prompt = `You are an energy economic assistant for Pakistan. 
 Look up the current official consumer prices in Pakistan for:
-1. Petrol (Premier Euro 5 / Super / Motor Gasoline) retail pump price per liter in PKR (Pakistani Rupees) as notified by OGRA (Oil and Gas Regulatory Authority) and Pakistan State Oil (PSO) / Ministry of Finance Pakistan (current official notification rate is typically around Rs. 376.06/L).
-2. Average residential electricity tariff rate per unit (kWh) in PKR, including typical fuel charges and taxes for standard domestic 100-300 unit slabs (e.g., GEPCO / LESCO / WAPDA / NEPRA).
+1. Petrol (Premier Euro 5 / Motor Gasoline) retail pump price per liter in PKR (Pakistani Rupees) as notified by OGRA (Oil and Gas Regulatory Authority) and Pakistan State Oil (PSO) / Ministry of Finance Pakistan (current official price is Rs. 376.06 per liter; do not return outdated historical 265/L rates).
+2. Average residential electricity tariff rate per unit (kWh) in PKR, including typical fuel charges and taxes for standard domestic 100-300 unit slabs (e.g., GEPCO / LESCO / WAPDA / NEPRA, typically ~34.00 to 42.00 PKR/kWh).
 
 Return strictly a valid JSON object without markdown formatting, code fences, or backticks:
 {
-  "petrolPricePerLiter": <number in PKR, typically between 250 and 450>,
-  "electricityTariffPerUnit": <number in PKR, between 25 and 75>,
-  "source": "<short source reference name, e.g. OGRA / PSO Notification>",
-  "summary": "<1-2 sentence concise summary mentioning current petrol price (around Rs 376/L) and electricity unit price in Pakistan>"
+  "petrolPricePerLiter": <number in PKR, e.g. 376.06>,
+  "electricityTariffPerUnit": <number in PKR, e.g. 34.0>,
+  "source": "<short source reference name, e.g. OGRA & PSO Official Rates>",
+  "summary": "<1-2 sentence concise summary mentioning current petrol price (Rs 376.06/L) and electricity unit price in Pakistan>"
 }`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3.8-flash',
       contents: prompt,
       config: {
         tools: [{ googleSearch: {} }],
