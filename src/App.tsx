@@ -12,6 +12,7 @@ import { EVCalculator } from './components/EVCalculator';
 import { Portfolio } from './components/Portfolio';
 import { KnowledgeBase } from './components/KnowledgeBase';
 import { AboutSection } from './components/AboutSection';
+import { FAQSection } from './components/FAQSection';
 import { ContactSection } from './components/ContactSection';
 import { AdminDashboard } from './components/AdminDashboard';
 import { PrivacyModal } from './components/PrivacyModal';
@@ -35,8 +36,10 @@ export default function App() {
     const root = document.documentElement;
     if (theme === 'dark') {
       root.classList.add('dark');
+      root.classList.remove('light');
     } else {
       root.classList.remove('dark');
+      root.classList.add('light');
     }
     localStorage.setItem('nextgen_theme', theme);
   }, [theme]);
@@ -52,7 +55,7 @@ export default function App() {
 
   // --- Persistent Portfolio Data ---
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>(() => {
-    const saved = localStorage.getItem('nextgen_portfolio');
+    const saved = localStorage.getItem('nextgen_portfolio_pk_v3');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -64,12 +67,12 @@ export default function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('nextgen_portfolio', JSON.stringify(portfolio));
+    localStorage.setItem('nextgen_portfolio_pk_v3', JSON.stringify(portfolio));
   }, [portfolio]);
 
   // --- Persistent Blog Data ---
   const [blogs, setBlogs] = useState<BlogPost[]>(() => {
-    const saved = localStorage.getItem('nextgen_blogs');
+    const saved = localStorage.getItem('nextgen_blogs_pk_v3');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -81,12 +84,12 @@ export default function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('nextgen_blogs', JSON.stringify(blogs));
+    localStorage.setItem('nextgen_blogs_pk_v3', JSON.stringify(blogs));
   }, [blogs]);
 
   // --- Persistent Inquiries Data ---
   const [inquiries, setInquiries] = useState<CustomerInquiry[]>(() => {
-    const saved = localStorage.getItem('nextgen_inquiries');
+    const saved = localStorage.getItem('nextgen_inquiries_pk_v3');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -98,7 +101,7 @@ export default function App() {
   });
 
   useEffect(() => {
-    localStorage.setItem('nextgen_inquiries', JSON.stringify(inquiries));
+    localStorage.setItem('nextgen_inquiries_pk_v3', JSON.stringify(inquiries));
   }, [inquiries]);
 
   // Reset to Factory Defaults
@@ -106,6 +109,12 @@ export default function App() {
     setPortfolio(INITIAL_PORTFOLIO);
     setBlogs(INITIAL_BLOGS);
     setInquiries(INITIAL_INQUIRIES);
+    localStorage.removeItem('nextgen_portfolio_pk_v3');
+    localStorage.removeItem('nextgen_blogs_pk_v3');
+    localStorage.removeItem('nextgen_inquiries_pk_v3');
+    localStorage.removeItem('nextgen_portfolio_pk_v2');
+    localStorage.removeItem('nextgen_blogs_pk_v2');
+    localStorage.removeItem('nextgen_inquiries_pk_v2');
     localStorage.removeItem('nextgen_portfolio');
     localStorage.removeItem('nextgen_blogs');
     localStorage.removeItem('nextgen_inquiries');
@@ -135,7 +144,7 @@ export default function App() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1">
+      <main className="flex-1 w-full max-w-full min-w-0 overflow-x-clip">
         {activeTab === 'home' && (
           <Hero
             setActiveTab={setActiveTab}
@@ -178,7 +187,11 @@ export default function App() {
         )}
 
         {activeTab === 'about' && (
-          <AboutSection />
+          <AboutSection setActiveTab={setActiveTab} />
+        )}
+
+        {activeTab === 'faq' && (
+          <FAQSection setActiveTab={setActiveTab} />
         )}
 
         {activeTab === 'contact' && (
@@ -213,6 +226,8 @@ export default function App() {
       <Footer
         setActiveTab={setActiveTab}
         openPrivacy={() => setIsPrivacyOpen(true)}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
 
     </div>

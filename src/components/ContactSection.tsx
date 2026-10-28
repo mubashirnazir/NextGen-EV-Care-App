@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CustomerInquiry } from '../types';
+import { ServiceCenterMap, ServiceLocation } from './ServiceCenterMap';
 import { 
   Phone, 
   Mail, 
@@ -23,7 +24,7 @@ interface ContactSectionProps {
 export const ContactSection: React.FC<ContactSectionProps> = ({
   onAddInquiry,
   prefilledVehicle = '',
-  prefilledService = 'Battery Diagnostic & Balancing'
+  prefilledService = 'Door-to-Door Home / Office Service (Main Focus)'
 }) => {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -52,7 +53,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
     }
 
     if (!vehicleModel.trim()) {
-      newErrors.vehicleModel = 'Scooter or bike model is required (e.g., Ather 450X, Activa EV, Ola S1)';
+      newErrors.vehicleModel = 'Scooter or bike model is required (e.g., Honda CD 70 EV, Yadea T5, Metro E8S)';
     }
 
     if (!message.trim() || message.trim().length < 10) {
@@ -98,28 +99,48 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
     setErrors({});
   };
 
+  const handleSelectLocationForBooking = (loc: ServiceLocation) => {
+    setServiceType(
+      loc.isHeadquarters
+        ? 'Electrification Diagnostic & Computer Scan'
+        : 'Door-to-Door Home / Office Service (Main Focus)'
+    );
+    setMessage((prev) => {
+      const locTag = `[Service Hub Requested: ${loc.name} (${loc.zone})]`;
+      if (prev.includes('[Service Hub Requested:')) {
+        return prev.replace(/\[Service Hub Requested:[^\]]+\]/, locTag);
+      }
+      return prev ? `${locTag}\n${prev}` : `${locTag}\nI would like to request appointment / technician support for this zone.`;
+    });
+
+    const formElement = document.getElementById('contact-form');
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
   return (
-    <div id="contact" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <div id="contact" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-12 sm:space-y-16 w-full max-w-full overflow-hidden">
       
       {/* Title */}
-      <div className="max-w-3xl mb-10">
+      <div className="max-w-3xl">
         <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-2">
-          <span>SCHEDULE SERVICE OR RETROFIT</span>
+          <span>DOOR-TO-DOOR & WORKSHOP CARE</span>
           <span aria-hidden="true">·</span>
-          <span>Next Gen EV Care Workshop</span>
+          <span>Next Gen EV Care</span>
         </div>
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-          Book Workshop Diagnostic or Inquire Build
+          Book Door-to-Door Service or Workshop Diagnostic
         </h1>
         <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 mt-2">
-          Speak directly with our battery technicians and powertrain specialists. Same-day computerized diagnostic appointments available.
+          Request a mobile technician visit to your home or office anywhere in Gujranwala, or schedule component-level diagnostics at our Mughal Plaza facility.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start w-full min-w-0">
         
         {/* Contact Form (7 Cols) */}
-        <div className="lg:col-span-7 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div id="contact-form" className="lg:col-span-7 bg-white dark:bg-slate-900 p-4 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm scroll-mt-24 w-full min-w-0 max-w-full">
           
           {isSubmitted ? (
             <div className="py-8 text-center space-y-4 animate-in fade-in">
@@ -161,7 +182,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g. Ramesh Kumar"
+                    placeholder="e.g. Muhammad Usman"
                     className={`w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border ${
                       errors.name ? 'border-red-500' : 'border-slate-300 dark:border-slate-800'
                     } text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500`}
@@ -182,7 +203,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+91 98765 43210"
+                    placeholder="0321 7436463"
                     className={`w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border ${
                       errors.phone ? 'border-red-500' : 'border-slate-300 dark:border-slate-800'
                     } text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500`}
@@ -226,7 +247,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                     type="text"
                     value={vehicleModel}
                     onChange={(e) => setVehicleModel(e.target.value)}
-                    placeholder="e.g. Ather 450X, Ola S1, Activa Conversion"
+                    placeholder="e.g. Honda CD 70 EV, Yadea T5, Metro E8S, United Revolt"
                     className={`w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border ${
                       errors.vehicleModel ? 'border-red-500' : 'border-slate-300 dark:border-slate-800'
                     } text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500`}
@@ -248,14 +269,15 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   <select
                     value={serviceType}
                     onChange={(e) => setServiceType(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full min-w-0 max-w-full truncate px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                   >
-                    <option value="Battery Diagnostic & Balancing">Battery Diagnostic & Cell Balancing</option>
-                    <option value="Custom EV Conversion (Petrol to Electric)">Custom EV Conversion (Petrol to Electric)</option>
-                    <option value="Custom Li-ion / LFP Battery Pack Build">Custom Li-ion / LFP Battery Pack Build</option>
-                    <option value="Motor & Controller Repair (Hall Sensor / MOSFET)">Motor & Controller Repair (Hall Sensor / MOSFET)</option>
-                    <option value="Charger Repair & Fast Charger Upgrade">Charger Repair & Fast Charger Upgrade</option>
-                    <option value="General Periodic Maintenance & Waterproofing">General Periodic Maintenance & Waterproofing</option>
+                    <option value="Door-to-Door Home / Office Service (Main Focus)">🏠 Door-to-Door Doorstep Service (Main Focus)</option>
+                    <option value="Electrification Diagnostic & Computer Scan">⚡ Electrification Diagnostic & Computer Scan</option>
+                    <option value="Motor Repair (Hall Sensors, Bearings - No Winding)">⚙️ Motor Repair (Hall Sensors, Bearings - No Winding)</option>
+                    <option value="Controller Repair (MOSFETs, Throttle, Power Cutoff)">🔌 Controller Repair (MOSFETs, Gate Driver, Throttle Jitter)</option>
+                    <option value="Full Service & Maintenance (24-Point Comprehensive Check)">🔧 Full Service & Maintenance (24-Point Check)</option>
+                    <option value="Battery Diagnostic & Cell Balancing">🔋 Battery Health Diagnostic & Cell Balancing</option>
+                    <option value="Petrol-to-EV Conversion (Coming Soon - Priority Waitlist)">🚀 Petrol-to-EV Conversion (Coming Soon - Priority Waitlist)</option>
                   </select>
                 </div>
 
@@ -282,7 +304,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   rows={4}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  placeholder="e.g. Scooter shuts off when accelerating past 40 km/h, battery health shows 65%, or looking for a quote to convert my 2017 Activa to a 72V electric motor..."
+                  placeholder="e.g. Scooter shuts off when accelerating past 40 km/h, battery health shows 65%, or looking for a quote to convert my petrol Honda CD70/CG125 to 72V electric..."
                   className={`w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border ${
                     errors.message ? 'border-red-500' : 'border-slate-300 dark:border-slate-800'
                   } text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500`}
@@ -308,9 +330,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
         </div>
 
         {/* Workshop Contact Details (5 Cols) */}
-        <div className="lg:col-span-5 space-y-6">
+        <div className="lg:col-span-5 space-y-6 w-full min-w-0 max-w-full">
           
-          <div className="bg-slate-100 dark:bg-slate-900 p-6 sm:p-7 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-6">
+          <div className="bg-slate-100 dark:bg-slate-900 p-4 sm:p-7 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-6 w-full min-w-0 max-w-full">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
               Workshop Location & Hours
             </h3>
@@ -318,20 +340,20 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
             <div className="space-y-4 text-xs sm:text-sm">
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="font-semibold text-slate-900 dark:text-white">Next Gen EV Care Workshop</p>
-                  <p className="text-slate-600 dark:text-slate-400 mt-0.5">
-                    Plot 42, Green Energy Tech Corridor, Industrial Area Phase II, Bengaluru, Karnataka 560068
+                  <p className="text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed break-words">
+                    Mughal Plaza, Mughal Chok, Service Road Main gate Muhafiz Town Gujranwala, Pakistan.
                   </p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
                 <Clock className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="font-semibold text-slate-900 dark:text-white">Operating Hours</p>
                   <p className="text-slate-600 dark:text-slate-400 mt-0.5">
-                    Monday to Saturday: 9:00 AM – 7:30 PM
+                    Monday to Saturday: 9:00 AM – 8:00 PM
                   </p>
                   <p className="text-slate-500 text-xs">Sunday: Prior Appointment Only</p>
                 </div>
@@ -339,21 +361,22 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
               <div className="flex items-start gap-3">
                 <Phone className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-slate-900 dark:text-white">Direct Workshop Hotline</p>
-                  <p className="font-mono text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">
-                    +91 98765 43210 / +91 98450 11223
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-slate-900 dark:text-white">Direct Workshop & WhatsApp</p>
+                  <p className="font-mono text-emerald-600 dark:text-emerald-400 font-bold text-base mt-0.5">
+                    03217436463
                   </p>
+                  <p className="text-[11px] text-slate-500 font-mono">International: +92 321 7436463</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
                 <Mail className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
-                <div>
+                <div className="min-w-0 flex-1">
                   <p className="font-semibold text-slate-900 dark:text-white">Official Email</p>
                   <a
                     href="mailto:nextgenevcare@gmail.com"
-                    className="text-slate-600 dark:text-slate-300 hover:text-emerald-500 dark:hover:text-emerald-400 underline block mt-0.5 font-mono text-xs"
+                    className="text-slate-600 dark:text-slate-300 hover:text-emerald-500 dark:hover:text-emerald-400 underline block mt-0.5 font-mono text-xs break-all"
                   >
                     nextgenevcare@gmail.com
                   </a>
@@ -364,19 +387,19 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
             {/* Direct WhatsApp Chat Action */}
             <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
               <a
-                href="https://wa.me/919876543210?text=Hello%20Next%20Gen%20EV%20Care!%20I%20would%20like%20to%20inquire%20about%20electric%20scooter/bike%20service."
+                href="https://wa.me/923217436463?text=Hello%20Next%20Gen%20EV%20Care!%20I%20would%20like%20to%20inquire%20about%20electric%20scooter%20/%20bike%20service%20in%20Gujranwala."
                 target="_blank"
                 rel="noreferrer"
                 className="w-full py-2.5 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
               >
                 <MessageSquare className="w-4 h-4" />
-                <span>Instant Chat on WhatsApp</span>
+                <span>Instant Chat on WhatsApp (03217436463)</span>
               </a>
             </div>
           </div>
 
           {/* Quick Notice */}
-          <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 space-y-1">
+          <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 space-y-1 w-full min-w-0 max-w-full">
             <p className="font-semibold text-slate-900 dark:text-slate-200">Emergency Breakdown Pickup</p>
             <p>
               Stuck with an unresponsive scooter or battery cutoff? We operate a specialized hydraulic carrier van for secure doorstep pickup and drop across the metropolitan radius.
@@ -385,6 +408,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
         </div>
 
+      </div>
+
+      {/* Visual Map Component Showing Service Center Locations Using Icon-Based Visualization */}
+      <div className="pt-8 sm:pt-10 border-t border-slate-200 dark:border-slate-800 w-full min-w-0 max-w-full overflow-hidden">
+        <ServiceCenterMap onSelectLocationForBooking={handleSelectLocationForBooking} />
       </div>
 
     </div>

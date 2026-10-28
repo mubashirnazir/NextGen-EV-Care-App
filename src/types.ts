@@ -1,4 +1,4 @@
-export type ServiceCategory = 'conversions' | 'battery' | 'diagnostics';
+export type ServiceCategory = 'doorstep' | 'diagnostics' | 'motor-controller' | 'maintenance' | 'battery' | 'conversions';
 
 export interface PortfolioItem {
   id: string;
@@ -13,7 +13,8 @@ export interface PortfolioItem {
     rangeGain?: string;
     bms?: string;
   };
-  status: 'Completed' | 'In Progress' | 'R&D Benchmark';
+  status: 'Completed' | 'In Progress' | 'Coming Soon' | 'R&D Benchmark';
+  isComingSoon?: boolean;
   metrics: {
     label: string;
     value: string;
@@ -55,6 +56,6 @@ export interface CustomerInquiry {
   status: 'New' | 'Contacted' | 'Scheduled' | 'Resolved';
 }
 
-export type ActiveTab = 'home' | 'calculator' | 'portfolio' | 'blog' | 'about' | 'contact' | 'admin' | 'privacy';
+export type ActiveTab = 'home' | 'calculator' | 'portfolio' | 'blog' | 'about' | 'faq' | 'contact' | 'admin' | 'privacy';
 
 export type ThemeMode = 'dark' | 'light';

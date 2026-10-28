@@ -5,7 +5,7 @@ export const WhatsAppWidget: React.FC = () => {
   const [showTooltip, setShowTooltip] = useState(true);
 
   const whatsappUrl =
-    'https://wa.me/919876543210?text=Hello%20Next%20Gen%20EV%20Care!%20I%20would%20like%20to%20inquire%20about%20electric%20scooter%20/%20bike%20service.';
+    'https://wa.me/923217436463?text=Hello%20Next%20Gen%20EV%20Care!%20I%20would%20like%20to%20inquire%20about%20electric%20scooter%20/%20bike%20service%20in%20Gujranwala.';
 
   return (
     <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2 group">
