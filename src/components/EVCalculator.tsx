@@ -43,7 +43,7 @@ interface VehiclePreset {
 
 const VEHICLE_PRESETS: VehiclePreset[] = [
   {
-    name: 'Metro E8S / Yadea T5 / Other Brands',
+    name: 'Standard Scooty',
     badge: 'Popular Scooty',
     voltage: 60,
     capacityAh: 30,
@@ -53,7 +53,7 @@ const VEHICLE_PRESETS: VehiclePreset[] = [
     description: 'Standard 60V 30Ah setup'
   },
   {
-    name: 'Power Pack Scooty /Local Converted',
+    name: 'Power Pack Scooty',
     badge: 'Full Power Pack',
     voltage: 72,
     capacityAh: 35,
@@ -591,14 +591,14 @@ export const EVCalculator: React.FC = () => {
         </p>
       </div>
 
-      {/* Segmented Tab Controls (3 Tabs) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-3xl mb-8">
+      {/* Segmented Tab Controls (3 Tabs) in Frosted Liquid Glass */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 p-1.5 liquid-glass rounded-2xl max-w-3xl mb-8">
         <button
           onClick={() => setActiveTab('range')}
-          className={`py-3 px-4 text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-2.5 ${
+          className={`h-11 px-4 text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
             activeTab === 'range'
-              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-md border border-white/80 dark:border-white/10'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
           }`}
         >
           <Gauge className="w-4 h-4 text-emerald-500 shrink-0" />
@@ -607,10 +607,10 @@ export const EVCalculator: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('charge')}
-          className={`py-3 px-4 text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-2.5 ${
+          className={`h-11 px-4 text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
             activeTab === 'charge'
-              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-md border border-white/80 dark:border-white/10'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
           }`}
         >
           <BatteryCharging className="w-4 h-4 text-emerald-500 shrink-0" />
@@ -619,10 +619,10 @@ export const EVCalculator: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('health')}
-          className={`py-3 px-4 text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-2.5 ${
+          className={`h-11 px-4 text-xs sm:text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer ${
             activeTab === 'health'
-              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-md border border-white/80 dark:border-white/10'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
           }`}
         >
           <HeartPulse className="w-4 h-4 text-rose-500 shrink-0" />
@@ -633,8 +633,8 @@ export const EVCalculator: React.FC = () => {
         </button>
       </div>
 
-      {/* Shared Battery Chemistry Switcher */}
-      <div className="bg-slate-50 dark:bg-slate-900/60 p-4 sm:p-5 rounded-2xl border border-slate-200 dark:border-slate-800 mb-8">
+      {/* Shared Battery Chemistry Switcher in Tactile Liquid Glass Card */}
+      <div className="liquid-glass-card p-5 sm:p-6 rounded-2xl mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-3">
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
@@ -657,10 +657,10 @@ export const EVCalculator: React.FC = () => {
           <button
             type="button"
             onClick={() => setBatteryChemistry('li-ion')}
-            className={`p-3.5 rounded-xl border text-left transition-all ${
+            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
               batteryChemistry === 'li-ion'
-                ? 'border-emerald-500 bg-white dark:bg-slate-800 shadow-md ring-2 ring-emerald-500/20'
-                : 'border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/40 hover:border-slate-300 dark:hover:border-slate-700'
+                ? 'border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/15 shadow-md ring-2 ring-emerald-500/20'
+                : 'liquid-glass-subtle hover:border-emerald-400/50 hover:bg-white/70 dark:hover:bg-slate-800/70'
             }`}
           >
             <div className="flex items-center justify-between">
@@ -678,10 +678,10 @@ export const EVCalculator: React.FC = () => {
           <button
             type="button"
             onClick={() => setBatteryChemistry('lifepo4')}
-            className={`p-3.5 rounded-xl border text-left transition-all ${
+            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
               batteryChemistry === 'lifepo4'
-                ? 'border-emerald-500 bg-white dark:bg-slate-800 shadow-md ring-2 ring-emerald-500/20'
-                : 'border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/40 hover:border-slate-300 dark:hover:border-slate-700'
+                ? 'border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/15 shadow-md ring-2 ring-emerald-500/20'
+                : 'liquid-glass-subtle hover:border-emerald-400/50 hover:bg-white/70 dark:hover:bg-slate-800/70'
             }`}
           >
             <div className="flex items-center justify-between">
@@ -699,10 +699,10 @@ export const EVCalculator: React.FC = () => {
           <button
             type="button"
             onClick={() => setBatteryChemistry('graphene')}
-            className={`p-3.5 rounded-xl border text-left transition-all ${
+            className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
               batteryChemistry === 'graphene'
-                ? 'border-emerald-500 bg-white dark:bg-slate-800 shadow-md ring-2 ring-emerald-500/20'
-                : 'border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-950/40 hover:border-slate-300 dark:hover:border-slate-700'
+                ? 'border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/15 shadow-md ring-2 ring-emerald-500/20'
+                : 'liquid-glass-subtle hover:border-emerald-400/50 hover:bg-white/70 dark:hover:bg-slate-800/70'
             }`}
           >
             <div className="flex items-center justify-between">
@@ -723,8 +723,8 @@ export const EVCalculator: React.FC = () => {
       {activeTab === 'range' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Controls Form (7 Cols) */}
-          <div className="lg:col-span-7 bg-white dark:bg-slate-900 p-6 sm:p-7 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+          {/* Controls Form (7 Cols) in Tactile Liquid Glass Card */}
+          <div className="lg:col-span-7 liquid-glass-card p-6 sm:p-7 rounded-2xl space-y-6">
             
             {/* Quick Pakistani Vehicle Presets */}
             <div>
@@ -1262,8 +1262,8 @@ export const EVCalculator: React.FC = () => {
       {activeTab === 'charge' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Controls Form (7 Cols) */}
-          <div className="lg:col-span-7 bg-white dark:bg-slate-900 p-6 sm:p-7 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+          {/* Controls Form (7 Cols) in Tactile Liquid Glass Card */}
+          <div className="lg:col-span-7 liquid-glass-card p-6 sm:p-7 rounded-2xl space-y-6">
             
             {/* Standard Charger Options for everyday users */}
             <div>
@@ -1558,8 +1558,8 @@ export const EVCalculator: React.FC = () => {
       {activeTab === 'health' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
-          {/* Diagnostic Questionnaire / Habit Form (7 Cols) */}
-          <div className="lg:col-span-7 bg-white dark:bg-slate-900 p-6 sm:p-7 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+          {/* Diagnostic Questionnaire / Habit Form (7 Cols) in Tactile Liquid Glass Card */}
+          <div className="lg:col-span-7 liquid-glass-card p-6 sm:p-7 rounded-2xl space-y-6">
             
             {/* Header intro */}
             <div>

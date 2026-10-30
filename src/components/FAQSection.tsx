@@ -180,7 +180,7 @@ export const FAQSection: React.FC<FAQSectionProps> = ({ setActiveTab }) => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-10 sm:space-y-12">
       
       {/* FAQ Header & Introduction */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200 dark:border-slate-800">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200/80 dark:border-slate-800/80">
         <div className="max-w-3xl space-y-3">
           <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
             <HelpCircle className="w-4 h-4 text-emerald-500" />
@@ -196,13 +196,13 @@ export const FAQSection: React.FC<FAQSectionProps> = ({ setActiveTab }) => {
 
         {/* Search Bar */}
         <div className="relative w-full md:w-80 shrink-0">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
             type="text"
             placeholder="Search questions (e.g. Doorstep, Motor, MOSFET)..."
             value={faqSearch}
             onChange={(e) => setFaqSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 shadow-xs"
+            className="w-full h-11 pl-10 pr-4 text-xs sm:text-sm rounded-xl liquid-glass border border-white/80 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all shadow-sm"
           />
         </div>
       </div>
@@ -211,12 +211,12 @@ export const FAQSection: React.FC<FAQSectionProps> = ({ setActiveTab }) => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         
         {/* Category Buttons */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto max-w-full">
+        <div className="flex items-center gap-1.5 p-1.5 liquid-glass rounded-2xl border border-white/80 dark:border-white/10 overflow-x-auto max-w-full">
           <button
             onClick={() => setFaqCategory('all')}
-            className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 ${
+            className={`h-9 px-3.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap shrink-0 ${
               faqCategory === 'all'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200 dark:border-slate-700'
+                ? 'bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-md font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -225,61 +225,61 @@ export const FAQSection: React.FC<FAQSectionProps> = ({ setActiveTab }) => {
 
           <button
             onClick={() => setFaqCategory('doorstep')}
-            className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+            className={`h-9 px-3.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
               faqCategory === 'doorstep'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200 dark:border-slate-700'
+                ? 'bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-md font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Truck className="w-3.5 h-3.5 text-emerald-500" />
+            <Truck className="w-3.5 h-3.5 text-emerald-500 dark:text-slate-950" />
             <span>Door-to-Door Service</span>
           </button>
 
           <button
             onClick={() => setFaqCategory('motor-controller')}
-            className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+            className={`h-9 px-3.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
               faqCategory === 'motor-controller'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200 dark:border-slate-700'
+                ? 'bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-md font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Wrench className="w-3.5 h-3.5 text-emerald-500" />
+            <Wrench className="w-3.5 h-3.5 text-emerald-500 dark:text-slate-950" />
             <span>Motor & Controller (No Winding)</span>
           </button>
 
           <button
             onClick={() => setFaqCategory('diagnostics')}
-            className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+            className={`h-9 px-3.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
               faqCategory === 'diagnostics'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200 dark:border-slate-700'
+                ? 'bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-md font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Microscope className="w-3.5 h-3.5 text-emerald-500" />
+            <Microscope className="w-3.5 h-3.5 text-emerald-500 dark:text-slate-950" />
             <span>Electrification Diagnostics</span>
           </button>
 
           <button
             onClick={() => setFaqCategory('maintenance')}
-            className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+            className={`h-9 px-3.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
               faqCategory === 'maintenance'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200 dark:border-slate-700'
+                ? 'bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-md font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Sliders className="w-3.5 h-3.5 text-emerald-500" />
+            <Sliders className="w-3.5 h-3.5 text-emerald-500 dark:text-slate-950" />
             <span>Full Maintenance</span>
           </button>
 
           <button
             onClick={() => setFaqCategory('conversions')}
-            className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+            className={`h-9 px-3.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
               faqCategory === 'conversions'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200 dark:border-slate-700'
+                ? 'bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-md font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Clock className="w-3.5 h-3.5 text-amber-500" />
+            <Clock className="w-3.5 h-3.5 text-amber-500 dark:text-slate-950" />
             <span>Conversions (Coming Soon)</span>
           </button>
         </div>
@@ -288,14 +288,14 @@ export const FAQSection: React.FC<FAQSectionProps> = ({ setActiveTab }) => {
         <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto text-xs text-slate-500">
           <button
             onClick={handleExpandAll}
-            className="hover:text-emerald-500 font-medium transition-colors"
+            className="h-8 px-3 rounded-lg liquid-glass text-xs hover:text-emerald-500 font-medium transition-colors"
           >
             Expand All
           </button>
           <span>·</span>
           <button
             onClick={handleCollapseAll}
-            className="hover:text-emerald-500 font-medium transition-colors"
+            className="h-8 px-3 rounded-lg liquid-glass text-xs hover:text-emerald-500 font-medium transition-colors"
           >
             Collapse All
           </button>
@@ -305,7 +305,7 @@ export const FAQSection: React.FC<FAQSectionProps> = ({ setActiveTab }) => {
 
       {/* FAQ Accordion List */}
       {filteredFaqs.length === 0 ? (
-        <div className="text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div className="text-center py-12 liquid-glass rounded-2xl border border-white/80 dark:border-white/10">
           <p className="text-sm font-semibold text-slate-900 dark:text-white">No matching questions found</p>
           <p className="text-xs text-slate-500 mt-1">Try another search term or reset the category filter.</p>
           <button
@@ -322,11 +322,11 @@ export const FAQSection: React.FC<FAQSectionProps> = ({ setActiveTab }) => {
             return (
               <div
                 key={faq.id}
-                className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden transition-all duration-200 shadow-xs"
+                className="rounded-2xl liquid-glass-card overflow-hidden transition-all duration-200"
               >
                 <button
                   onClick={() => toggleFaq(faq.id)}
-                  className="w-full p-5 sm:p-6 text-left flex items-start justify-between gap-4 focus:outline-none hover:bg-slate-50/50 dark:hover:bg-slate-950/30 transition-colors"
+                  className="w-full p-5 sm:p-6 text-left flex items-start justify-between gap-4 focus:outline-none hover:bg-white/40 dark:hover:bg-slate-800/40 transition-colors"
                   aria-expanded={isOpen}
                 >
                   <div className="space-y-1.5 min-w-0">
@@ -348,7 +348,7 @@ export const FAQSection: React.FC<FAQSectionProps> = ({ setActiveTab }) => {
                     </h3>
                   </div>
 
-                  <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 shrink-0 mt-0.5 group-hover:text-emerald-500 transition-colors">
+                  <div className="h-9 w-9 rounded-xl liquid-glass flex items-center justify-center text-slate-500 dark:text-slate-400 shrink-0 mt-0.5 group-hover:text-emerald-500 transition-colors">
                     {isOpen ? (
                       <ChevronUp className="w-4 h-4 text-emerald-500" />
                     ) : (
@@ -365,7 +365,7 @@ export const FAQSection: React.FC<FAQSectionProps> = ({ setActiveTab }) => {
                     </p>
 
                     {faq.keyPoints && faq.keyPoints.length > 0 && (
-                      <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/80 border border-slate-100 dark:border-slate-800/80 space-y-2">
+                      <div className="p-4 rounded-xl liquid-glass-subtle space-y-2">
                         <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
                           Key Workshop Insights:
                         </span>
@@ -387,17 +387,17 @@ export const FAQSection: React.FC<FAQSectionProps> = ({ setActiveTab }) => {
         </div>
       )}
 
-      {/* Still Have Questions CTA Banner */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-slate-800 text-white flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl">
+      {/* Still Have Questions CTA Card */}
+      <div className="p-7 sm:p-9 rounded-2xl liquid-glass-card flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl">
         <div className="space-y-1.5 max-w-xl">
-          <div className="inline-flex items-center gap-1.5 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-xs font-semibold tracking-wider">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Have a specific EV question or breakdown?</span>
+            <span>DIRECT TECHNICIAN CONSULTATION</span>
           </div>
-          <h4 className="text-lg sm:text-xl font-bold text-white">
+          <h4 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             Our Master Technicians Are Ready Across Gujranwala
           </h4>
-          <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
             Whether your scooter is shuddering, the wheel is locked, or you need doorstep service in Model Town, Cantt, DC Colony, or Muhafiz Town, contact us immediately.
           </p>
         </div>
@@ -407,31 +407,23 @@ export const FAQSection: React.FC<FAQSectionProps> = ({ setActiveTab }) => {
             href="https://wa.me/923217436463?text=Hello%20Next%20Gen%20EV%20Care!%20I%20have%20a%20question%20about%20electric%20scooter%20/%20bike%20service%20in%20Gujranwala."
             target="_blank"
             rel="noreferrer"
-            className="py-2.5 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-2 transition-all shadow-sm"
+            className="h-11 px-5 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-emerald-500/20"
           >
-            <MessageSquare className="w-4 h-4" />
+            <MessageSquare className="w-4 h-4 text-slate-950" />
             <span>WhatsApp (03217436463)</span>
           </a>
 
-          {setActiveTab ? (
+          {setActiveTab && (
             <button
               onClick={() => {
                 setActiveTab('contact');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center gap-1.5 border border-slate-700 transition-colors"
+              className="h-11 px-5 rounded-xl liquid-glass text-slate-700 dark:text-slate-200 font-semibold text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer"
             >
               <span>Book Doorstep Visit</span>
-              <ArrowRight className="w-3.5 h-3.5 text-emerald-400" />
+              <ArrowRight className="w-3.5 h-3.5 text-emerald-500" />
             </button>
-          ) : (
-            <a
-              href="#contact"
-              className="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs flex items-center gap-1.5 border border-slate-700 transition-colors"
-            >
-              <span>Book Doorstep Visit</span>
-              <ArrowRight className="w-3.5 h-3.5 text-emerald-400" />
-            </a>
           )}
         </div>
       </div>

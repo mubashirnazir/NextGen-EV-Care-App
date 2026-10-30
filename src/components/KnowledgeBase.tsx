@@ -80,7 +80,7 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
           </p>
         </div>
 
-        {/* Search Input */}
+        {/* Search Input in Liquid Glass */}
         <div className="relative w-full md:w-72">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -88,7 +88,7 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
             placeholder="Search guides, BMS, sensors..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 shadow-sm"
+            className="w-full h-11 pl-9 pr-8 text-xs sm:text-sm rounded-xl liquid-glass text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 shadow-xs"
           />
           {searchQuery && (
             <button
@@ -101,16 +101,16 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
         </div>
       </div>
 
-      {/* Category Pills/Tabs */}
-      <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-3xl mb-8 overflow-x-auto">
+      {/* Category Tabs in Liquid Glass */}
+      <div className="flex items-center gap-1.5 p-1.5 liquid-glass rounded-xl max-w-3xl mb-8 overflow-x-auto">
         {categories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => setSelectedCategory(cat.id)}
-            className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 ${
+            className={`h-9 px-3.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 cursor-pointer ${
               selectedCategory === cat.id
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-white/80 dark:border-white/10'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
             }`}
           >
             {cat.label}
@@ -120,7 +120,7 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
 
       {/* Articles Grid */}
       {filteredPosts.length === 0 ? (
-        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div className="text-center py-16 liquid-glass rounded-2xl">
           <p className="text-sm font-semibold text-slate-900 dark:text-white">No articles match your query</p>
           <p className="text-xs text-slate-500 mt-1">Try another keyword or select All Articles.</p>
         </div>
@@ -130,7 +130,7 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
             <article
               key={post.id}
               onClick={() => setSelectedPost(post)}
-              className="cursor-pointer group rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden hover:border-emerald-500/40 hover:shadow-xl transition-all flex flex-col justify-between"
+              className="cursor-pointer group rounded-2xl liquid-glass-card overflow-hidden flex flex-col justify-between h-full"
             >
               {/* Optional Post Hero Image */}
               {post.image && (
@@ -141,7 +141,7 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute top-3 left-3 bg-slate-950/85 backdrop-blur-md px-2.5 py-1 rounded text-[11px] font-semibold text-emerald-400 border border-slate-700">
+                  <div className="absolute top-3 left-3 bg-slate-950/85 backdrop-blur-md px-2.5 py-1 rounded-lg text-[11px] font-semibold text-emerald-400 border border-white/10">
                     {post.tags[0] || 'Technical Guide'}
                   </div>
                 </div>
@@ -182,13 +182,13 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
 
       {/* ===================== FULL ARTICLE READER MODAL ===================== */}
       {selectedPost && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto animate-in fade-in">
-          <div className="relative w-full max-w-3xl my-8 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xl overflow-y-auto animate-in fade-in">
+          <div className="relative w-full max-w-3xl my-8 liquid-glass rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] border border-white/80 dark:border-white/10">
             
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950">
+            <div className="p-4 sm:p-5 border-b border-slate-200/80 dark:border-slate-800/80 flex items-center justify-between liquid-glass-subtle">
               <div className="flex items-center gap-2 text-xs">
-                <span className="px-2.5 py-0.5 rounded font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                <span className="px-2.5 py-1 rounded-lg font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
                   {selectedPost.tags[0] || 'Technical Paper'}
                 </span>
                 <span className="text-slate-400">·</span>
@@ -197,14 +197,14 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleShare}
-                  className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                  className="h-9 w-9 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white rounded-xl liquid-glass transition-colors"
                   title="Copy link to article"
                 >
                   <Share2 className="w-4 h-4" />
                 </button>
                 <button
                   onClick={() => setSelectedPost(null)}
-                  className="p-1.5 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                  className="h-9 w-9 flex items-center justify-center text-slate-500 hover:text-slate-900 dark:hover:text-white rounded-xl liquid-glass transition-colors"
                   aria-label="Close dialog"
                 >
                   <X className="w-5 h-5" />
@@ -216,7 +216,7 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
             <div className="p-6 sm:p-8 overflow-y-auto space-y-6">
               
               {copiedLink && (
-                <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs text-center font-medium">
+                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs text-center font-medium">
                   Link copied to clipboard!
                 </div>
               )}
@@ -227,7 +227,7 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
                   {selectedPost.title}
                 </h1>
                 
-                <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-1 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-1 pb-4 border-b border-slate-100 dark:border-slate-800/60">
                   <div>
                     <span className="text-slate-400">Published by: </span>
                     <span className="font-semibold text-slate-900 dark:text-slate-200">{selectedPost.author.name}</span>
@@ -240,7 +240,7 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
 
               {/* Featured Image if present */}
               {selectedPost.image && (
-                <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-950 aspect-[16/9]">
+                <div className="rounded-xl overflow-hidden border border-slate-200/80 dark:border-slate-800/80 bg-slate-950 aspect-[16/9]">
                   <img
                     src={selectedPost.image}
                     alt={selectedPost.title}
@@ -260,12 +260,12 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
               </div>
 
               {/* Tags */}
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-2">
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800/60 flex flex-wrap items-center gap-2">
                 <Tag className="w-3.5 h-3.5 text-slate-400" />
                 {selectedPost.tags.map((tag, i) => (
                   <span
                     key={i}
-                    className="text-xs text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded"
+                    className="text-xs text-slate-600 dark:text-slate-400 liquid-glass-subtle px-2.5 py-1 rounded-lg"
                   >
                     #{tag}
                   </span>
@@ -273,17 +273,17 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
               </div>
 
               {/* Workshop Callout Box */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="p-4 sm:p-5 rounded-2xl liquid-glass-card flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                 <div className="space-y-0.5">
                   <p className="font-semibold text-slate-900 dark:text-white">Facing similar issues on your electric bike or scooty?</p>
-                  <p className="text-slate-500">Our technicians provide computerized cell testing and hall sensor repair.</p>
+                  <p className="text-slate-500 dark:text-slate-400">Our technicians provide computerized cell testing and hall sensor repair.</p>
                 </div>
                 <button
                   onClick={() => {
                     setSelectedPost(null);
                     if (onNavigateToCalculator) onNavigateToCalculator();
                   }}
-                  className="px-3.5 py-2 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg whitespace-nowrap self-start sm:self-auto"
+                  className="h-10 px-4 rounded-xl text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 whitespace-nowrap self-start sm:self-auto transition-all shadow-md shadow-emerald-500/20"
                 >
                   Test On Range Calculator
                 </button>
@@ -292,10 +292,10 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex justify-end bg-slate-50 dark:bg-slate-950">
+            <div className="p-4 border-t border-slate-200/80 dark:border-slate-800/80 flex justify-end liquid-glass-subtle">
               <button
                 onClick={() => setSelectedPost(null)}
-                className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                className="h-10 px-5 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white liquid-glass rounded-xl transition-all"
               >
                 Close Article
               </button>

@@ -12,7 +12,10 @@ import {
   Calendar,
   MessageSquare,
   Zap,
-  ArrowRight
+  ArrowRight,
+  Navigation,
+  Compass,
+  ExternalLink
 } from 'lucide-react';
 
 interface ContactSectionProps {
@@ -37,6 +40,15 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [ticketId, setTicketId] = useState('');
+
+  // Google Maps Platform Embed Configuration
+  const mapsApiKey = (import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY;
+  const workshopAddress = 'Mughal Plaza, Mughal Chok, Service Road Main Gate Muhafiz Town Gujranwala, Pakistan';
+  const workshopQuery = encodeURIComponent(workshopAddress);
+  const googleMapEmbedUrl = mapsApiKey
+    ? `https://www.google.com/maps/embed/v1/place?key=${mapsApiKey}&q=${workshopQuery}&zoom=15`
+    : `https://maps.google.com/maps?q=${workshopQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${workshopQuery}`;
 
   const validate = () => {
     const newErrors: { [key: string]: string } = {};
@@ -140,11 +152,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start w-full min-w-0">
         
         {/* Contact Form (7 Cols) */}
-        <div id="contact-form" className="lg:col-span-7 bg-white dark:bg-slate-900 p-4 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm scroll-mt-24 w-full min-w-0 max-w-full">
+        <div id="contact-form" className="lg:col-span-7 liquid-glass-card p-6 sm:p-8 rounded-2xl shadow-xl scroll-mt-24 w-full min-w-0 max-w-full">
           
           {isSubmitted ? (
             <div className="py-8 text-center space-y-4 animate-in fade-in">
-              <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 mx-auto">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 mx-auto shadow-inner">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
               <div className="space-y-1">
@@ -163,7 +175,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <button
                   type="button"
                   onClick={() => setIsSubmitted(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                  className="h-10 px-5 text-xs font-semibold text-slate-700 dark:text-slate-200 liquid-glass rounded-xl hover:text-emerald-500 transition-all"
                 >
                   Submit Another Inquiry
                 </button>
@@ -175,7 +187,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Full Name */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                     Rider Full Name *
                   </label>
                   <input
@@ -183,9 +195,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Muhammad Usman"
-                    className={`w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border ${
-                      errors.name ? 'border-red-500' : 'border-slate-300 dark:border-slate-800'
-                    } text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500`}
+                    className={`w-full h-11 px-4 text-xs sm:text-sm rounded-xl liquid-glass border ${
+                      errors.name ? 'border-red-500' : 'border-white/80 dark:border-white/10'
+                    } text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all shadow-sm`}
                   />
                   {errors.name && (
                     <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1">
@@ -196,7 +208,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
                 {/* Phone Number */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                     Phone / WhatsApp Number *
                   </label>
                   <input
@@ -204,9 +216,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="0321 7436463"
-                    className={`w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border ${
-                      errors.phone ? 'border-red-500' : 'border-slate-300 dark:border-slate-800'
-                    } text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500`}
+                    className={`w-full h-11 px-4 text-xs sm:text-sm rounded-xl liquid-glass border ${
+                      errors.phone ? 'border-red-500' : 'border-white/80 dark:border-white/10'
+                    } text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all shadow-sm`}
                   />
                   {errors.phone && (
                     <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1">
@@ -219,7 +231,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Email Address */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                     Email Address (Optional)
                   </label>
                   <input
@@ -227,9 +239,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="your.email@example.com"
-                    className={`w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border ${
-                      errors.email ? 'border-red-500' : 'border-slate-300 dark:border-slate-800'
-                    } text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500`}
+                    className={`w-full h-11 px-4 text-xs sm:text-sm rounded-xl liquid-glass border ${
+                      errors.email ? 'border-red-500' : 'border-white/80 dark:border-white/10'
+                    } text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all shadow-sm`}
                   />
                   {errors.email && (
                     <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1">
@@ -240,7 +252,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
                 {/* Scooter / Bike Model */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                     Electric Scooter / Bike Model *
                   </label>
                   <input
@@ -248,9 +260,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                     value={vehicleModel}
                     onChange={(e) => setVehicleModel(e.target.value)}
                     placeholder="e.g. Honda CD 70 EV, Yadea T5, Metro E8S, United Revolt"
-                    className={`w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border ${
-                      errors.vehicleModel ? 'border-red-500' : 'border-slate-300 dark:border-slate-800'
-                    } text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500`}
+                    className={`w-full h-11 px-4 text-xs sm:text-sm rounded-xl liquid-glass border ${
+                      errors.vehicleModel ? 'border-red-500' : 'border-white/80 dark:border-white/10'
+                    } text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all shadow-sm`}
                   />
                   {errors.vehicleModel && (
                     <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1">
@@ -263,13 +275,13 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Service Category */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                     Service Required
                   </label>
                   <select
                     value={serviceType}
                     onChange={(e) => setServiceType(e.target.value)}
-                    className="w-full min-w-0 max-w-full truncate px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full h-11 min-w-0 max-w-full truncate px-3.5 text-xs sm:text-sm rounded-xl liquid-glass border border-white/80 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all shadow-sm"
                   >
                     <option value="Door-to-Door Home / Office Service (Main Focus)">🏠 Door-to-Door Doorstep Service (Main Focus)</option>
                     <option value="Electrification Diagnostic & Computer Scan">⚡ Electrification Diagnostic & Computer Scan</option>
@@ -283,21 +295,21 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
                 {/* Preferred Date */}
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                     Preferred Appointment Date
                   </label>
                   <input
                     type="date"
                     value={preferredDate}
                     onChange={(e) => setPreferredDate(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                    className="w-full h-11 px-4 text-xs sm:text-sm rounded-xl liquid-glass border border-white/80 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all shadow-sm"
                   />
                 </div>
               </div>
 
               {/* Message / Symptoms */}
               <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                   Describe Symptoms or Project Scope *
                 </label>
                 <textarea
@@ -305,9 +317,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   placeholder="e.g. Scooter shuts off when accelerating past 40 km/h, battery health shows 65%, or looking for a quote to convert my petrol Honda CD70/CG125 to 72V electric..."
-                  className={`w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border ${
-                    errors.message ? 'border-red-500' : 'border-slate-300 dark:border-slate-800'
-                  } text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500`}
+                  className={`w-full p-4 text-xs sm:text-sm rounded-xl liquid-glass border ${
+                    errors.message ? 'border-red-500' : 'border-white/80 dark:border-white/10'
+                  } text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 transition-all shadow-sm`}
                 />
                 {errors.message && (
                   <p className="text-[11px] text-red-500 mt-1 flex items-center gap-1">
@@ -318,7 +330,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
               <button
                 type="submit"
-                className="w-full py-3 px-5 text-sm font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl shadow-sm transition-all flex items-center justify-center gap-2"
+                className="w-full h-11 px-5 text-sm font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center gap-2"
               >
                 <Send className="w-4 h-4 text-slate-950" />
                 <span>Submit Appointment Request</span>
@@ -332,7 +344,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
         {/* Workshop Contact Details (5 Cols) */}
         <div className="lg:col-span-5 space-y-6 w-full min-w-0 max-w-full">
           
-          <div className="bg-slate-100 dark:bg-slate-900 p-4 sm:p-7 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-6 w-full min-w-0 max-w-full">
+          <div className="liquid-glass-card p-6 sm:p-7 rounded-2xl shadow-xl space-y-6 w-full min-w-0 max-w-full">
             <h3 className="text-lg font-bold text-slate-900 dark:text-white">
               Workshop Location & Hours
             </h3>
@@ -343,7 +355,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold text-slate-900 dark:text-white">Next Gen EV Care Workshop</p>
                   <p className="text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed break-words">
-                    Mughal Plaza, Mughal Chok, Service Road Main gate Muhafiz Town Gujranwala, Pakistan.
+                    Mughal Plaza, Mughal Chok, Service Road Main Gate Muhafiz Town Gujranwala, Pakistan.
                   </p>
                 </div>
               </div>
@@ -353,16 +365,16 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <div className="min-w-0 flex-1">
                   <p className="font-semibold text-slate-900 dark:text-white">Operating Hours</p>
                   <p className="text-slate-600 dark:text-slate-400 mt-0.5">
-                    Monday to Saturday: 9:00 AM – 8:00 PM
+                    Saturday to Thursday: 9:00 AM – 8:00 PM
                   </p>
-                  <p className="text-slate-500 text-xs">Sunday: Prior Appointment Only</p>
+                  <p className="text-slate-500 text-xs">Friday: Prior Appointment Only</p>
                 </div>
               </div>
 
               <div className="flex items-start gap-3">
                 <Phone className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
                 <div className="min-w-0 flex-1">
-                  <p className="font-semibold text-slate-900 dark:text-white">Direct Workshop & WhatsApp</p>
+                  <p className="font-semibold text-slate-900 dark:text-white">Direct WhatsApp</p>
                   <p className="font-mono text-emerald-600 dark:text-emerald-400 font-bold text-base mt-0.5">
                     03217436463
                   </p>
@@ -384,13 +396,57 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               </div>
             </div>
 
+            {/* Real Google Map Location Embed */}
+            <div className="pt-4 border-t border-slate-200/80 dark:border-slate-800/80 space-y-2.5">
+              <div className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-white">
+                  <Compass className="w-4 h-4 text-emerald-500" />
+                  <span>Physical Hub Location</span>
+                </div>
+                <a
+                  href={directionsUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 transition-colors"
+                >
+                  <Navigation className="w-3 h-3" />
+                  <span>Get Directions</span>
+                </a>
+              </div>
+
+              {/* Responsive Google Maps Container */}
+              <div className="relative w-full h-56 sm:h-64 rounded-xl overflow-hidden border border-white/80 dark:border-white/10 bg-slate-950 shadow-inner group">
+                <iframe
+                  title="Next Gen EV Care Physical Hub Location - Mughal Plaza Gujranwala"
+                  src={googleMapEmbedUrl}
+                  className="w-full h-full border-0"
+                  loading="lazy"
+                  allowFullScreen
+                  referrerPolicy="no-referrer-when-downgrade"
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 pt-0.5">
+                <span className="truncate pr-2">📍 Opposite Main Gate Muhafiz Town</span>
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${workshopQuery}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-medium text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-0.5 shrink-0"
+                >
+                  <span>Open Full Map</span>
+                  <ExternalLink className="w-2.5 h-2.5" />
+                </a>
+              </div>
+            </div>
+
             {/* Direct WhatsApp Chat Action */}
-            <div className="pt-4 border-t border-slate-200 dark:border-slate-800">
+            <div className="pt-4 border-t border-slate-200/80 dark:border-slate-800/80">
               <a
                 href="https://wa.me/923217436463?text=Hello%20Next%20Gen%20EV%20Care!%20I%20would%20like%20to%20inquire%20about%20electric%20scooter%20/%20bike%20service%20in%20Gujranwala."
                 target="_blank"
                 rel="noreferrer"
-                className="w-full py-2.5 px-4 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
+                className="w-full h-11 px-4 rounded-xl liquid-glass text-emerald-600 dark:text-emerald-400 font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm"
               >
                 <MessageSquare className="w-4 h-4" />
                 <span>Instant Chat on WhatsApp (03217436463)</span>
@@ -399,9 +455,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
           </div>
 
           {/* Quick Notice */}
-          <div className="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 space-y-1 w-full min-w-0 max-w-full">
+          <div className="p-5 rounded-2xl liquid-glass-subtle text-xs text-slate-600 dark:text-slate-400 space-y-1 w-full min-w-0 max-w-full">
             <p className="font-semibold text-slate-900 dark:text-slate-200">Emergency Breakdown Pickup</p>
-            <p>
+            <p className="leading-relaxed">
               Stuck with an unresponsive scooter or battery cutoff? We operate a specialized hydraulic carrier van for secure doorstep pickup and drop across the metropolitan radius.
             </p>
           </div>

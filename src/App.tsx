@@ -26,8 +26,15 @@ export default function App() {
   const [selectedProject, setSelectedProject] = useState<PortfolioItem | null>(null);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const [quotaExceeded, setQuotaExceeded] = useState(false);
 
-  // --- Dark / Light Theme Mode (Defaults to dark tech mode) ---
+  useEffect(() => {
+    const handler = () => setQuotaExceeded(true);
+    window.addEventListener('gmp-quota-exceeded', handler);
+    return () => window.removeEventListener('gmp-quota-exceeded', handler);
+  }, []);
+
+  // --- Dark / Light / System Theme Mode Manager ---
   const [theme, setTheme] = useState<ThemeMode>(() => {
     const saved = localStorage.getItem('nextgen_theme');
     return (saved as ThemeMode) || 'dark';
@@ -35,18 +42,40 @@ export default function App() {
 
   useEffect(() => {
     const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-      root.classList.remove('light');
-    } else {
-      root.classList.remove('dark');
-      root.classList.add('light');
-    }
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const applyTheme = () => {
+      const isDark = theme === 'dark' || (theme === 'system' && mediaQuery.matches);
+      if (isDark) {
+        root.classList.add('dark');
+        root.classList.remove('light');
+      } else {
+        root.classList.remove('dark');
+        root.classList.add('light');
+      }
+    };
+
+    applyTheme();
     localStorage.setItem('nextgen_theme', theme);
+
+    if (theme === 'system') {
+      const listener = () => applyTheme();
+      mediaQuery.addEventListener('change', listener);
+      return () => mediaQuery.removeEventListener('change', listener);
+    }
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  const toggleTheme = (targetTheme?: ThemeMode) => {
+    if (targetTheme) {
+      setTheme(targetTheme);
+      return;
+    }
+    // Cycle: dark -> light -> system -> dark
+    setTheme((prev) => {
+      if (prev === 'dark') return 'light';
+      if (prev === 'light') return 'system';
+      return 'dark';
+    });
   };
 
   // --- Admin Authentication State ---
@@ -133,8 +162,33 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
-      
+    <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200 relative">
+      {/* Ambient Refractive Background Orbs for Liquid Glass Depth */}
+      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden" aria-hidden="true">
+        <div className="absolute -top-32 left-1/4 w-96 h-96 bg-emerald-400/15 dark:bg-emerald-500/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/3 -right-24 w-96 h-96 bg-teal-400/15 dark:bg-teal-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-1/4 -left-20 w-96 h-96 bg-emerald-500/10 dark:bg-emerald-600/10 rounded-full blur-3xl" />
+        <div className="absolute -bottom-32 right-1/3 w-96 h-96 bg-cyan-400/15 dark:bg-cyan-500/10 rounded-full blur-3xl" />
+      </div>
+
+      {/* Google Maps Quota Warning Banner */}
+      {quotaExceeded && (
+        <div className="bg-amber-50 border-b border-amber-200 text-amber-900 px-4 py-2.5 text-xs md:text-sm text-center sticky top-0 z-50 shadow-sm">
+          <span>
+            Google Maps Platform quota reached. If you are the app owner, visit{' '}
+            <a
+              href="https://developers.google.com/maps/ai/ai-studio?utm_campaign=gmp_mcp_codeassist_v1_aistudio#quota_exceeded_errors"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline font-semibold text-amber-950 hover:text-amber-800"
+            >
+              maps developer site
+            </a>{' '}
+            for instructions to update your account.
+          </span>
+        </div>
+      )}
+
       {/* Sticky Top Header */}
       <Navbar
         activeTab={activeTab}

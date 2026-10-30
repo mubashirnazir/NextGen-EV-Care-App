@@ -54,12 +54,12 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
       type: 'headquarters',
       typeLabel: 'Central Workshop & Bench Lab',
       zone: 'Muhafiz Town / Service Road',
-      address: 'Mughal Plaza, Mughal Chok, Service Road Main gate Muhafiz Town Gujranwala',
+      address: 'Mughal Plaza, Mughal Chok, Service Road Main Gate Muhafiz Town Gujranwala',
       landmark: 'Main Gate Muhafiz Town, Opposite Service Road',
       coords: { x: 52, y: 48 },
-      timing: 'Mon–Sat: 9:00 AM – 8:00 PM (Sun Prior Appointment)',
+      timing: 'Sat-Thu: 9:00 AM – 8:00 PM (Fri Prior Appointment)',
       phone: '03217436463',
-      leadTech: 'Engr. Hamza Mughal (Powertrain Lead)',
+      leadTech: 'Engr. Mubashir Nazir (Powertrain Lead)',
       eta: 'Instant Walk-in & Diagnostics',
       status: 'Open',
       isHeadquarters: true,
@@ -82,7 +82,7 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
       coords: { x: 36, y: 64 },
       timing: 'Daily: 9:30 AM – 7:30 PM',
       phone: '03217436463',
-      leadTech: 'Zubair Akram (Field Diagnostic Specialist)',
+      leadTech: 'Engr. Mubashir Nazir (Field Diagnostic Specialist)',
       eta: '25 – 45 min doorstep arrival',
       status: 'Dispatched',
       capabilities: [
@@ -103,7 +103,7 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
       coords: { x: 44, y: 26 },
       timing: 'Daily: 10:00 AM – 7:00 PM',
       phone: '03217436463',
-      leadTech: 'Usman Tariq (High-Voltage Tech)',
+      leadTech: 'Engr. Mubashir Nazir (Electric Scooty Specialist)',
       eta: '30 – 50 min doorstep arrival',
       status: 'Active',
       capabilities: [
@@ -124,13 +124,13 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
       coords: { x: 74, y: 18 },
       timing: 'Mon–Sat: 10:00 AM – 8:00 PM',
       phone: '03217436463',
-      leadTech: 'Rashid Mehmood (Electrical Diagnostics)',
+      leadTech: 'Engr. Mubashir Nazir (Electrical Diagnostics)',
       eta: '35 – 55 min doorstep arrival',
       status: 'Active',
       capabilities: [
         'Commuter Scooty Emergency Stoppage Assistance',
         'Phase Wire Melt & Anderson Connector Replacement',
-        'Smart BMS Firmware & Bluetooth Reset',
+        'Smart BMS Testing',
         'Tire & Disc Brake Mechanical Trueing'
       ]
     },
@@ -145,7 +145,7 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
       coords: { x: 26, y: 44 },
       timing: 'Daily: 10:00 AM – 7:00 PM',
       phone: '03217436463',
-      leadTech: 'Bilal Hassan (Mobile EV Mechanic)',
+      leadTech: 'Engr. Mubashir Nazir (Mobile EV Specialist)',
       eta: '25 – 40 min doorstep arrival',
       status: 'Dispatched',
       capabilities: [
@@ -166,7 +166,7 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
       coords: { x: 60, y: 84 },
       timing: 'Mon–Sat: 10:00 AM – 7:30 PM',
       phone: '03217436463',
-      leadTech: 'Naveed Sadiq (Recovery & Towing Lead)',
+      leadTech: 'Engr. Mubashir Nazir (Mobile EV Specialist)',
       eta: '35 – 50 min arrival',
       status: 'Active',
       capabilities: [
@@ -222,13 +222,13 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
         </div>
 
         {/* Filter buttons */}
-        <div className="w-full md:w-auto max-w-full flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-x-auto min-w-0">
+        <div className="w-full md:w-auto max-w-full flex items-center gap-1.5 p-1.5 liquid-glass border border-white/80 dark:border-white/10 rounded-2xl overflow-x-auto min-w-0">
           <button
             type="button"
             onClick={() => setFilterType('all')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 ${
+            className={`h-9 px-3.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap shrink-0 ${
               filterType === 'all'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200 dark:border-slate-700'
+                ? 'bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-md font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
@@ -237,37 +237,37 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
           <button
             type="button"
             onClick={() => setFilterType('headquarters')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1 ${
+            className={`h-9 px-3.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
               filterType === 'headquarters'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200 dark:border-slate-700'
+                ? 'bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-md font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-500 dark:text-slate-950" />
             <span>Main Lab (HQ)</span>
           </button>
           <button
             type="button"
             onClick={() => setFilterType('mobile-van')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1 ${
+            className={`h-9 px-3.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
               filterType === 'mobile-van'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200 dark:border-slate-700'
+                ? 'bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-md font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <Truck className="w-3.5 h-3.5 text-blue-500" />
+            <Truck className="w-3.5 h-3.5 text-blue-500 dark:text-slate-950" />
             <span>Mobile Vans</span>
           </button>
           <button
             type="button"
             onClick={() => setFilterType('station')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1 ${
+            className={`h-9 px-3.5 text-xs font-semibold rounded-xl transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
               filterType === 'station'
-                ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs border border-slate-200 dark:border-slate-700'
+                ? 'bg-slate-900 dark:bg-emerald-500 text-white dark:text-slate-950 shadow-md font-bold'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
-            <BatteryCharging className="w-3.5 h-3.5 text-amber-500" />
+            <BatteryCharging className="w-3.5 h-3.5 text-amber-500 dark:text-slate-950" />
             <span>Stations</span>
           </button>
         </div>
@@ -277,7 +277,7 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start w-full min-w-0">
         
         {/* Left Column: Icon-Based Map Visualizer (7 Cols) */}
-        <div className="lg:col-span-7 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 sm:p-5 shadow-sm space-y-4 w-full min-w-0 max-w-full">
+        <div className="lg:col-span-7 liquid-glass-card rounded-2xl p-4 sm:p-5 shadow-xl space-y-4 w-full min-w-0 max-w-full">
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
             <div className="flex items-center gap-2 min-w-0">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping shrink-0" />
@@ -434,10 +434,10 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
                 key={loc.id}
                 type="button"
                 onClick={() => handleSelect(loc.id)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-medium whitespace-nowrap transition-colors flex items-center gap-1 shrink-0 ${
+                className={`h-8 px-3 rounded-xl text-xs font-medium whitespace-nowrap transition-colors flex items-center gap-1 shrink-0 ${
                   loc.id === selectedLocationId
-                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-semibold'
-                    : 'bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                    ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 font-bold'
+                    : 'liquid-glass-subtle text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
                 {loc.isHeadquarters && <span className="text-[9px] text-emerald-500">★</span>}
@@ -448,12 +448,12 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
         </div>
 
         {/* Right Column: Selected Location Detail Card (5 Cols) */}
-        <div className="lg:col-span-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 sm:p-6 shadow-sm space-y-5 w-full min-w-0 max-w-full">
+        <div className="lg:col-span-5 liquid-glass-card rounded-2xl p-6 sm:p-7 shadow-xl space-y-5 w-full min-w-0 max-w-full">
           
           {/* Card Header & Badge */}
-          <div className="space-y-2 border-b border-slate-100 dark:border-slate-800 pb-4">
+          <div className="space-y-2 border-b border-slate-100 dark:border-slate-800/80 pb-4">
             <div className="flex items-center justify-between gap-2">
-              <span className={`px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${
+              <span className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold uppercase tracking-wider ${
                 selectedLocation.isHeadquarters
                   ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
                   : selectedLocation.type === 'mobile-van'
@@ -481,7 +481,7 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
 
           {/* Location Specifics */}
           <div className="space-y-3 text-xs">
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1.5">
+            <div className="p-3.5 rounded-xl liquid-glass-subtle space-y-1.5">
               <span className="font-semibold text-slate-700 dark:text-slate-300 block text-[11px] uppercase tracking-wider">
                 Physical Address / Staging Landmark
               </span>
@@ -494,14 +494,14 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
             </div>
 
             <div className="grid grid-cols-2 gap-2 text-[11px]">
-              <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+              <div className="p-3 rounded-xl liquid-glass-subtle">
                 <span className="text-slate-500 block">Typical Arrival:</span>
                 <span className="font-semibold text-emerald-600 dark:text-emerald-400 font-mono">
                   {selectedLocation.eta}
                 </span>
               </div>
 
-              <div className="p-2.5 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
+              <div className="p-3 rounded-xl liquid-glass-subtle">
                 <span className="text-slate-500 block">Lead Specialist:</span>
                 <span className="font-semibold text-slate-900 dark:text-white truncate block">
                   {selectedLocation.leadTech.split('(')[0]}
@@ -521,7 +521,7 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
           </div>
 
           {/* Capabilities Checklist */}
-          <div className="space-y-2 pt-1 border-t border-slate-100 dark:border-slate-800">
+          <div className="space-y-2 pt-1 border-t border-slate-100 dark:border-slate-800/80">
             <h4 className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
               <Wrench className="w-3.5 h-3.5 text-emerald-500" />
               <span>Available Services & Diagnostic Gear:</span>
@@ -537,20 +537,32 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
           </div>
 
           {/* Call to Actions for this specific location */}
-          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
             <button
               type="button"
               onClick={() => handleBookLocation(selectedLocation)}
-              className="w-full py-2.5 px-4 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl shadow-xs transition-colors flex items-center justify-center gap-2"
+              className="w-full h-11 px-5 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl shadow-md shadow-emerald-500/20 transition-all flex items-center justify-center gap-2"
             >
               <span>Book Appointment For This Zone</span>
               <ChevronRight className="w-4 h-4" />
             </button>
 
+            {selectedLocation.isHeadquarters && (
+              <a
+                href="https://www.google.com/maps/dir/?api=1&destination=Mughal+Plaza+Mughal+Chok+Service+Road+Main+Gate+Muhafiz+Town+Gujranwala"
+                target="_blank"
+                rel="noreferrer"
+                className="w-full h-10 px-4 text-xs font-semibold text-emerald-600 dark:text-emerald-400 liquid-glass rounded-xl flex items-center justify-center gap-1.5 transition-all"
+              >
+                <Navigation className="w-3.5 h-3.5" />
+                <span>Navigate on Google Maps (Mughal Plaza Hub)</span>
+              </a>
+            )}
+
             <div className="grid grid-cols-2 gap-2">
               <a
                 href={`tel:${selectedLocation.phone}`}
-                className="py-2 px-3 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl flex items-center justify-center gap-1.5 transition-colors"
+                className="h-10 px-3 text-xs font-semibold text-slate-700 dark:text-slate-300 liquid-glass rounded-xl flex items-center justify-center gap-1.5 transition-all"
               >
                 <Phone className="w-3.5 h-3.5 text-emerald-500" />
                 <span>Call Center</span>
@@ -560,7 +572,7 @@ export const ServiceCenterMap: React.FC<ServiceCenterMapProps> = ({
                 href={`https://wa.me/923217436463?text=Hello%20Next%20Gen%20EV%20Care!%20I%20am%20inquirying%20about%20service%20near%20${encodeURIComponent(selectedLocation.name)}.`}
                 target="_blank"
                 rel="noreferrer"
-                className="py-2 px-3 text-xs font-semibold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl flex items-center justify-center gap-1.5 transition-colors"
+                className="h-10 px-3 text-xs font-semibold text-slate-700 dark:text-slate-300 liquid-glass rounded-xl flex items-center justify-center gap-1.5 transition-all"
               >
                 <MessageSquare className="w-3.5 h-3.5 text-emerald-500" />
                 <span>WhatsApp</span>

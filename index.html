@@ -3,21 +3,108 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" href="/logo.png" />
-    <title>Next Gen EV Care | Electric Bike & Scooter Maintenance, Conversions & Diagnostics</title>
-    <meta name="description" content="Professional electric bike and scooty care, custom conversions, battery diagnostics, and interactive EV calculators." />
-    <meta property="og:title" content="Next Gen EV Care | Electric Bike & Scooter Specialists" />
-    <meta property="og:description" content="Professional electric bike and scooty care, custom conversions, battery diagnostics, and interactive EV calculators." />
+    <link rel="icon" type="image/png" href="/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png" />
+    <link rel="apple-touch-icon" href="/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png" />
+    <title>Next Gen EV Care | Door-to-Door Electric Scooty & Bike Repair in Gujranwala</title>
+    <meta name="description" content="Next Gen EV Care provides door-to-door electric scooty and bike repair in Gujranwala. Expert hall sensor diagnosis, controller repair with zero motor rewinding, and computerized diagnostics." />
+    
+    <!-- OpenGraph Social Cards -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Next Gen EV Care" />
+    <meta property="og:title" content="Next Gen EV Care | Door-to-Door Electric Scooty & Bike Repair in Gujranwala" />
+    <meta property="og:description" content="Next Gen EV Care provides door-to-door electric scooty and bike repair in Gujranwala. Expert hall sensor diagnosis, controller repair with zero motor rewinding, and computerized diagnostics." />
+    <meta property="og:image" content="/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png" />
+    
+    <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Next Gen EV Care | Door-to-Door Electric Scooty & Bike Repair in Gujranwala" />
+    <meta name="twitter:description" content="Next Gen EV Care provides door-to-door electric scooty and bike repair in Gujranwala. Expert hall sensor diagnosis, controller repair with zero motor rewinding, and computerized diagnostics." />
+    <meta name="twitter:image" content="/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png" />
+    
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- LocalBusiness Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "AutoRepair",
+      "name": "Next Gen EV Care",
+      "description": "Door-to-door electric scooty and bike repair service in Gujranwala. Specializing in hall sensor diagnosis, BLDC hub motor component repairs with no rewinding, controller micro-soldering, and computerized battery health audits.",
+      "image": "/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png",
+      "logo": "/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png",
+      "telephone": "+923217436463",
+      "email": "nextgenevcare@gmail.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Mughal Plaza, Mughal Chok, Service Road Main Gate Muhafiz Town",
+        "addressLocality": "Gujranwala",
+        "addressRegion": "Punjab",
+        "postalCode": "52250",
+        "addressCountry": "PK"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 32.1969,
+        "longitude": 74.1895
+      },
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
+          "opens": "09:00",
+          "closes": "20:00"
+        }
+      ],
+      "areaServed": [
+        "Gujranwala",
+        "Muhafiz Town",
+        "Model Town",
+        "Cantt Gujranwala",
+        "DC Colony",
+        "Rahwali",
+        "Wapda Town Gujranwala"
+      ],
+      "priceRange": "PKR",
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Electric Scooty & Bike Repair Services",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "Door-to-Door Electric Scooty Repair in Gujranwala"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "No-Winding BLDC Motor & Hall Sensor Repair"
+            }
+          },
+          {
+            "@type": "Offer",
+            "itemOffered": {
+              "@type": "Service",
+              "name": "EV Controller MOSFET & Electronics Diagnostic"
+            }
+          }
+        ]
+      }
+    }
+    </script>
+
     <script>
       (function() {
         try {
           const savedTheme = localStorage.getItem('nextgen_theme') || 'dark';
-          if (savedTheme === 'dark') {
+          const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const isDark = savedTheme === 'dark' || (savedTheme === 'system' && systemDark);
+          if (isDark) {
             document.documentElement.classList.add('dark');
             document.documentElement.classList.remove('light');
           } else {

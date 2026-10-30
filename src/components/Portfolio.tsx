@@ -91,7 +91,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({
           </p>
         </div>
 
-        {/* Search Bar */}
+        {/* Search Bar in Liquid Glass */}
         <div className="relative w-full md:w-72">
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -99,7 +99,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({
             placeholder="Search model, motor, controller..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 shadow-sm"
+            className="w-full h-11 pl-9 pr-8 text-xs sm:text-sm rounded-xl liquid-glass text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 shadow-xs"
           />
           {searchQuery && (
             <button
@@ -112,14 +112,14 @@ export const Portfolio: React.FC<PortfolioProps> = ({
         </div>
       </div>
 
-      {/* Filter Category Tabs (Functional Segmented Buttons) */}
-      <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl max-w-4xl mb-8 overflow-x-auto">
+      {/* Filter Category Tabs (Functional Segmented Buttons in Liquid Glass) */}
+      <div className="flex items-center gap-1.5 p-1.5 liquid-glass rounded-xl max-w-4xl mb-8 overflow-x-auto">
         <button
           onClick={() => setSelectedCategory('all')}
-          className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 ${
+          className={`h-9 px-3.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 cursor-pointer ${
             selectedCategory === 'all'
-              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-white/80 dark:border-white/10'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
           }`}
         >
           All Logs ({projects.length})
@@ -127,10 +127,10 @@ export const Portfolio: React.FC<PortfolioProps> = ({
 
         <button
           onClick={() => setSelectedCategory('doorstep')}
-          className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+          className={`h-9 px-3.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
             selectedCategory === 'doorstep'
-              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-white/80 dark:border-white/10'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
           }`}
         >
           <Truck className="w-3.5 h-3.5 text-emerald-500" />
@@ -139,10 +139,10 @@ export const Portfolio: React.FC<PortfolioProps> = ({
 
         <button
           onClick={() => setSelectedCategory('motor-controller')}
-          className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+          className={`h-9 px-3.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
             selectedCategory === 'motor-controller'
-              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-white/80 dark:border-white/10'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
           }`}
         >
           <Wrench className="w-3.5 h-3.5 text-emerald-500" />
@@ -151,10 +151,10 @@ export const Portfolio: React.FC<PortfolioProps> = ({
 
         <button
           onClick={() => setSelectedCategory('diagnostics')}
-          className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+          className={`h-9 px-3.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
             selectedCategory === 'diagnostics'
-              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-white/80 dark:border-white/10'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
           }`}
         >
           <Sliders className="w-3.5 h-3.5 text-emerald-500" />
@@ -163,10 +163,10 @@ export const Portfolio: React.FC<PortfolioProps> = ({
 
         <button
           onClick={() => setSelectedCategory('maintenance')}
-          className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+          className={`h-9 px-3.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
             selectedCategory === 'maintenance'
-              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-white/80 dark:border-white/10'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
           }`}
         >
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
@@ -175,10 +175,10 @@ export const Portfolio: React.FC<PortfolioProps> = ({
 
         <button
           onClick={() => setSelectedCategory('conversions')}
-          className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 ${
+          className={`h-9 px-3.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5 cursor-pointer ${
             selectedCategory === 'conversions'
-              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-white/80 dark:border-white/10'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/40'
           }`}
         >
           <Clock className="w-3.5 h-3.5 text-amber-500" />
@@ -188,7 +188,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({
 
       {/* Grid of Projects */}
       {filteredProjects.length === 0 ? (
-        <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+        <div className="text-center py-16 liquid-glass rounded-2xl">
           <p className="text-sm font-semibold text-slate-900 dark:text-white">No service logs found</p>
           <p className="text-xs text-slate-500 mt-1">Try searching for a different keyword or reset category filter.</p>
           <button
@@ -203,7 +203,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({
           {filteredProjects.map((project) => (
             <div
               key={project.id}
-              className="group rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden hover:border-emerald-500/40 hover:shadow-xl transition-all flex flex-col justify-between"
+              className="group rounded-2xl liquid-glass-card overflow-hidden flex flex-col justify-between h-full"
             >
               {/* Media Container with Fallback Support */}
               <div 
@@ -311,8 +311,8 @@ export const Portfolio: React.FC<PortfolioProps> = ({
 
       {/* ===================== PROJECT DETAILS MODAL ===================== */}
       {selectedProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md animate-in fade-in">
+          <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto liquid-glass border border-white/80 dark:border-white/10 rounded-2xl shadow-2xl">
             
             {/* Modal Header Media */}
             <div className="relative aspect-[16/9] w-full bg-slate-950">
@@ -324,21 +324,21 @@ export const Portfolio: React.FC<PortfolioProps> = ({
               />
               <button
                 onClick={() => setSelectedProject(null)}
-                className="absolute top-4 right-4 p-2 rounded-full bg-slate-950/80 text-white hover:bg-slate-950 transition-colors"
+                className="absolute top-4 right-4 p-2 rounded-full bg-slate-950/80 text-white hover:bg-slate-950 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
 
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                <span className="bg-slate-950/90 text-emerald-400 border border-slate-700 px-3 py-1 rounded text-xs font-semibold">
+                <span className="bg-slate-950/90 text-emerald-400 border border-white/10 px-3 py-1 rounded-lg text-xs font-semibold backdrop-blur-md">
                   {getCategoryLabel(selectedProject.category)}
                 </span>
                 {selectedProject.isComingSoon ? (
-                  <span className="bg-amber-500 text-slate-950 px-3 py-1 rounded text-xs font-bold uppercase tracking-wider">
+                  <span className="bg-amber-500 text-slate-950 px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wider">
                     Coming Soon · Pilot R&D
                   </span>
                 ) : (
-                  <span className="bg-emerald-500/90 text-slate-950 px-3 py-1 rounded text-xs font-bold">
+                  <span className="bg-emerald-500/90 text-slate-950 px-3 py-1 rounded-lg text-xs font-bold">
                     {selectedProject.status}
                   </span>
                 )}
@@ -358,8 +358,8 @@ export const Portfolio: React.FC<PortfolioProps> = ({
               </div>
 
               {selectedProject.isComingSoon && (
-                <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs text-amber-200 space-y-1">
-                  <div className="flex items-center gap-2 font-bold text-amber-400">
+                <div className="p-4 rounded-xl liquid-glass-subtle text-xs text-amber-600 dark:text-amber-300 space-y-1">
+                  <div className="flex items-center gap-2 font-bold text-amber-500 dark:text-amber-400">
                     <Clock className="w-4 h-4" />
                     <span>Upcoming Project Status: Coming Soon</span>
                   </div>
@@ -374,7 +374,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({
               </p>
 
               {/* Comprehensive Technical Matrix */}
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3">
+              <div className="p-4 rounded-xl liquid-glass-subtle space-y-3">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                   Engineering Specifications
                 </h4>
@@ -435,7 +435,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({
 
               {/* Client Feedback Quote */}
               {selectedProject.clientFeedback && (
-                <div className="p-4 rounded-xl bg-emerald-500/5 border border-emerald-500/20 text-xs space-y-1">
+                <div className="p-4 rounded-xl liquid-glass-subtle text-xs space-y-1">
                   <p className="font-semibold text-emerald-700 dark:text-emerald-400">Client Verification & Test Ride</p>
                   <p className="italic text-slate-600 dark:text-slate-300 leading-relaxed">
                     {selectedProject.clientFeedback}
@@ -446,14 +446,14 @@ export const Portfolio: React.FC<PortfolioProps> = ({
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-950">
+            <div className="p-4 border-t border-slate-200/60 dark:border-white/10 flex items-center justify-between liquid-glass-subtle">
               <span className="text-xs text-slate-500">
                 Log Date: {selectedProject.completedDate}
               </span>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setSelectedProject(null)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors"
+                  className="h-10 px-4 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/60 rounded-xl transition-colors cursor-pointer"
                 >
                   Close
                 </button>
@@ -464,7 +464,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({
                       setSelectedProject(null);
                       onBookServiceForProject(proj);
                     }}
-                    className="px-4 py-2 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg transition-colors flex items-center gap-1.5"
+                    className="h-10 px-4 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl transition-all shadow-md shadow-emerald-500/20 active:scale-[0.98] flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                   >
                     <span>{selectedProject.isComingSoon ? 'Join Waitlist' : 'Book Doorstep Service'}</span>
                     <ArrowRight className="w-3.5 h-3.5" />

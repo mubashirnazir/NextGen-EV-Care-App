@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ActiveTab, ThemeMode } from '../types';
 import { 
   Zap, 
   Sun, 
   Moon, 
+  Monitor,
   Menu, 
   X, 
   ShieldCheck, 
@@ -20,6 +21,8 @@ import {
   Info,
   MapPin,
   ChevronRight,
+  ChevronDown,
+  Check,
   MessageSquare,
   HelpCircle
 } from 'lucide-react';
@@ -28,7 +31,7 @@ interface NavbarProps {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
   theme: ThemeMode;
-  toggleTheme: () => void;
+  toggleTheme: (mode?: ThemeMode) => void;
   isAdminAuthenticated: boolean;
 }
 
@@ -40,6 +43,35 @@ export const Navbar: React.FC<NavbarProps> = ({
   isAdminAuthenticated
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
+  const [mobileThemeDropdownOpen, setMobileThemeDropdownOpen] = useState(false);
+  const themeDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close desktop dropdown on outside click or Escape key
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (themeDropdownRef.current && !themeDropdownRef.current.contains(event.target as Node)) {
+        setThemeDropdownOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setThemeDropdownOpen(false);
+        setMobileThemeDropdownOpen(false);
+      }
+    };
+
+    if (themeDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [themeDropdownOpen]);
 
   // Prevent background scrolling when mobile drawer is open
   useEffect(() => {
@@ -103,21 +135,24 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Main Sticky Header */}
-      <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-white/95 dark:bg-slate-950/95 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
+      {/* Main Sticky Header with Frosted Glassmorphism */}
+      <header className="sticky top-0 z-40 w-full backdrop-blur-xl saturate-180 bg-white/75 dark:bg-slate-950/75 border-b border-white/80 dark:border-white/10 shadow-xs transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4">
           
           {/* Brand Logo & Title */}
           <button
             onClick={() => handleNavClick('home')}
-            className="flex items-center gap-2.5 sm:gap-3 text-left group shrink-0 focus:outline-none min-w-0"
+            className="flex items-center gap-2.5 sm:gap-3 text-left group shrink-0 focus:outline-none min-w-0 cursor-pointer"
             aria-label="Next Gen EV Care Home"
           >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-800 flex items-center justify-center shadow-xs group-hover:border-emerald-500/50 group-hover:shadow-emerald-500/10 transition-all shrink-0">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl liquid-glass p-1 flex items-center justify-center shadow-xs group-hover:border-emerald-500/50 group-hover:shadow-emerald-500/10 transition-all shrink-0 overflow-hidden">
               <img
-                src="/logo.png"
+                src="/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png"
                 alt="Next Gen EV Care Logo"
                 className="w-full h-full object-contain"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                }}
               />
             </div>
             <div className="truncate">
@@ -138,7 +173,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <button
                   key={item.id}
                   onClick={() => handleNavClick(item.id)}
-                  className={`relative py-1 transition-colors whitespace-nowrap shrink-0 border-b-2 ${
+                  className={`relative py-1 transition-colors whitespace-nowrap shrink-0 border-b-2 cursor-pointer ${
                     isActive
                       ? 'text-emerald-600 dark:text-emerald-400 border-emerald-500 font-semibold'
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white border-transparent'
@@ -159,13 +194,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             
             {/* Desktop Social Channels */}
-            <div className="hidden xl:flex items-center gap-1 text-slate-400 dark:text-slate-500 border-r border-slate-200 dark:border-slate-800 pr-2">
+            <div className="hidden xl:flex items-center gap-1 text-slate-400 dark:text-slate-500 border-r border-slate-200/60 dark:border-white/10 pr-2">
               <a
                 href="https://youtube.com"
                 target="_blank"
                 rel="noreferrer"
                 aria-label="YouTube Channel"
-                className="p-1.5 rounded-lg hover:text-red-500 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
+                className="p-1.5 rounded-lg hover:text-red-500 hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
               >
                 <Youtube className="w-4 h-4" />
               </a>
@@ -174,7 +209,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Facebook Page"
-                className="p-1.5 rounded-lg hover:text-blue-500 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
+                className="p-1.5 rounded-lg hover:text-blue-500 hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
               >
                 <Facebook className="w-4 h-4" />
               </a>
@@ -183,34 +218,117 @@ export const Navbar: React.FC<NavbarProps> = ({
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Instagram Profile"
-                className="p-1.5 rounded-lg hover:text-pink-500 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors"
+                className="p-1.5 rounded-lg hover:text-pink-500 hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
               >
                 <Instagram className="w-4 h-4" />
               </a>
             </div>
 
-            {/* Dark / Light Mode Toggle */}
-            <button
-              onClick={toggleTheme}
-              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-              className="relative p-2 text-slate-700 dark:text-slate-200 hover:text-slate-950 dark:hover:text-white rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-all shrink-0 flex items-center justify-center shadow-xs"
-              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode (Currently ${theme})`}
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-slate-700" />
-              )}
-            </button>
+            {/* Theme Switcher Dropdown Functionality (Liquid Glass & Uniform h-10) */}
+            <div className="relative" ref={themeDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setThemeDropdownOpen((prev) => !prev)}
+                aria-haspopup="true"
+                aria-expanded={themeDropdownOpen}
+                aria-label="Color theme selector"
+                className="h-10 px-2.5 sm:px-3 rounded-xl liquid-glass text-slate-800 dark:text-slate-100 text-xs font-semibold flex items-center gap-1.5 transition-all shadow-xs cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
+                title={`Theme: ${theme === 'system' ? 'System Default' : theme === 'dark' ? 'Dark Mode' : 'Light Mode'}. Click to change.`}
+              >
+                {theme === 'light' ? (
+                  <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                ) : theme === 'dark' ? (
+                  <Moon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                ) : (
+                  <Monitor className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                )}
+                <span className="hidden sm:inline capitalize font-medium text-xs">
+                  {theme === 'system' ? 'System' : theme}
+                </span>
+                <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform duration-200 ${themeDropdownOpen ? 'rotate-180 text-emerald-500' : ''}`} />
+              </button>
 
-            {/* Desktop Admin Portal Shortcut */}
+              {/* Floating Dropdown Menu (Tactile Frosted Glass) */}
+              {themeDropdownOpen && (
+                <div 
+                  role="menu"
+                  className="absolute right-0 top-full mt-2 w-36 sm:w-40 z-50 rounded-xl liquid-glass shadow-2xl p-1.5 space-y-0.5 animate-in fade-in zoom-in-95 duration-150"
+                >
+                  <div className="px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    Theme
+                  </div>
+
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      toggleTheme('light');
+                      setThemeDropdownOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                      theme === 'light'
+                        ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sun className="w-3.5 h-3.5 text-amber-500" />
+                      <span>Light</span>
+                    </div>
+                    {theme === 'light' && <Check className="w-3.5 h-3.5 text-emerald-500" />}
+                  </button>
+
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      toggleTheme('dark');
+                      setThemeDropdownOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                      theme === 'dark'
+                        ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Moon className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Dark</span>
+                    </div>
+                    {theme === 'dark' && <Check className="w-3.5 h-3.5 text-emerald-500" />}
+                  </button>
+
+                  <button
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      toggleTheme('system');
+                      setThemeDropdownOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                      theme === 'system'
+                        ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-semibold'
+                        : 'text-slate-700 dark:text-slate-300 hover:bg-white/60 dark:hover:bg-slate-800/60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Monitor className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+                      <span>System</span>
+                    </div>
+                    {theme === 'system' && <Check className="w-3.5 h-3.5 text-emerald-500" />}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Admin Portal Shortcut (Uniform h-10) */}
             <button
               onClick={() => handleNavClick('admin')}
               aria-label="Admin Dashboard"
-              className={`hidden md:flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-lg transition-colors border ${
+              className={`hidden md:flex items-center gap-1.5 h-10 px-3 text-xs font-medium rounded-xl transition-all cursor-pointer ${
                 activeTab === 'admin'
-                  ? 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border-emerald-500/40'
-                  : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white border-transparent hover:border-slate-300 dark:hover:border-slate-800'
+                  ? 'liquid-glass text-emerald-600 dark:text-emerald-400 border-emerald-500/40 font-semibold'
+                  : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-white/50 dark:hover:bg-slate-800/50'
               }`}
               title="Owner Admin Dashboard"
             >
@@ -218,20 +336,20 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="hidden xl:inline">{isAdminAuthenticated ? 'Admin Active' : 'Admin'}</span>
             </button>
 
-            {/* Book Doorstep CTA (Full text on sm+, icon/compact on xs) */}
+            {/* Book Doorstep CTA (Uniform h-10) */}
             <button
               onClick={() => handleNavClick('contact')}
-              className="px-2.5 py-1.5 sm:px-3.5 sm:py-2 text-xs font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg shadow-sm transition-all whitespace-nowrap shrink-0 flex items-center gap-1.5"
+              className="h-10 px-3 sm:px-4 text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl shadow-md shadow-emerald-500/20 active:scale-[0.98] transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <Truck className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Book Doorstep</span>
               <span className="sm:hidden">Book</span>
             </button>
 
-            {/* Mobile Hamburger Button with accessible 44px touch target */}
+            {/* Mobile Hamburger Button with Accessible Touch Target & Uniform h-10 */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 sm:p-2.5 text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-900 focus:outline-none transition-colors"
+              className="lg:hidden h-10 w-10 flex items-center justify-center rounded-xl liquid-glass text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white focus:outline-none transition-colors cursor-pointer"
               aria-label={mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
               aria-expanded={mobileMenuOpen}
             >
@@ -247,18 +365,25 @@ export const Navbar: React.FC<NavbarProps> = ({
           
           {/* Dark Backdrop Overlay */}
           <div 
-            className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm -z-10"
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-md -z-10"
             onClick={() => setMobileMenuOpen(false)}
             aria-hidden="true"
           />
 
-          {/* Drawer Menu Container */}
-          <div className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-2xl max-h-[calc(100vh-95px)] overflow-y-auto p-4 space-y-4">
+          {/* Drawer Menu Container (Liquid Glass) */}
+          <div className="w-full liquid-glass border-b border-white/80 dark:border-white/10 shadow-2xl max-h-[calc(100vh-95px)] overflow-y-auto p-4 space-y-4">
             
             {/* Mobile Drawer Brand Header */}
             <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100 dark:border-slate-800/80">
-              <div className="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 p-1 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0">
-                <img src="/logo.png" alt="Next Gen EV Care" className="w-full h-full object-contain" />
+              <div className="w-9 h-9 rounded-lg bg-white dark:bg-slate-800 p-1 border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 overflow-hidden">
+                <img 
+                  src="/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png" 
+                  alt="Next Gen EV Care" 
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                  }}
+                />
               </div>
               <div>
                 <span className="text-sm font-bold text-slate-900 dark:text-white">Next Gen <span className="text-emerald-500">EV Care</span></span>
@@ -347,44 +472,98 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
             </div>
 
-            {/* Display Theme Selector (Mobile Friendly) */}
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 space-y-2">
+            {/* Display Theme Selector (Mobile Friendly Dropdown Functionality) */}
+            <div className="p-3.5 rounded-xl liquid-glass-subtle space-y-2.5">
               <div className="flex items-center justify-between text-xs">
                 <span className="font-semibold text-slate-700 dark:text-slate-300">Display Theme</span>
                 <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono capitalize">
-                  {theme} Mode Active
+                  {theme === 'system' ? 'System Sync' : `${theme} Mode`}
                 </span>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+
+              {/* Interactive Mobile Dropdown Trigger */}
+              <div className="relative">
                 <button
                   type="button"
-                  onClick={() => {
-                    if (theme !== 'light') toggleTheme();
-                  }}
-                  className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
-                    theme === 'light'
-                      ? 'bg-white text-slate-900 border border-slate-300 shadow-sm'
-                      : 'bg-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 border border-transparent'
-                  }`}
+                  onClick={() => setMobileThemeDropdownOpen((prev) => !prev)}
+                  aria-expanded={mobileThemeDropdownOpen}
+                  aria-haspopup="true"
+                  className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl liquid-glass text-xs font-semibold text-slate-900 dark:text-white shadow-2xs transition-colors cursor-pointer"
                 >
-                  <Sun className={`w-3.5 h-3.5 ${theme === 'light' ? 'text-amber-500' : 'text-slate-400'}`} />
-                  <span>Light Mode</span>
+                  <div className="flex items-center gap-2">
+                    {theme === 'light' ? (
+                      <Sun className="w-4 h-4 text-amber-500" />
+                    ) : theme === 'dark' ? (
+                      <Moon className="w-4 h-4 text-emerald-400" />
+                    ) : (
+                      <Monitor className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    )}
+                    <span>{theme === 'light' ? 'Light Mode' : theme === 'dark' ? 'Dark Mode' : 'System Default Sync'}</span>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${mobileThemeDropdownOpen ? 'rotate-180 text-emerald-500' : ''}`} />
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (theme !== 'dark') toggleTheme();
-                  }}
-                  className={`py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
-                    theme === 'dark'
-                      ? 'bg-slate-900 text-white border border-slate-700 shadow-sm'
-                      : 'bg-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 border border-transparent'
-                  }`}
-                >
-                  <Moon className={`w-3.5 h-3.5 ${theme === 'dark' ? 'text-emerald-400' : 'text-slate-400'}`} />
-                  <span>Dark Mode</span>
-                </button>
+                {/* Mobile Dropdown Menu Options */}
+                {mobileThemeDropdownOpen && (
+                  <div className="mt-1.5 p-1 rounded-xl bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700 shadow-lg space-y-0.5 animate-in fade-in duration-150">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        toggleTheme('light');
+                        setMobileThemeDropdownOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                        theme === 'light'
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold'
+                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Sun className="w-4 h-4 text-amber-500" />
+                        <span>Light Mode</span>
+                      </div>
+                      {theme === 'light' && <Check className="w-4 h-4 text-emerald-500" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        toggleTheme('dark');
+                        setMobileThemeDropdownOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                        theme === 'dark'
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold'
+                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Moon className="w-4 h-4 text-emerald-400" />
+                        <span>Dark Mode</span>
+                      </div>
+                      {theme === 'dark' && <Check className="w-4 h-4 text-emerald-500" />}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        toggleTheme('system');
+                        setMobileThemeDropdownOpen(false);
+                      }}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                        theme === 'system'
+                          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold'
+                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <Monitor className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                        <span>System Default Sync</span>
+                      </div>
+                      {theme === 'system' && <Check className="w-4 h-4 text-emerald-500" />}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 

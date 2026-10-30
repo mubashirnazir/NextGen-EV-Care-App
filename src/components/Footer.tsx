@@ -11,14 +11,15 @@ import {
   ShieldCheck,
   ArrowUp,
   Sun,
-  Moon
+  Moon,
+  Monitor
 } from 'lucide-react';
 
 interface FooterProps {
   setActiveTab: (tab: ActiveTab) => void;
   openPrivacy: () => void;
   theme?: ThemeMode;
-  toggleTheme?: () => void;
+  toggleTheme?: (mode?: ThemeMode) => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({ 
@@ -40,11 +41,14 @@ export const Footer: React.FC<FooterProps> = ({
           {/* Brand Col */}
           <div className="md:col-span-1 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-white dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-800 flex items-center justify-center shadow-xs shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 p-1 border border-slate-200 dark:border-slate-800 flex items-center justify-center shadow-xs shrink-0 overflow-hidden">
                 <img
-                  src="/logo.png"
+                  src="/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png"
                   alt="Next Gen EV Care Logo"
                   className="w-full h-full object-contain"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = '/logo.png';
+                  }}
                 />
               </div>
               <span className="text-base font-bold text-slate-900 dark:text-white tracking-tight">
@@ -201,22 +205,26 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
 
           <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-            {/* Theme Mode Toggle in Footer */}
             {toggleTheme && (
               <button
-                onClick={toggleTheme}
+                onClick={() => toggleTheme()}
                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800 transition-colors"
-                title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+                title={`Current: ${theme}. Click to switch theme.`}
               >
                 {theme === 'dark' ? (
                   <>
                     <Sun className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Light Mode</span>
+                    <span>Dark (Switch Light)</span>
+                  </>
+                ) : theme === 'light' ? (
+                  <>
+                    <Monitor className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>Light (Switch System)</span>
                   </>
                 ) : (
                   <>
-                    <Moon className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
-                    <span>Dark Mode</span>
+                    <Moon className="w-3.5 h-3.5 text-slate-500" />
+                    <span>System (Switch Dark)</span>
                   </>
                 )}
               </button>

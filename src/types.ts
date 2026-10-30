@@ -58,4 +58,4 @@ export interface CustomerInquiry {
 
 export type ActiveTab = 'home' | 'calculator' | 'portfolio' | 'blog' | 'about' | 'faq' | 'contact' | 'admin' | 'privacy';
 
-export type ThemeMode = 'dark' | 'light';
+export type ThemeMode = 'dark' | 'light' | 'system';
