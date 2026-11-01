@@ -1,9 +1,37 @@
-export type ServiceCategory = 'doorstep' | 'diagnostics' | 'motor-controller' | 'maintenance' | 'battery' | 'conversions';
+export type ServiceCategory = 'doorstep' | 'diagnostics' | 'motor-controller' | 'maintenance' | 'battery' | 'conversions' | string;
+
+export interface SubcategoryItem {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+export interface CategoryDefinition {
+  id: string;
+  name: string;
+  description?: string;
+  iconName?: string;
+  subcategories: SubcategoryItem[];
+}
+
+export interface MediaAsset {
+  id: string;
+  name: string;
+  url: string;
+  sizeFormatted?: string;
+  sizeBytes?: number;
+  type?: string;
+  source: 'preset' | 'upload' | 'url';
+  width?: number;
+  height?: number;
+  uploadedAt: string;
+}
 
 export interface PortfolioItem {
   id: string;
   title: string;
   category: ServiceCategory;
+  subcategory?: string;
   vehicleModel: string;
   description: string;
   technicalSpecs: {
@@ -20,6 +48,7 @@ export interface PortfolioItem {
     value: string;
   };
   image: string;
+  images?: string[];
   completedDate: string;
   clientFeedback?: string;
   highlights: string[];
@@ -29,7 +58,8 @@ export interface BlogPost {
   id: string;
   title: string;
   slug: string;
-  category: 'battery-tech' | 'diagnostics' | 'maintenance' | 'retrofitting';
+  category: 'battery-tech' | 'diagnostics' | 'maintenance' | 'retrofitting' | string;
+  subcategory?: string;
   excerpt: string;
   content: string[];
   readTime: string;
@@ -40,6 +70,7 @@ export interface BlogPost {
   };
   tags: string[];
   image?: string;
+  images?: string[];
   featured?: boolean;
 }
 
@@ -50,6 +81,9 @@ export interface CustomerInquiry {
   email: string;
   vehicleModel: string;
   serviceType: string;
+  subcategory?: string;
+  image?: string;
+  images?: string[];
   message: string;
   preferredDate: string;
   submittedAt: string;

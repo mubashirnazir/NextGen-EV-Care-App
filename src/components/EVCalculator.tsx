@@ -193,7 +193,7 @@ export const EVCalculator: React.FC = () => {
         isLive: !data.isFallback,
       });
     } catch (err: any) {
-      console.error('Failed to fetch live Pakistan energy rates:', err);
+      console.warn('Failed to fetch live Pakistan energy rates, using baseline:', err?.message || err);
       setAiPriceError('Could not refresh live rates. Using current verified baseline.');
     } finally {
       setIsAiPriceLoading(false);
@@ -743,10 +743,10 @@ export const EVCalculator: React.FC = () => {
                       key={preset.name}
                       type="button"
                       onClick={() => handleSelectPreset(preset)}
-                      className={`p-3 text-xs font-medium rounded-xl border transition-all text-left group cursor-pointer ${
+                      className={`p-3.5 text-xs font-medium rounded-xl border transition-all text-left group cursor-pointer ${
                         isPresetActive
                           ? 'border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/15 ring-2 ring-emerald-500/30 text-slate-900 dark:text-white shadow-sm'
-                          : 'border-slate-200 dark:border-slate-800 hover:border-emerald-500 bg-slate-50 dark:bg-slate-950/60 text-slate-700 dark:text-slate-300'
+                          : 'liquid-glass-subtle border-white/80 dark:border-white/10 hover:border-emerald-500 text-slate-700 dark:text-slate-300'
                       }`}
                     >
                       <div className="flex items-center justify-between">
@@ -759,7 +759,7 @@ export const EVCalculator: React.FC = () => {
                             <span>Active</span>
                           </span>
                         ) : (
-                          <span className="text-[10px] px-2 py-0.5 bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 rounded-full font-mono">
+                          <span className="text-[10px] px-2 py-0.5 bg-slate-200/80 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 rounded-full font-mono">
                             {preset.badge}
                           </span>
                         )}
@@ -796,7 +796,7 @@ export const EVCalculator: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
                     System Voltage (Volts)
                   </label>
                   <select
@@ -807,7 +807,7 @@ export const EVCalculator: React.FC = () => {
                       setVoltage(v);
                       handleChargeVoltageChange(v);
                     }}
-                    className="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 font-mono"
+                    className="w-full h-11 px-3 text-sm rounded-xl liquid-glass border border-white/80 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-mono shadow-sm"
                   >
                     <option value={36}>36V (Electric Bicycle / Light Assist)</option>
                     <option value={48}>48V (Small Commuter Scooty)</option>
@@ -909,7 +909,7 @@ export const EVCalculator: React.FC = () => {
 
             {/* Advanced Settings (Terrain, Motor Watts, Battery SOH) */}
             {isAdvancedMode && (
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4 bg-slate-50 dark:bg-slate-950/40 p-4 rounded-xl">
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 space-y-4 liquid-glass-subtle p-5 rounded-2xl border border-white/80 dark:border-white/10">
                 <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
                   Advanced Technical Adjustments
                 </span>
@@ -927,7 +927,7 @@ export const EVCalculator: React.FC = () => {
                       max={5000}
                       value={motorWatts}
                       onChange={(e) => setMotorWatts(Number(e.target.value))}
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 font-mono text-slate-900 dark:text-white"
+                      className="w-full h-10 px-3 text-xs rounded-xl liquid-glass border border-white/80 dark:border-white/10 font-mono text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                     />
                   </div>
 
@@ -939,7 +939,7 @@ export const EVCalculator: React.FC = () => {
                     <select
                       value={terrain}
                       onChange={(e) => setTerrain(e.target.value as any)}
-                      className="w-full px-3 py-2 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white"
+                      className="w-full h-10 px-3 text-xs rounded-xl liquid-glass border border-white/80 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30"
                     >
                       <option value="flat">Flat City Asphalt</option>
                       <option value="moderate">Gentle Incline / Flyovers</option>
@@ -1287,10 +1287,10 @@ export const EVCalculator: React.FC = () => {
                       key={preset.amps}
                       type="button"
                       onClick={() => applyChargerSpeed(preset.amps)}
-                      className={`relative p-3 rounded-xl border-2 transition-all text-left group cursor-pointer flex flex-col justify-between ${
+                      className={`relative p-3.5 rounded-xl border transition-all text-left group cursor-pointer flex flex-col justify-between ${
                         isActive
                           ? 'border-emerald-500 bg-emerald-500/10 dark:bg-emerald-500/15 ring-2 ring-emerald-500/30 dark:ring-emerald-500/20 shadow-sm'
-                          : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100/60 dark:hover:bg-slate-900/60 text-slate-700 dark:text-slate-300'
+                          : 'liquid-glass-subtle border-white/80 dark:border-white/10 hover:border-emerald-500 text-slate-700 dark:text-slate-300'
                       }`}
                     >
                       <div>
@@ -1339,13 +1339,13 @@ export const EVCalculator: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
                     Nominal Voltage (V)
                   </label>
                   <select
                     value={chargeBatteryVoltage}
                     onChange={(e) => handleChargeVoltageChange(Number(e.target.value))}
-                    className="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 font-mono"
+                    className="w-full h-11 px-3 text-sm rounded-xl liquid-glass border border-white/80 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-mono shadow-sm"
                   >
                     <option value={36}>36V Pack (e-Bike / Bicycle)</option>
                     <option value={48}>48V Pack (Light Scooty)</option>
@@ -1355,7 +1355,7 @@ export const EVCalculator: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1.5">
                     Battery Capacity (Ah)
                   </label>
                   <input
@@ -1364,7 +1364,7 @@ export const EVCalculator: React.FC = () => {
                     max="100"
                     value={chargeBatteryCapacityAh}
                     onChange={(e) => setChargeBatteryCapacityAh(Number(e.target.value))}
-                    className="w-full px-3 py-2 text-sm rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 font-mono"
+                    className="w-full h-11 px-3 text-sm rounded-xl liquid-glass border border-white/80 dark:border-white/10 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/30 font-mono shadow-sm"
                   />
                   <span className="text-[10px] text-slate-400 mt-1 block font-mono">
                     Total Energy: {((chargeBatteryVoltage * chargeBatteryCapacityAh) / 1000).toFixed(2)} kWh
@@ -1612,10 +1612,10 @@ export const EVCalculator: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setHealthChargeHabit('sweet_spot')}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`p-3.5 rounded-xl border text-left transition-all ${
                     healthChargeHabit === 'sweet_spot'
                       ? 'border-emerald-500 bg-emerald-500/10 text-slate-900 dark:text-white ring-2 ring-emerald-500/30'
-                      : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 hover:border-slate-300 dark:hover:border-slate-700'
+                      : 'liquid-glass-subtle border-white/80 dark:border-white/10 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -1633,10 +1633,10 @@ export const EVCalculator: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setHealthChargeHabit('regular_100')}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`p-3.5 rounded-xl border text-left transition-all ${
                     healthChargeHabit === 'regular_100'
                       ? 'border-emerald-500 bg-emerald-500/10 text-slate-900 dark:text-white ring-2 ring-emerald-500/30'
-                      : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 hover:border-slate-300 dark:hover:border-slate-700'
+                      : 'liquid-glass-subtle border-white/80 dark:border-white/10 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -1654,10 +1654,10 @@ export const EVCalculator: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setHealthChargeHabit('deep_drain')}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`p-3.5 rounded-xl border text-left transition-all ${
                     healthChargeHabit === 'deep_drain'
                       ? 'border-rose-500 bg-rose-500/10 text-slate-900 dark:text-white ring-2 ring-rose-500/30'
-                      : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 hover:border-slate-300 dark:hover:border-slate-700'
+                      : 'liquid-glass-subtle border-white/80 dark:border-white/10 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -1675,10 +1675,10 @@ export const EVCalculator: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setHealthChargeHabit('overnight_float')}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`p-3.5 rounded-xl border text-left transition-all ${
                     healthChargeHabit === 'overnight_float'
                       ? 'border-amber-500 bg-amber-500/10 text-slate-900 dark:text-white ring-2 ring-amber-500/30'
-                      : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 hover:border-slate-300 dark:hover:border-slate-700'
+                      : 'liquid-glass-subtle border-white/80 dark:border-white/10 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -1708,10 +1708,10 @@ export const EVCalculator: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setHealthCoolingHabit('shaded_cooled')}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`p-3.5 rounded-xl border text-left transition-all ${
                     healthCoolingHabit === 'shaded_cooled'
                       ? 'border-emerald-500 bg-emerald-500/10 text-slate-900 dark:text-white ring-2 ring-emerald-500/30'
-                      : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 hover:border-slate-300 dark:hover:border-slate-700'
+                      : 'liquid-glass-subtle border-white/80 dark:border-white/10 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -1726,10 +1726,10 @@ export const EVCalculator: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setHealthCoolingHabit('hot_plug')}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`p-3.5 rounded-xl border text-left transition-all ${
                     healthCoolingHabit === 'hot_plug'
                       ? 'border-rose-500 bg-rose-500/10 text-slate-900 dark:text-white ring-2 ring-rose-500/30'
-                      : 'border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 hover:border-slate-300 dark:hover:border-slate-700'
+                      : 'liquid-glass-subtle border-white/80 dark:border-white/10 hover:border-slate-300 dark:hover:border-slate-700'
                   }`}
                 >
                   <div className="flex items-center justify-between">

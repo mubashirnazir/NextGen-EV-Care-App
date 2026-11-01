@@ -14,7 +14,7 @@ export const WhatsAppWidget: React.FC = () => {
       {showTooltip && (
         <div className="hidden sm:flex items-center gap-2 bg-slate-900 dark:bg-slate-900 border border-slate-700/80 text-white px-3 py-1.5 rounded-xl shadow-xl text-xs font-medium animate-in fade-in slide-in-from-bottom-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span>Chat with Master EV Tech</span>
+          <span>Chat with Specialist</span>
           <button
             onClick={() => setShowTooltip(false)}
             className="text-slate-400 hover:text-white ml-1 p-0.5"

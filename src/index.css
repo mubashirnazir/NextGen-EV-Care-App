@@ -109,3 +109,22 @@ body {
   background: rgba(16, 185, 129, 0.4);
 }
 
+/* Infinite Marquee Animation for Brand Carousel */
+@keyframes infinite-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-infinite-scroll {
+  animation: infinite-scroll 35s linear infinite;
+}
+
+.animate-infinite-scroll:hover {
+  animation-play-state: paused;
+}
+
+

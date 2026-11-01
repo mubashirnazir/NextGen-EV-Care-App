@@ -20,23 +20,58 @@ app.get(['/health', '/_ah/health'], (req, res) => {
   res.status(200).send('OK');
 });
 
-// API route for AI Live Energy Prices in Pakistan
-app.post('/api/pakistan-energy-rates', async (req, res) => {
-  try {
-    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
-    if (!apiKey) {
-      console.warn('GEMINI_API_KEY not configured, using verified baseline rates.');
-      return res.json({
-        success: true,
-        isFallback: true,
-        petrolPricePerLiter: 376.06,
-        electricityTariffPerUnit: 34.0,
-        source: 'OGRA & PSO Official Published Rates (Pakistan)',
-        summary: 'Official baseline: Petrol (Premier Euro 5) ~PKR 376.06/L and domestic electricity ~PKR 34.00/kWh.',
-        updatedAt: new Date().toISOString(),
-      });
-    }
+// In-memory cache and rate-limit guard for Pakistan energy rates
+interface CachedRates {
+  petrolPricePerLiter: number;
+  electricityTariffPerUnit: number;
+  source: string;
+  summary: string;
+  updatedAt: string;
+  isFallback: boolean;
+  expiresAt: number;
+}
 
+let ratesCache: CachedRates | null = null;
+let quotaCooldownUntil = 0;
+
+const BASELINE_RATES = {
+  success: true,
+  isFallback: true,
+  petrolPricePerLiter: 376.06,
+  electricityTariffPerUnit: 34.0,
+  source: 'OGRA & NEPRA Published Tariffs (Verified Baseline)',
+  summary: 'Official baseline: Petrol (Premier Euro 5) ~PKR 376.06/L and domestic electricity ~PKR 34.00/kWh.',
+  updatedAt: new Date().toISOString(),
+};
+
+// API route for AI Live Energy Prices in Pakistan with caching and graceful quota backoff
+app.post('/api/pakistan-energy-rates', async (req, res) => {
+  const now = Date.now();
+
+  // 1. Check in-memory cache
+  if (ratesCache && now < ratesCache.expiresAt) {
+    return res.json({
+      success: true,
+      isFallback: ratesCache.isFallback,
+      petrolPricePerLiter: ratesCache.petrolPricePerLiter,
+      electricityTariffPerUnit: ratesCache.electricityTariffPerUnit,
+      source: ratesCache.source,
+      summary: ratesCache.summary,
+      updatedAt: ratesCache.updatedAt,
+    });
+  }
+
+  // 2. If recent quota limit (429) was hit, use baseline during cooldown
+  if (now < quotaCooldownUntil) {
+    return res.json(BASELINE_RATES);
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
+  if (!apiKey || apiKey === 'MY_GEMINI_API_KEY' || !apiKey.trim()) {
+    return res.json(BASELINE_RATES);
+  }
+
+  try {
     const ai = new GoogleGenAI({ apiKey });
 
     const prompt = `You are an energy economic assistant for Pakistan. 
@@ -67,7 +102,6 @@ Return strictly a valid JSON object without markdown formatting, code fences, or
     try {
       parsed = JSON.parse(cleaned);
     } catch {
-      // JSON parse fallback with regex
       const petrolMatch = rawText.match(/petrol(?:PricePerLiter)?["\s:]+([0-9]+(?:\.[0-9]+)?)/i);
       const electricityMatch = rawText.match(/electricity(?:TariffPerUnit)?["\s:]+([0-9]+(?:\.[0-9]+)?)/i);
       parsed = {
@@ -81,26 +115,49 @@ Return strictly a valid JSON object without markdown formatting, code fences, or
     const petrol = Number(parsed.petrolPricePerLiter);
     const electricity = Number(parsed.electricityTariffPerUnit);
 
-    return res.json({
-      success: true,
-      isFallback: false,
+    const result = {
       petrolPricePerLiter: (!isNaN(petrol) && petrol > 180 && petrol < 600) ? petrol : 376.06,
       electricityTariffPerUnit: (!isNaN(electricity) && electricity > 15 && electricity < 120) ? electricity : 34.0,
       source: parsed.source || 'OGRA & PSO Notification via Google Search',
       summary: parsed.summary || 'Live energy prices retrieved using Gemini AI with Google Search.',
       updatedAt: new Date().toISOString(),
-    });
-  } catch (error: any) {
-    console.error('Error fetching live Pakistan energy rates via Gemini:', error);
+      isFallback: false,
+    };
+
+    // Cache successful search for 4 hours
+    ratesCache = {
+      ...result,
+      expiresAt: Date.now() + 4 * 60 * 60 * 1000,
+    };
+
     return res.json({
       success: true,
-      isFallback: true,
-      petrolPricePerLiter: 376.06,
-      electricityTariffPerUnit: 34.0,
-      source: 'OGRA & PSO Official Published Rates',
-      summary: 'Current verified official rate active: Petrol (Premier Euro 5) PKR 376.06/L and electricity PKR 34.00/kWh.',
-      updatedAt: new Date().toISOString(),
+      ...result,
     });
+  } catch (error: any) {
+    const errorMsg = String(error?.message || error || '');
+    const isRateLimit = error?.status === 429 || errorMsg.includes('429') || errorMsg.includes('quota') || errorMsg.includes('RESOURCE_EXHAUSTED');
+
+    if (isRateLimit) {
+      // Cooldown for 30 minutes to prevent API spam and repeated quota alerts
+      quotaCooldownUntil = Date.now() + 30 * 60 * 1000;
+      console.warn('[PakistanEnergyRates] Gemini API quota limit active. Serving verified official OGRA/NEPRA baseline prices.');
+    } else {
+      console.warn('[PakistanEnergyRates] Live search unavailable, using verified baseline rates.');
+    }
+
+    // Cache fallback rates for 15 minutes to reduce churn
+    ratesCache = {
+      petrolPricePerLiter: BASELINE_RATES.petrolPricePerLiter,
+      electricityTariffPerUnit: BASELINE_RATES.electricityTariffPerUnit,
+      source: BASELINE_RATES.source,
+      summary: BASELINE_RATES.summary,
+      updatedAt: new Date().toISOString(),
+      isFallback: true,
+      expiresAt: Date.now() + 15 * 60 * 1000,
+    };
+
+    return res.json(BASELINE_RATES);
   }
 });
 

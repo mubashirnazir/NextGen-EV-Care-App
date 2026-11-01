@@ -1,5 +1,6 @@
 import React from 'react';
 import { ActiveTab, ThemeMode } from '../types';
+import { TikTokIcon, SnapchatIcon, SOCIAL_LINKS } from './SocialIcons';
 import { 
   Zap, 
   Youtube, 
@@ -60,33 +61,56 @@ export const Footer: React.FC<FooterProps> = ({
               Specialized door-to-door EV care, computerized electrification diagnostics, component motor repair (hall sensors & bearings — no winding), controller rebuilds, and full periodic maintenance. Conversions coming soon!
             </p>
 
-            <div className="flex items-center gap-3 pt-1">
+            <div className="flex flex-wrap items-center gap-2.5 pt-1">
               <a
-                href="https://youtube.com"
+                href={SOCIAL_LINKS.youtube}
                 target="_blank"
                 rel="noreferrer"
-                aria-label="YouTube"
+                aria-label="YouTube Channel"
+                title="YouTube (@NextGenEvCare)"
                 className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-red-500 transition-colors"
               >
                 <Youtube className="w-4 h-4" />
               </a>
               <a
-                href="https://facebook.com"
+                href={SOCIAL_LINKS.facebook}
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Facebook"
+                aria-label="Facebook Page"
+                title="Facebook (/nextgenevcare)"
                 className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-blue-500 transition-colors"
               >
                 <Facebook className="w-4 h-4" />
               </a>
               <a
-                href="https://instagram.com"
+                href={SOCIAL_LINKS.instagram}
                 target="_blank"
                 rel="noreferrer"
-                aria-label="Instagram"
+                aria-label="Instagram Profile"
+                title="Instagram (@nextgenevcare)"
                 className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-pink-500 transition-colors"
               >
                 <Instagram className="w-4 h-4" />
+              </a>
+              <a
+                href={SOCIAL_LINKS.tiktok}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="TikTok Handle"
+                title="TikTok (@nextgenevcare)"
+                className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-cyan-400 dark:hover:text-cyan-300 transition-colors"
+              >
+                <TikTokIcon className="w-4 h-4" />
+              </a>
+              <a
+                href={SOCIAL_LINKS.snapchat}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Snapchat Profile"
+                title="Snapchat (@nextgenevcare)"
+                className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 hover:text-amber-400 transition-colors"
+              >
+                <SnapchatIcon className="w-4 h-4" />
               </a>
             </div>
           </div>

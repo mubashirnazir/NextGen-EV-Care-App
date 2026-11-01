@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { PortfolioItem, BlogPost, CustomerInquiry, ServiceCategory } from '../types';
+import React, { useState, useMemo, useEffect } from 'react';
+import { PortfolioItem, BlogPost, CustomerInquiry, ServiceCategory, CategoryDefinition, MediaAsset } from '../types';
+import { INITIAL_CATEGORIES, INITIAL_MEDIA_ASSETS } from '../data/initialData';
 import { 
   ShieldCheck, 
   Lock, 
@@ -27,8 +28,19 @@ import {
   MessageSquare,
   Clock,
   Truck,
-  ExternalLink
+  ExternalLink,
+  Globe,
+  FolderTree,
+  Image as ImageIcon,
+  FolderOpen,
+  Layers,
+  Upload
 } from 'lucide-react';
+import { MetadataManager } from './MetadataManager';
+import { MediaManager } from './MediaManager';
+import { CategoryManager } from './CategoryManager';
+import { MediaPickerModal } from './MediaPickerModal';
+import { ImageFieldWithPicker } from './ImageFieldWithPicker';
 
 interface AdminDashboardProps {
   isAuthenticated: boolean;
@@ -55,7 +67,66 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }) => {
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [adminTab, setAdminTab] = useState<'portfolio' | 'blogs' | 'inquiries' | 'settings'>('portfolio');
+  const [adminTab, setAdminTab] = useState<'portfolio' | 'blogs' | 'inquiries' | 'categories' | 'media' | 'metadata' | 'settings'>('portfolio');
+
+  // Dynamic Categories State with Persistence
+  const [categories, setCategories] = useState<CategoryDefinition[]>(() => {
+    const saved = localStorage.getItem('nextgen_categories_v2');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return INITIAL_CATEGORIES;
+      }
+    }
+    return INITIAL_CATEGORIES;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('nextgen_categories_v2', JSON.stringify(categories));
+  }, [categories]);
+
+  // Dynamic Media Library State with Persistence
+  const [mediaLibrary, setMediaLibrary] = useState<MediaAsset[]>(() => {
+    const saved = localStorage.getItem('nextgen_media_v2');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return INITIAL_MEDIA_ASSETS;
+      }
+    }
+    return INITIAL_MEDIA_ASSETS;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('nextgen_media_v2', JSON.stringify(mediaLibrary));
+  }, [mediaLibrary]);
+
+  const handleAddMedia = (newAsset: MediaAsset) => {
+    setMediaLibrary((prev) => [newAsset, ...prev]);
+  };
+
+  const handleDeleteMedia = (id: string) => {
+    setMediaLibrary((prev) => prev.filter((m) => m.id !== id));
+  };
+
+  // Reusable Media Picker Modal State
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
+  const [mediaPickerValue, setMediaPickerValue] = useState('');
+  const [mediaPickerCallback, setMediaPickerCallback] = useState<((url: string) => void) | null>(null);
+  const [mediaPickerRemoveCallback, setMediaPickerRemoveCallback] = useState<(() => void) | null>(null);
+
+  const openMediaPicker = (
+    currentUrl: string,
+    onSelect: (url: string) => void,
+    onRemove?: () => void
+  ) => {
+    setMediaPickerValue(currentUrl || '');
+    setMediaPickerCallback(() => onSelect);
+    setMediaPickerRemoveCallback(onRemove ? () => onRemove : null);
+    setIsMediaPickerOpen(true);
+  };
 
   // Search & Filter state
   const [portfolioSearch, setPortfolioSearch] = useState('');
@@ -78,6 +149,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [showAddPortfolio, setShowAddPortfolio] = useState(false);
   const [newPortTitle, setNewPortTitle] = useState('');
   const [newPortCategory, setNewPortCategory] = useState<ServiceCategory>('doorstep');
+  const [newPortSubcategory, setNewPortSubcategory] = useState<string>('');
   const [newPortVehicle, setNewPortVehicle] = useState('');
   const [newPortDesc, setNewPortDesc] = useState('');
   const [newPortVoltage, setNewPortVoltage] = useState('60V Nominal');
@@ -98,7 +170,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // --- New Blog Form State ---
   const [showAddBlog, setShowAddBlog] = useState(false);
   const [newBlogTitle, setNewBlogTitle] = useState('');
-  const [newBlogCategory, setNewBlogCategory] = useState<'battery-tech' | 'diagnostics' | 'maintenance' | 'retrofitting'>('battery-tech');
+  const [newBlogCategory, setNewBlogCategory] = useState<string>('battery');
+  const [newBlogSubcategory, setNewBlogSubcategory] = useState<string>('');
   const [newBlogExcerpt, setNewBlogExcerpt] = useState('');
   const [newBlogContent, setNewBlogContent] = useState('');
   const [newBlogAuthorName, setNewBlogAuthorName] = useState('Engr. Hamza Mughal');
@@ -120,6 +193,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [newInqPhone, setNewInqPhone] = useState('');
   const [newInqVehicle, setNewInqVehicle] = useState('Crown Electric / Yadea T5');
   const [newInqService, setNewInqService] = useState('Door-to-Door Service');
+  const [newInqSubcategory, setNewInqSubcategory] = useState('');
+  const [newInqImage, setNewInqImage] = useState('');
   const [newInqDate, setNewInqDate] = useState('Today / Immediate');
   const [newInqMessage, setNewInqMessage] = useState('');
 
@@ -507,8 +582,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       </div>
 
-      {/* KPI Overview Metrics Strip (Responsive 2-col on mobile, 4-col on desktop) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
+      {/* KPI Overview Metrics Strip (Responsive 2-col on mobile, 5-col on desktop) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-4">
         <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
             <Wrench className="w-4 h-4" />
@@ -546,14 +621,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
 
         <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-teal-500/10 text-teal-500 flex items-center justify-center shrink-0">
-            <Truck className="w-4 h-4" />
+          <div className="w-9 h-9 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center shrink-0">
+            <FolderTree className="w-4 h-4" />
           </div>
           <div className="min-w-0">
-            <div className="text-base sm:text-lg font-bold text-emerald-600 dark:text-emerald-400 leading-tight">
-              Active
+            <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight font-mono">
+              {categories.length}
             </div>
-            <div className="text-[11px] text-slate-500 truncate">Door-to-Door Care</div>
+            <div className="text-[11px] text-slate-500 truncate">Categories</div>
+          </div>
+        </div>
+
+        <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-cyan-500/10 text-cyan-500 flex items-center justify-center shrink-0">
+            <ImageIcon className="w-4 h-4" />
+          </div>
+          <div className="min-w-0">
+            <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight font-mono">
+              {mediaLibrary.length}
+            </div>
+            <div className="text-[11px] text-slate-500 truncate">Media Assets</div>
           </div>
         </div>
       </div>
@@ -594,6 +681,42 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         >
           <Users className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
           <span>Leads ({inquiries.length})</span>
+        </button>
+
+        <button
+          onClick={() => setAdminTab('categories')}
+          className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 ${
+            adminTab === 'categories'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <FolderTree className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+          <span>Categories ({categories.length})</span>
+        </button>
+
+        <button
+          onClick={() => setAdminTab('media')}
+          className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 ${
+            adminTab === 'media'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <ImageIcon className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+          <span>Media & Images ({mediaLibrary.length})</span>
+        </button>
+
+        <button
+          onClick={() => setAdminTab('metadata')}
+          className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 ${
+            adminTab === 'metadata'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <Globe className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+          <span>SEO & Social</span>
         </button>
 
         <button
@@ -651,12 +774,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 className="w-full sm:w-auto px-2.5 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
               >
                 <option value="all">All Categories ({portfolio.length})</option>
-                <option value="doorstep">Door-to-Door Service</option>
-                <option value="motor-controller">Motor & Controller</option>
-                <option value="diagnostics">Diagnostics</option>
-                <option value="maintenance">Maintenance</option>
-                <option value="battery">Battery Tech</option>
-                <option value="conversions">Conversions (Coming Soon)</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -678,7 +800,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                     Project Title *
@@ -706,15 +828,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         setNewPortStatus('Coming Soon');
                         setNewPortIsComingSoon(true);
                       }
+                      setNewPortSubcategory('');
                     }}
                     className="w-full px-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                   >
-                    <option value="doorstep">Door-to-Door Service (Main Focus)</option>
-                    <option value="motor-controller">Motor & Controller (Component-Level, No Winding)</option>
-                    <option value="diagnostics">Electrification Diagnostics</option>
-                    <option value="maintenance">Full 24-Point Maintenance</option>
-                    <option value="battery">Battery Tech & Cell Balancing</option>
-                    <option value="conversions">Conversions (Coming Soon R&D)</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Specialized Subcategory
+                  </label>
+                  <select
+                    value={newPortSubcategory}
+                    onChange={(e) => setNewPortSubcategory(e.target.value)}
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="">None / General Diagnostic</option>
+                    {categories
+                      .find((c) => c.id === newPortCategory)
+                      ?.subcategories.map((sub) => (
+                        <option key={sub.id} value={sub.name}>
+                          {sub.name}
+                        </option>
+                      ))}
                   </select>
                 </div>
               </div>
@@ -819,24 +961,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  Photo Asset
-                </label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <select
-                    value={newPortImage}
-                    onChange={(e) => setNewPortImage(e.target.value)}
-                    className="flex-1 px-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
-                  >
-                    <option value="/src/assets/images/custom_ev_conversion_1792957575143.jpg">EV Scooter Inspection & Powertrain</option>
-                    <option value="/src/assets/images/ev_battery_pack_tech_1792957574705.jpg">Battery Pack & Smart BMS Lab</option>
-                    <option value="/src/assets/images/ev_diagnostics_motor_1792957576018.jpg">Motor Diagnostics Oscilloscope</option>
-                    <option value="/src/assets/images/hero_ev_workshop_1792957574841.jpg">Full Workshop Lift Facility</option>
-                  </select>
-                  <img src={newPortImage} alt="" className="w-16 h-10 rounded object-cover border border-slate-300 dark:border-slate-700 shrink-0 self-start" />
-                </div>
-              </div>
+              <ImageFieldWithPicker
+                label="Project Showcase Photo"
+                sublabel="Browse workshop assets, upload from device/camera, or remove image"
+                value={newPortImage}
+                onChange={(url) => setNewPortImage(url)}
+                onOpenPicker={() => openMediaPicker(newPortImage, (url) => setNewPortImage(url), () => setNewPortImage(''))}
+                onAddMedia={handleAddMedia}
+                onNotify={showToast}
+              />
 
               <div>
                 <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
@@ -1069,7 +1202,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             <form onSubmit={handleSaveEditPortfolio} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                     Project Title *
@@ -1094,17 +1227,37 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       setEditingPortfolio({ 
                         ...editingPortfolio, 
                         category: cat,
-                        isComingSoon: cat === 'conversions' ? true : editingPortfolio.isComingSoon
+                        isComingSoon: cat === 'conversions' ? true : editingPortfolio.isComingSoon,
+                        subcategory: undefined
                       });
                     }}
                     className="w-full px-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                   >
-                    <option value="doorstep">Door-to-Door Service (Main Focus)</option>
-                    <option value="motor-controller">Motor & Controller (No Winding)</option>
-                    <option value="diagnostics">Electrification Diagnostics</option>
-                    <option value="maintenance">Full 24-Point Maintenance</option>
-                    <option value="battery">Battery Tech & SOH</option>
-                    <option value="conversions">Conversions (Coming Soon R&D)</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Specialized Subcategory
+                  </label>
+                  <select
+                    value={editingPortfolio.subcategory || ''}
+                    onChange={(e) => setEditingPortfolio({ ...editingPortfolio, subcategory: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="">None / General</option>
+                    {categories
+                      .find((c) => c.id === editingPortfolio.category)
+                      ?.subcategories.map((sub) => (
+                        <option key={sub.id} value={sub.name}>
+                          {sub.name}
+                        </option>
+                      ))}
                   </select>
                 </div>
               </div>
@@ -1218,24 +1371,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
               </div>
 
-              <div>
-                <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  Photo Asset
-                </label>
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <select
-                    value={editingPortfolio.image}
-                    onChange={(e) => setEditingPortfolio({ ...editingPortfolio, image: e.target.value })}
-                    className="flex-1 px-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
-                  >
-                    <option value="/src/assets/images/custom_ev_conversion_1792957575143.jpg">EV Scooter Inspection & Powertrain</option>
-                    <option value="/src/assets/images/ev_battery_pack_tech_1792957574705.jpg">Battery Pack & Smart BMS Lab</option>
-                    <option value="/src/assets/images/ev_diagnostics_motor_1792957576018.jpg">Motor Diagnostics Oscilloscope</option>
-                    <option value="/src/assets/images/hero_ev_workshop_1792957574841.jpg">Full Workshop Lift Facility</option>
-                  </select>
-                  <img src={editingPortfolio.image} alt="" className="w-16 h-10 rounded object-cover border border-slate-300 dark:border-slate-700 shrink-0 self-start" />
-                </div>
-              </div>
+              <ImageFieldWithPicker
+                label="Project Showcase Photo"
+                sublabel="Browse workshop assets, upload from device/camera, or remove image"
+                value={editingPortfolio.image}
+                onChange={(url) => setEditingPortfolio({ ...editingPortfolio, image: url })}
+                onOpenPicker={() =>
+                  openMediaPicker(
+                    editingPortfolio.image,
+                    (url) => setEditingPortfolio({ ...editingPortfolio, image: url }),
+                    () => setEditingPortfolio({ ...editingPortfolio, image: '' })
+                  )
+                }
+                onAddMedia={handleAddMedia}
+                onNotify={showToast}
+              />
 
               <div>
                 <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
@@ -1338,7 +1488,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                     Article Title *
@@ -1359,16 +1509,50 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </label>
                   <select
                     value={newBlogCategory}
-                    onChange={(e) => setNewBlogCategory(e.target.value as any)}
+                    onChange={(e) => {
+                      setNewBlogCategory(e.target.value);
+                      setNewBlogSubcategory('');
+                    }}
                     className="w-full px-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                   >
-                    <option value="battery-tech">Battery Tech & Cell Balancing</option>
-                    <option value="diagnostics">Diagnostics & Electrical</option>
-                    <option value="maintenance">Maintenance & Monsoon Care</option>
-                    <option value="retrofitting">EV Retrofitting & Powertrains</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Specialized Subcategory
+                  </label>
+                  <select
+                    value={newBlogSubcategory}
+                    onChange={(e) => setNewBlogSubcategory(e.target.value)}
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="">None / General</option>
+                    {categories
+                      .find((c) => c.id === newBlogCategory)
+                      ?.subcategories.map((sub) => (
+                        <option key={sub.id} value={sub.name}>
+                          {sub.name}
+                        </option>
+                      ))}
                   </select>
                 </div>
               </div>
+
+              <ImageFieldWithPicker
+                label="Article Header Photo / Diagram"
+                sublabel="Select technical diagram, multimeter snapshot, or remove image"
+                value={newBlogImage}
+                onChange={(url) => setNewBlogImage(url)}
+                onOpenPicker={() => openMediaPicker(newBlogImage, (url) => setNewBlogImage(url), () => setNewBlogImage(''))}
+                onAddMedia={handleAddMedia}
+                onNotify={showToast}
+              />
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
                 <div>
@@ -1642,7 +1826,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
             </div>
 
             <form onSubmit={handleSaveEditBlog} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
                     Article Title *
@@ -1662,16 +1846,53 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </label>
                   <select
                     value={editingBlog.category}
-                    onChange={(e) => setEditingBlog({ ...editingBlog, category: e.target.value as any })}
+                    onChange={(e) => setEditingBlog({ ...editingBlog, category: e.target.value, subcategory: undefined })}
                     className="w-full px-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
                   >
-                    <option value="battery-tech">Battery Tech</option>
-                    <option value="diagnostics">Diagnostics</option>
-                    <option value="maintenance">Maintenance</option>
-                    <option value="retrofitting">EV Retrofitting</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Specialized Subcategory
+                  </label>
+                  <select
+                    value={editingBlog.subcategory || ''}
+                    onChange={(e) => setEditingBlog({ ...editingBlog, subcategory: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="">None / General</option>
+                    {categories
+                      .find((c) => c.id === editingBlog.category)
+                      ?.subcategories.map((sub) => (
+                        <option key={sub.id} value={sub.name}>
+                          {sub.name}
+                        </option>
+                      ))}
                   </select>
                 </div>
               </div>
+
+              <ImageFieldWithPicker
+                label="Article Header Photo / Diagram"
+                sublabel="Select technical diagram, multimeter snapshot, or remove image"
+                value={editingBlog.image || ''}
+                onChange={(url) => setEditingBlog({ ...editingBlog, image: url })}
+                onOpenPicker={() =>
+                  openMediaPicker(
+                    editingBlog.image || '',
+                    (url) => setEditingBlog({ ...editingBlog, image: url }),
+                    () => setEditingBlog({ ...editingBlog, image: '' })
+                  )
+                }
+                onAddMedia={handleAddMedia}
+                onNotify={showToast}
+              />
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
                 <div>
@@ -2169,6 +2390,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </select>
               </div>
 
+              <ImageFieldWithPicker
+                label="Diagnosis / Vehicle Symptom Photo"
+                sublabel="Attach diagnostic photo from mobile camera/gallery, or remove photo"
+                value={editingInquiry.image || ''}
+                onChange={(url) => setEditingInquiry({ ...editingInquiry, image: url })}
+                onOpenPicker={() =>
+                  openMediaPicker(
+                    editingInquiry.image || '',
+                    (url) => setEditingInquiry({ ...editingInquiry, image: url }),
+                    () => setEditingInquiry({ ...editingInquiry, image: '' })
+                  )
+                }
+                onAddMedia={handleAddMedia}
+                onNotify={showToast}
+              />
+
               <div>
                 <label className="block text-[11px] font-medium text-slate-700 dark:text-slate-300 mb-1">
                   Notes & Symptoms
@@ -2202,7 +2439,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       )}
 
-      {/* ==================== TAB 4: SETTINGS & RESET ==================== */}
+      {/* ==================== TAB 4: CATEGORIES & SUBCATEGORIES ==================== */}
+      {adminTab === 'categories' && (
+        <CategoryManager
+          categories={categories}
+          setCategories={setCategories}
+          portfolio={portfolio}
+          setPortfolio={setPortfolio}
+          blogs={blogs}
+          setBlogs={setBlogs}
+          onNotify={showToast}
+        />
+      )}
+
+      {/* ==================== TAB 5: MEDIA & IMAGE MANAGER ==================== */}
+      {adminTab === 'media' && (
+        <MediaManager
+          mediaLibrary={mediaLibrary}
+          onAddMedia={handleAddMedia}
+          onDeleteMedia={handleDeleteMedia}
+          onNotify={showToast}
+        />
+      )}
+
+      {/* ==================== TAB 6: SEO & OPEN GRAPH METADATA ==================== */}
+      {adminTab === 'metadata' && (
+        <MetadataManager onNotify={showToast} />
+      )}
+
+      {/* ==================== TAB 7: SETTINGS & RESET ==================== */}
       {adminTab === 'settings' && (
         <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 sm:space-y-6">
           <div className="space-y-1">
@@ -2210,7 +2475,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               Data Maintenance & Reset Defaults
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Restore the original showcase projects, knowledge base guides, and initial Pakistani EV service demo records.
+              Restore the original showcase projects, knowledge base guides, categories, media assets, and Pakistani EV service demo records.
             </p>
           </div>
 
@@ -2220,13 +2485,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span>Reset to Workshop Initial Defaults</span>
             </p>
             <p className="leading-relaxed">
-              This action restores the original verified case studies, doorstep service guides, and technical articles. Any newly added items stored in your local browser cache will be reset.
+              This action restores the original verified case studies, doorstep service guides, technical articles, default category hierarchy, and default media library.
             </p>
             <button
               onClick={() => {
-                if (window.confirm('Reset all portfolio entries, blogs, and inquiries to workshop defaults?')) {
+                if (window.confirm('Reset all portfolio entries, blogs, categories, media, and inquiries to workshop defaults?')) {
                   onResetToDefaults();
-                  showToast('Database reset to factory defaults.');
+                  setCategories(INITIAL_CATEGORIES);
+                  setMediaLibrary(INITIAL_MEDIA_ASSETS);
+                  localStorage.removeItem('nextgen_categories_v2');
+                  localStorage.removeItem('nextgen_media_v2');
+                  showToast('Database, categories, and media reset to factory defaults.');
                 }
               }}
               className="mt-2 w-full sm:w-auto px-4 py-2 text-xs font-semibold text-amber-950 bg-amber-400 hover:bg-amber-300 rounded-lg transition-colors text-center"
@@ -2236,6 +2505,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         </div>
       )}
+
+      {/* Universal Media Picker Modal */}
+      <MediaPickerModal
+        isOpen={isMediaPickerOpen}
+        onClose={() => setIsMediaPickerOpen(false)}
+        onSelectImage={(url) => {
+          if (mediaPickerCallback) mediaPickerCallback(url);
+        }}
+        onRemoveImage={() => {
+          if (mediaPickerRemoveCallback) mediaPickerRemoveCallback();
+          else if (mediaPickerCallback) mediaPickerCallback('');
+        }}
+        currentImage={mediaPickerValue}
+        mediaLibrary={mediaLibrary}
+        onAddMedia={handleAddMedia}
+        onDeleteMedia={handleDeleteMedia}
+        onNotify={showToast}
+      />
 
     </div>
   );

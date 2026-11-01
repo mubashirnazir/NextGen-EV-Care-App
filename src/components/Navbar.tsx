@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ActiveTab, ThemeMode } from '../types';
+import { TikTokIcon, SnapchatIcon, SOCIAL_LINKS } from './SocialIcons';
 import { 
   Zap, 
   Sun, 
@@ -196,31 +197,54 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Desktop Social Channels */}
             <div className="hidden xl:flex items-center gap-1 text-slate-400 dark:text-slate-500 border-r border-slate-200/60 dark:border-white/10 pr-2">
               <a
-                href="https://youtube.com"
+                href={SOCIAL_LINKS.youtube}
                 target="_blank"
                 rel="noreferrer"
                 aria-label="YouTube Channel"
+                title="YouTube (@NextGenEvCare)"
                 className="p-1.5 rounded-lg hover:text-red-500 hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
               >
                 <Youtube className="w-4 h-4" />
               </a>
               <a
-                href="https://facebook.com"
+                href={SOCIAL_LINKS.facebook}
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Facebook Page"
+                title="Facebook (/nextgenevcare)"
                 className="p-1.5 rounded-lg hover:text-blue-500 hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
               >
                 <Facebook className="w-4 h-4" />
               </a>
               <a
-                href="https://instagram.com"
+                href={SOCIAL_LINKS.instagram}
                 target="_blank"
                 rel="noreferrer"
                 aria-label="Instagram Profile"
+                title="Instagram (@nextgenevcare)"
                 className="p-1.5 rounded-lg hover:text-pink-500 hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
               >
                 <Instagram className="w-4 h-4" />
+              </a>
+              <a
+                href={SOCIAL_LINKS.tiktok}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="TikTok Handle"
+                title="TikTok (@nextgenevcare)"
+                className="p-1.5 rounded-lg hover:text-cyan-400 dark:hover:text-cyan-300 hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
+              >
+                <TikTokIcon className="w-4 h-4" />
+              </a>
+              <a
+                href={SOCIAL_LINKS.snapchat}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Snapchat Profile"
+                title="Snapchat (@nextgenevcare)"
+                className="p-1.5 rounded-lg hover:text-amber-400 hover:bg-white/60 dark:hover:bg-slate-800/60 transition-colors"
+              >
+                <SnapchatIcon className="w-4 h-4" />
               </a>
             </div>
 
@@ -596,15 +620,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               
               <div className="flex items-center justify-between pt-1">
                 <span className="text-[11px]">Follow our updates:</span>
-                <div className="flex items-center gap-3">
-                  <a href="https://youtube.com" target="_blank" rel="noreferrer" className="p-1 hover:text-red-500 transition-colors" aria-label="YouTube">
+                <div className="flex items-center gap-2.5">
+                  <a href={SOCIAL_LINKS.youtube} target="_blank" rel="noreferrer" className="p-1 text-slate-400 hover:text-red-500 transition-colors" aria-label="YouTube" title="YouTube">
                     <Youtube className="w-4 h-4" />
                   </a>
-                  <a href="https://facebook.com" target="_blank" rel="noreferrer" className="p-1 hover:text-blue-500 transition-colors" aria-label="Facebook">
+                  <a href={SOCIAL_LINKS.facebook} target="_blank" rel="noreferrer" className="p-1 text-slate-400 hover:text-blue-500 transition-colors" aria-label="Facebook" title="Facebook">
                     <Facebook className="w-4 h-4" />
                   </a>
-                  <a href="https://instagram.com" target="_blank" rel="noreferrer" className="p-1 hover:text-pink-500 transition-colors" aria-label="Instagram">
+                  <a href={SOCIAL_LINKS.instagram} target="_blank" rel="noreferrer" className="p-1 text-slate-400 hover:text-pink-500 transition-colors" aria-label="Instagram" title="Instagram">
                     <Instagram className="w-4 h-4" />
+                  </a>
+                  <a href={SOCIAL_LINKS.tiktok} target="_blank" rel="noreferrer" className="p-1 text-slate-400 hover:text-cyan-400 dark:hover:text-cyan-300 transition-colors" aria-label="TikTok" title="TikTok">
+                    <TikTokIcon className="w-4 h-4" />
+                  </a>
+                  <a href={SOCIAL_LINKS.snapchat} target="_blank" rel="noreferrer" className="p-1 text-slate-400 hover:text-amber-400 transition-colors" aria-label="Snapchat" title="Snapchat">
+                    <SnapchatIcon className="w-4 h-4" />
                   </a>
                 </div>
               </div>

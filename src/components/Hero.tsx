@@ -1,5 +1,6 @@
 import React from 'react';
 import { ActiveTab, PortfolioItem, BlogPost } from '../types';
+import { BrandLogoCarousel } from './BrandLogoCarousel';
 import { 
   Truck, 
   Wrench, 
@@ -53,12 +54,12 @@ export const Hero: React.FC<HeroProps> = ({
               className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.12]"
               style={{ textWrap: 'balance' }}
             >
-              Door-to-Door Electric Scooty & Bike Repair in Gujranwala
+              On-Call Door-to-Door Electric Scooty & E-Bike Repair in Gujranwala
             </h1>
 
             {/* Concise Subheadline */}
             <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed">
-              Mobile door-to-door doorstep technicians and workshop specialists. Fast computerized diagnostics, hall sensor and controller micro-repairs without destructive motor rewinding, and comprehensive routine maintenance.
+              Is your electric scooter giving you trouble? Don’t worry! We offer fast, reliable, and affordable on-call, door-to-door, and emergency roadside repair and maintenance right here in Gujranwala. Whether you ride a Yadea, Metro, Evee, or any other Graphene battery scooty, our expert team can fix your battery, brakes, motor, and wiring issues on the same day. Whether you are navigating the busy streets of Satellite Town, Peoples Colony, or the GT Road corridor, we are your trusted local partners for dependable eco-friendly transit..
             </p>
 
             {/* Two Clean Call-to-Action Buttons (Uniform Sizing: h-11 px-5 rounded-xl) */}
@@ -101,7 +102,7 @@ export const Hero: React.FC<HeroProps> = ({
                     <Wrench className="w-3.5 h-3.5" />
                   </div>
                   <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 truncate">
-                    No-Winding Motor Care
+                    3 Years of Experience
                   </span>
                 </div>
 
@@ -185,13 +186,13 @@ export const Hero: React.FC<HeroProps> = ({
 
           <div>
             <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white font-mono tabular-nums">
-              0 Winding
+              500+
             </p>
             <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white mt-1">
-              Factory Stator Care
+              Happy Scooties
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Original copper coils preserved
+              Serviced in Gujranwala City
             </p>
           </div>
         </div>
@@ -207,7 +208,7 @@ export const Hero: React.FC<HeroProps> = ({
               <span>GUJRANWALA</span>
             </div>
             <h2 id="core-services-heading" className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-              Specialized Electric Scooty & Bike Services
+              Specialized Electric Scooty & E-Bike Services
             </h2>
             <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 leading-relaxed">
               Certified doorstep service and component-level repairs designed specifically for the unique road and climate demands of Gujranwala.
@@ -347,6 +348,9 @@ export const Hero: React.FC<HeroProps> = ({
           </a>
         </div>
       </section>
+
+      {/* Brand Logo Infinite Marquee Carousel */}
+      <BrandLogoCarousel setActiveTab={setActiveTab} />
 
       {/* 3. Case Studies Grid (Neat, Scannable Cards) */}
       <section className="space-y-8" aria-labelledby="case-studies-heading">

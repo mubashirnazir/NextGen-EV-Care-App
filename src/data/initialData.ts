@@ -1,4 +1,4 @@
-import { PortfolioItem, BlogPost, CustomerInquiry } from '../types';
+import { PortfolioItem, BlogPost, CustomerInquiry, CategoryDefinition, MediaAsset } from '../types';
 
 export const INITIAL_PORTFOLIO: PortfolioItem[] = [
   {
@@ -353,5 +353,214 @@ export const INITIAL_INQUIRIES: CustomerInquiry[] = [
     preferredDate: '2026-10-28',
     submittedAt: '2026-10-24 16:45',
     status: 'Contacted'
+  }
+];
+
+export const INITIAL_CATEGORIES: CategoryDefinition[] = [
+  {
+    id: 'doorstep',
+    name: 'Doorstep Services (Main Focus)',
+    description: 'On-demand mobile technician visits across Gujranwala city, Cantt, and surrounding towns.',
+    iconName: 'Truck',
+    subcategories: [
+      { id: 'cantt-dispatch', name: 'Gujranwala Cantt Doorstep Visit', description: 'Under 60 min response for Cantt & Rahwali' },
+      { id: 'model-town', name: 'Model Town & DC Colony Rapid Visit', description: 'Driveway diagnostic and battery inspection' },
+      { id: 'roadside-emergency', name: 'Roadside Emergency Breakdown', description: 'Mobile van with oscilloscope and diagnostic bench' },
+      { id: 'home-checkup', name: 'Home Driveway Preventive Checkup', description: 'Scheduled seasonal EV health audits' }
+    ]
+  },
+  {
+    id: 'motor-controller',
+    name: 'Motor & Controller (No Winding)',
+    description: 'Component-level repair preserving original copper factory stator windings.',
+    iconName: 'Cpu',
+    subcategories: [
+      { id: 'hall-sensors', name: 'Hall Sensor Replacement (150°C Rated)', description: 'Precision Honeywell sensors without stator rewinding' },
+      { id: 'skf-bearings', name: 'Japanese SKF Low-Friction Bearings', description: 'Eliminates motor rumble and wheel drag' },
+      { id: 'mosfet-repair', name: 'MOSFET Power Bridge Overhaul', description: 'Component-level controller rebuilding' },
+      { id: 'stator-coating', name: 'Stator Rust De-scaling & Waterproof Varnish', description: 'Marine-grade dielectric waterproofing' },
+      { id: 'throttle-signals', name: 'Throttle 5V Reference & Hall Phasing', description: 'Smooth progressive throttle response' }
+    ]
+  },
+  {
+    id: 'battery',
+    name: 'Battery Tech & SOH Lab',
+    description: 'Lithium LiFePO4 / NMC pack balancing, Smart Bluetooth BMS, and internal resistance diagnostics.',
+    iconName: 'BatteryCharging',
+    subcategories: [
+      { id: 'cell-balancing', name: 'Cell Delta Active Balancing', description: 'Equalizing series strings within 5mV' },
+      { id: 'smart-bms', name: 'Smart Bluetooth BMS Installation', description: 'Real-time mobile phone voltage telemetry' },
+      { id: 'capacity-load', name: 'Capacity & Load Discharge Testing', description: 'Accurate actual vs rated Ah verification' },
+      { id: 'thermal-insulation', name: 'Thermal Barrier & IP67 Enclosure', description: 'Waterproof sealing and shock isolation' }
+    ]
+  },
+  {
+    id: 'diagnostics',
+    name: 'Electrification Diagnostics',
+    description: 'Oscilloscope signal capture, wiring harness troubleshooting, and DC-DC power electronics.',
+    iconName: 'Activity',
+    subcategories: [
+      { id: 'oscilloscope-phasing', name: 'Oscilloscope Motor Waveform Analysis', description: 'Verifies 60°/120° phase angles and commutation' },
+      { id: 'wiring-loom', name: 'Wiring Loom Short-Circuit Tracing', description: 'Locates pinched cables and parasitic draws' },
+      { id: 'dcdc-converter', name: '12V DC-DC Step-Down Converters', description: 'Powers horn, LED indicators, and headlights' },
+      { id: 'digital-cluster', name: 'Digital Speedometer & CAN-Bus Telemetry', description: 'Instrument panel error code decoding' }
+    ]
+  },
+  {
+    id: 'maintenance',
+    name: 'Full 24-Point Maintenance',
+    description: 'Complete mechanical and electrical inspection ensuring peak roadworthiness.',
+    iconName: 'Wrench',
+    subcategories: [
+      { id: 'regen-brakes', name: 'Regenerative Braking & Caliper Bleeding', description: 'Optimized brake force and energy recovery' },
+      { id: 'steering-suspension', name: 'Steering Cone & Fork Lubrication', description: 'Smooth steering on Gujranwala cobblestones' },
+      { id: 'tire-chassis', name: 'Tire Pressure & Chassis Torque Audit', description: 'Verifies axle nuts and frame rigidity' }
+    ]
+  },
+  {
+    id: 'conversions',
+    name: 'Conversions (Coming Soon R&D)',
+    description: 'Honda CD 70 / CG 125 petrol-to-electric conversion kits currently under road durability trials.',
+    iconName: 'Sparkles',
+    subcategories: [
+      { id: 'cd70-retrofit', name: 'Honda CD 70 Electric Conversion Kit', description: 'Mid-drive powertrain with belt transmission' },
+      { id: 'cg125-prototype', name: 'CG 125 High-Torque Commuter R&D', description: 'Heavy-duty frame reinforcement and 72V pack' },
+      { id: 'priority-waitlist', name: 'Commercial Priority Waitlist', description: 'Early-bird pilot batch reservations' }
+    ]
+  }
+];
+
+export const INITIAL_MEDIA_ASSETS: MediaAsset[] = [
+  {
+    id: 'media-1',
+    name: 'Motor Diagnostics & Oscilloscope Lab',
+    url: '/src/assets/images/ev_diagnostics_motor_1792957576018.jpg',
+    sizeFormatted: '184 KB',
+    sizeBytes: 188416,
+    type: 'image/jpeg',
+    source: 'preset',
+    width: 1200,
+    height: 800,
+    uploadedAt: '2026-10-15 10:30'
+  },
+  {
+    id: 'media-2',
+    name: 'Battery Pack & Smart BMS Lab',
+    url: '/src/assets/images/ev_battery_pack_tech_1792957574705.jpg',
+    sizeFormatted: '210 KB',
+    sizeBytes: 215040,
+    type: 'image/jpeg',
+    source: 'preset',
+    width: 1200,
+    height: 800,
+    uploadedAt: '2026-10-15 10:32'
+  },
+  {
+    id: 'media-3',
+    name: 'Custom EV Conversion R&D Prototype',
+    url: '/src/assets/images/custom_ev_conversion_1792957575143.jpg',
+    sizeFormatted: '228 KB',
+    sizeBytes: 233472,
+    type: 'image/jpeg',
+    source: 'preset',
+    width: 1200,
+    height: 800,
+    uploadedAt: '2026-10-15 10:35'
+  },
+  {
+    id: 'media-4',
+    name: 'Full Workshop Lift & Mobile Bay',
+    url: '/src/assets/images/hero_ev_workshop_1792957574841.jpg',
+    sizeFormatted: '196 KB',
+    sizeBytes: 200704,
+    type: 'image/jpeg',
+    source: 'preset',
+    width: 1200,
+    height: 800,
+    uploadedAt: '2026-10-15 10:40'
+  },
+  {
+    id: 'media-5',
+    name: 'Next Gen EV Care Brand Logo',
+    url: '/public/logo.png',
+    sizeFormatted: '48 KB',
+    sizeBytes: 49152,
+    type: 'image/png',
+    source: 'preset',
+    width: 512,
+    height: 512,
+    uploadedAt: '2026-10-20 09:00'
+  },
+  {
+    id: 'media-6',
+    name: 'Social Media Gujranwala Banner',
+    url: '/public/NextGen-EV-Care-for-Social-Media-on-call-Electric Scooty-services-gujranwala.png',
+    sizeFormatted: '312 KB',
+    sizeBytes: 319488,
+    type: 'image/png',
+    source: 'preset',
+    width: 1200,
+    height: 630,
+    uploadedAt: '2026-10-22 14:15'
+  },
+  {
+    id: 'media-7',
+    name: 'Powertrain Stator Overhaul Detail',
+    url: '/public/assets/aistudio/image_1ea03dd4.png',
+    sizeFormatted: '280 KB',
+    sizeBytes: 286720,
+    type: 'image/png',
+    source: 'preset',
+    width: 1024,
+    height: 768,
+    uploadedAt: '2026-10-25 12:00'
+  },
+  {
+    id: 'media-8',
+    name: 'High-Voltage Controller Diagnostics',
+    url: '/public/assets/aistudio/image_461d2cde.png',
+    sizeFormatted: '264 KB',
+    sizeBytes: 270336,
+    type: 'image/png',
+    source: 'preset',
+    width: 1024,
+    height: 768,
+    uploadedAt: '2026-10-25 12:10'
+  },
+  {
+    id: 'media-9',
+    name: 'Mobile Van On-Site Unit',
+    url: '/public/assets/aistudio/image_46f4786c.png',
+    sizeFormatted: '295 KB',
+    sizeBytes: 302080,
+    type: 'image/png',
+    source: 'preset',
+    width: 1024,
+    height: 768,
+    uploadedAt: '2026-10-25 12:15'
+  },
+  {
+    id: 'media-10',
+    name: 'Precision Component Soldering Bench',
+    url: '/public/assets/aistudio/image_6faf41f0.png',
+    sizeFormatted: '250 KB',
+    sizeBytes: 256000,
+    type: 'image/png',
+    source: 'preset',
+    width: 1024,
+    height: 768,
+    uploadedAt: '2026-10-25 12:20'
+  },
+  {
+    id: 'media-11',
+    name: 'Smart Bluetooth BMS Live Telemetry',
+    url: '/public/assets/aistudio/image_c2837486.png',
+    sizeFormatted: '272 KB',
+    sizeBytes: 278528,
+    type: 'image/png',
+    source: 'preset',
+    width: 1024,
+    height: 768,
+    uploadedAt: '2026-10-25 12:25'
   }
 ];

@@ -68,7 +68,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({
       case 'conversions':
         return 'Conversions (Coming Soon)';
       default:
-        return 'EV Service';
+        return String(cat).replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
     }
   };
 
@@ -210,18 +210,33 @@ export const Portfolio: React.FC<PortfolioProps> = ({
                 className="relative aspect-[16/10] overflow-hidden bg-slate-950 cursor-pointer"
                 onClick={() => setSelectedProject(project)}
               >
-                <img
-                  src={project.image}
-                  alt={project.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  referrerPolicy="no-referrer"
-                />
+                {project.image ? (
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 to-slate-950 p-6 text-center text-slate-400">
+                    <Wrench className="w-8 h-8 text-emerald-400/70 mb-2" />
+                    <span className="text-xs font-semibold text-slate-200">{project.vehicleModel}</span>
+                    <span className="text-[10px] text-slate-500 mt-0.5">Diagnostic Case Record</span>
+                  </div>
+                )}
                 
                 {/* Clean Top Overlay: Category & Status */}
-                <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-                  <span className="bg-slate-950/85 backdrop-blur-md px-2.5 py-1 rounded text-[11px] font-semibold text-emerald-400 border border-slate-700/80">
-                    {getCategoryLabel(project.category)}
-                  </span>
+                <div className="absolute top-3 left-3 right-3 flex items-start justify-between pointer-events-none">
+                  <div className="flex flex-col items-start gap-1">
+                    <span className="bg-slate-950/85 backdrop-blur-md px-2.5 py-1 rounded text-[11px] font-semibold text-emerald-400 border border-slate-700/80">
+                      {getCategoryLabel(project.category)}
+                    </span>
+                    {project.subcategory && (
+                      <span className="bg-slate-900/90 backdrop-blur-md px-2 py-0.5 rounded text-[10px] font-medium text-slate-300 border border-slate-800">
+                        {project.subcategory}
+                      </span>
+                    )}
+                  </div>
 
                   {project.isComingSoon ? (
                     <span className="bg-amber-500 text-slate-950 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">

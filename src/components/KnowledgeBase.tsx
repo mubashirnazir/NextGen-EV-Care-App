@@ -149,10 +149,18 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
 
               <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-2.5">
-                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                  <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 flex-wrap">
                     <span>{post.publishedAt}</span>
                     <span aria-hidden="true">·</span>
                     <span className="text-emerald-600 dark:text-emerald-400 font-medium">{post.readTime}</span>
+                    {post.subcategory && (
+                      <>
+                        <span aria-hidden="true">·</span>
+                        <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-semibold">
+                          {post.subcategory}
+                        </span>
+                      </>
+                    )}
                   </div>
 
                   <h3 className="text-base font-bold text-slate-900 dark:text-white group-hover:text-emerald-500 transition-colors line-clamp-2 leading-snug">
