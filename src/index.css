@@ -127,4 +127,19 @@ body {
   animation-play-state: paused;
 }
 
+/* --- High-Readability Typography & Content Pacing --- */
+p, .content-text {
+  line-height: 1.68;
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+  letter-spacing: -0.02em;
+}
+
+.max-prose-optimal {
+  max-width: 68ch;
+}
+
+
 
