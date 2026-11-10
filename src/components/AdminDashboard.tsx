@@ -34,13 +34,17 @@ import {
   Image as ImageIcon,
   FolderOpen,
   Layers,
-  Upload
+  Upload,
+  Film
 } from 'lucide-react';
 import { MetadataManager } from './MetadataManager';
 import { MediaManager } from './MediaManager';
 import { CategoryManager } from './CategoryManager';
+import { VideoManager } from './VideoManager';
+import { VideoEmbed } from './VideoEmbed';
 import { MediaPickerModal } from './MediaPickerModal';
 import { ImageFieldWithPicker } from './ImageFieldWithPicker';
+import { MultiImageManager } from './MultiImageManager';
 
 interface AdminDashboardProps {
   isAuthenticated: boolean;
@@ -67,7 +71,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }) => {
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [adminTab, setAdminTab] = useState<'portfolio' | 'blogs' | 'inquiries' | 'categories' | 'media' | 'metadata' | 'settings'>('portfolio');
+  const [adminTab, setAdminTab] = useState<'portfolio' | 'blogs' | 'inquiries' | 'categories' | 'media' | 'videos' | 'metadata' | 'settings'>('portfolio');
 
   // Dynamic Categories State with Persistence
   const [categories, setCategories] = useState<CategoryDefinition[]>(() => {
@@ -162,6 +166,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [newPortMetricLabel, setNewPortMetricLabel] = useState('True City Range');
   const [newPortMetricValue, setNewPortMetricValue] = useState('85 km');
   const [newPortImage, setNewPortImage] = useState('/src/assets/images/custom_ev_conversion_1792957575143.jpg');
+  const [newPortImages, setNewPortImages] = useState<string[]>([
+    '/src/assets/images/custom_ev_conversion_1792957575143.jpg'
+  ]);
+  const [newPortVideoUrl, setNewPortVideoUrl] = useState('');
   const [newPortHighlight, setNewPortHighlight] = useState('');
 
   // --- Edit Portfolio Modal State ---
@@ -179,7 +187,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [newBlogReadTime, setNewBlogReadTime] = useState('5 min read');
   const [newBlogTags, setNewBlogTags] = useState('Doorstep, Diagnostics, Gujranwala');
   const [newBlogImage, setNewBlogImage] = useState('/src/assets/images/ev_battery_pack_tech_1792957574705.jpg');
+  const [newBlogImages, setNewBlogImages] = useState<string[]>([
+    '/src/assets/images/ev_battery_pack_tech_1792957574705.jpg'
+  ]);
+  const [newBlogVideoUrl, setNewBlogVideoUrl] = useState('');
   const [newBlogFeatured, setNewBlogFeatured] = useState(false);
+
+  // Total active videos count
+  const totalVideosCount = useMemo(() => {
+    const pCount = portfolio.filter((p) => p.videoUrl && p.videoUrl.trim()).length;
+    const bCount = blogs.filter((b) => b.videoUrl && b.videoUrl.trim()).length;
+    return pCount + bCount;
+  }, [portfolio, blogs]);
 
   // --- Edit Blog Modal State ---
   const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
@@ -251,7 +270,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         label: newPortMetricLabel,
         value: newPortMetricValue
       },
-      image: newPortImage,
+      image: newPortImages[0] || newPortImage,
+      images: newPortImages.slice(0, 8),
+      videoUrl: newPortVideoUrl.trim() || undefined,
       completedDate: isComingSoonFlag ? 'Coming Soon (R&D)' : 'Recently Completed',
       highlights: highlightsArray.length > 0 ? highlightsArray : [
         '100% precision digital diagnostics and verification',
@@ -266,11 +287,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setNewPortVehicle('');
     setNewPortDesc('');
     setNewPortHighlight('');
+    setNewPortVideoUrl('');
+    setNewPortImages(['/src/assets/images/custom_ev_conversion_1792957575143.jpg']);
     setShowAddPortfolio(false);
   };
 
   const handleStartEditPortfolio = (item: PortfolioItem) => {
-    setEditingPortfolio({ ...item });
+    const existingImages = item.images && item.images.length > 0 
+      ? item.images 
+      : (item.image ? [item.image] : []);
+    setEditingPortfolio({ 
+      ...item,
+      images: existingImages.slice(0, 8)
+    });
   };
 
   const handleSaveEditPortfolio = (e: React.FormEvent) => {
@@ -282,8 +311,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       return;
     }
 
+    const updatedImages = (editingPortfolio.images || []).slice(0, 8);
     const updated = {
       ...editingPortfolio,
+      image: updatedImages[0] || editingPortfolio.image,
+      images: updatedImages,
       isComingSoon: editingPortfolio.category === 'conversions' || editingPortfolio.status === 'Coming Soon' || editingPortfolio.isComingSoon
     };
 
@@ -331,7 +363,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         role: newBlogAuthorRole.trim() || 'EV Master Engineer'
       },
       tags: tagsArray.length > 0 ? tagsArray : ['Technical Guide', 'EV Care'],
-      image: newBlogImage,
+      image: newBlogImages[0] || newBlogImage,
+      images: newBlogImages.slice(0, 8),
+      videoUrl: newBlogVideoUrl.trim() || undefined,
       featured: newBlogFeatured
     };
 
@@ -341,11 +375,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     setNewBlogTitle('');
     setNewBlogExcerpt('');
     setNewBlogContent('');
+    setNewBlogVideoUrl('');
+    setNewBlogImages(['/src/assets/images/ev_battery_pack_tech_1792957574705.jpg']);
     setShowAddBlog(false);
   };
 
   const handleStartEditBlog = (post: BlogPost) => {
-    setEditingBlog({ ...post });
+    const existingImages = post.images && post.images.length > 0 
+      ? post.images 
+      : (post.image ? [post.image] : []);
+    setEditingBlog({ 
+      ...post,
+      images: existingImages.slice(0, 8)
+    });
   };
 
   const handleSaveEditBlog = (e: React.FormEvent) => {
@@ -357,9 +399,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       return;
     }
 
-    setBlogs(blogs.map((b) => (b.id === editingBlog.id ? editingBlog : b)));
+    const updatedImages = (editingBlog.images || []).slice(0, 8);
+    const updatedPost: BlogPost = {
+      ...editingBlog,
+      image: updatedImages[0] || editingBlog.image,
+      images: updatedImages
+    };
+
+    setBlogs(blogs.map((b) => (b.id === updatedPost.id ? updatedPost : b)));
     setEditingBlog(null);
-    showToast(`Article "${editingBlog.title}" updated successfully!`);
+    showToast(`Article "${updatedPost.title}" updated successfully!`);
   };
 
   const handleDeleteBlog = (id: string, title: string) => {
@@ -582,8 +631,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         </div>
       </div>
 
-      {/* KPI Overview Metrics Strip (Responsive 2-col on mobile, 5-col on desktop) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-4">
+      {/* KPI Overview Metrics Strip (Responsive 2-col on mobile, 6-col on desktop) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
         <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3">
           <div className="w-9 h-9 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
             <Wrench className="w-4 h-4" />
@@ -641,6 +690,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               {mediaLibrary.length}
             </div>
             <div className="text-[11px] text-slate-500 truncate">Media Assets</div>
+          </div>
+        </div>
+
+        <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg bg-red-500/10 text-red-500 flex items-center justify-center shrink-0">
+            <Film className="w-4 h-4" />
+          </div>
+          <div className="min-w-0">
+            <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-tight font-mono">
+              {totalVideosCount}
+            </div>
+            <div className="text-[11px] text-slate-500 truncate">Videos</div>
           </div>
         </div>
       </div>
@@ -704,7 +765,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           }`}
         >
           <ImageIcon className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-          <span>Media & Images ({mediaLibrary.length})</span>
+          <span>Media ({mediaLibrary.length})</span>
+        </button>
+
+        <button
+          onClick={() => setAdminTab('videos')}
+          className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 ${
+            adminTab === 'videos'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <Film className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+          <span>Videos ({totalVideosCount})</span>
         </button>
 
         <button
@@ -961,15 +1034,60 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
               </div>
 
-              <ImageFieldWithPicker
-                label="Project Showcase Photo"
-                sublabel="Browse workshop assets, upload from device/camera, or remove image"
-                value={newPortImage}
-                onChange={(url) => setNewPortImage(url)}
-                onOpenPicker={() => openMediaPicker(newPortImage, (url) => setNewPortImage(url), () => setNewPortImage(''))}
-                onAddMedia={handleAddMedia}
-                onNotify={showToast}
+              <MultiImageManager
+                images={newPortImages}
+                onChange={(imgs) => {
+                  setNewPortImages(imgs);
+                  if (imgs.length > 0) setNewPortImage(imgs[0]);
+                }}
+                onOpenPicker={(onSelect) => {
+                  openMediaPicker('', (url) => onSelect(url));
+                }}
+                maxImages={8}
+                label="Case Study Photo Slider (Max 8)"
+                sublabel="Organize photos for the shopping-style media slider. First photo serves as cover."
               />
+
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <Film className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Teardown Video Link (Max 1)</span>
+                    </label>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
+                      Video: {newPortVideoUrl.trim() ? '1/1' : '0/1'}
+                    </span>
+                  </div>
+                  {newPortVideoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setNewPortVideoUrl('')}
+                      className="text-[11px] text-red-500 hover:text-red-600 font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>Clear Video</span>
+                    </button>
+                  )}
+                </div>
+                <input
+                  type="url"
+                  placeholder="https://www.youtube.com/watch?v=... or tiktok.com/@user/video/..."
+                  value={newPortVideoUrl}
+                  onChange={(e) => setNewPortVideoUrl(e.target.value)}
+                  className="w-full h-10 px-3 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500"
+                />
+                {newPortVideoUrl && (
+                  <div className="mt-2">
+                    <VideoEmbed 
+                      url={newPortVideoUrl} 
+                      title="Video Attachment Preview"
+                      showDetailsBar={false}
+                      className="max-h-[220px]"
+                    />
+                  </div>
+                )}
+              </div>
 
               <div>
                 <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
@@ -1371,21 +1489,63 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
               </div>
 
-              <ImageFieldWithPicker
-                label="Project Showcase Photo"
-                sublabel="Browse workshop assets, upload from device/camera, or remove image"
-                value={editingPortfolio.image}
-                onChange={(url) => setEditingPortfolio({ ...editingPortfolio, image: url })}
-                onOpenPicker={() =>
-                  openMediaPicker(
-                    editingPortfolio.image,
-                    (url) => setEditingPortfolio({ ...editingPortfolio, image: url }),
-                    () => setEditingPortfolio({ ...editingPortfolio, image: '' })
-                  )
-                }
-                onAddMedia={handleAddMedia}
-                onNotify={showToast}
+              <MultiImageManager
+                images={editingPortfolio.images && editingPortfolio.images.length > 0 ? editingPortfolio.images : [editingPortfolio.image]}
+                onChange={(imgs) => {
+                  setEditingPortfolio({
+                    ...editingPortfolio,
+                    images: imgs,
+                    image: imgs[0] || ''
+                  });
+                }}
+                onOpenPicker={(onSelect) => {
+                  openMediaPicker('', (url) => onSelect(url));
+                }}
+                maxImages={8}
+                label="Case Study Photo Slider (Max 8)"
+                sublabel="Organize photos for the shopping-style media slider. First photo serves as cover."
               />
+
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <Film className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Teardown Video Link (Max 1)</span>
+                    </label>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
+                      Video: {editingPortfolio.videoUrl?.trim() ? '1/1' : '0/1'}
+                    </span>
+                  </div>
+                  {editingPortfolio.videoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setEditingPortfolio({ ...editingPortfolio, videoUrl: '' })}
+                      className="text-[11px] text-red-500 hover:text-red-600 font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>Remove Video</span>
+                    </button>
+                  )}
+                </div>
+                <input
+                  type="url"
+                  placeholder="https://www.youtube.com/watch?v=... or tiktok.com/@user/video/..."
+                  value={editingPortfolio.videoUrl || ''}
+                  onChange={(e) => setEditingPortfolio({ ...editingPortfolio, videoUrl: e.target.value })}
+                  className="w-full h-10 px-3 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500"
+                />
+                {editingPortfolio.videoUrl && (
+                  <div className="mt-2">
+                    <VideoEmbed 
+                      url={editingPortfolio.videoUrl} 
+                      title="Video Attachment Preview"
+                      showDetailsBar={false}
+                      className="max-h-[220px]"
+                    />
+                  </div>
+                )}
+              </div>
 
               <div>
                 <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
@@ -1544,15 +1704,60 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
               </div>
 
-              <ImageFieldWithPicker
-                label="Article Header Photo / Diagram"
-                sublabel="Select technical diagram, multimeter snapshot, or remove image"
-                value={newBlogImage}
-                onChange={(url) => setNewBlogImage(url)}
-                onOpenPicker={() => openMediaPicker(newBlogImage, (url) => setNewBlogImage(url), () => setNewBlogImage(''))}
-                onAddMedia={handleAddMedia}
-                onNotify={showToast}
+              <MultiImageManager
+                images={newBlogImages}
+                onChange={(imgs) => {
+                  setNewBlogImages(imgs);
+                  if (imgs.length > 0) setNewBlogImage(imgs[0]);
+                }}
+                onOpenPicker={(onSelect) => {
+                  openMediaPicker('', (url) => onSelect(url));
+                }}
+                maxImages={8}
+                label="Article Photo & Diagram Slider (Max 8)"
+                sublabel="Organize high-resolution photos and multimeter schematics for the shopping-app gallery slider."
               />
+
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <Film className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Teardown Video Link (Max 1)</span>
+                    </label>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
+                      Video: {newBlogVideoUrl.trim() ? '1/1' : '0/1'}
+                    </span>
+                  </div>
+                  {newBlogVideoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setNewBlogVideoUrl('')}
+                      className="text-[11px] text-red-500 hover:text-red-600 font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>Clear Video</span>
+                    </button>
+                  )}
+                </div>
+                <input
+                  type="url"
+                  placeholder="https://www.youtube.com/watch?v=... or tiktok.com/@user/video/..."
+                  value={newBlogVideoUrl}
+                  onChange={(e) => setNewBlogVideoUrl(e.target.value)}
+                  className="w-full h-10 px-3 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500"
+                />
+                {newBlogVideoUrl && (
+                  <div className="mt-2">
+                    <VideoEmbed 
+                      url={newBlogVideoUrl} 
+                      title="Video Attachment Preview"
+                      showDetailsBar={false}
+                      className="max-h-[220px]"
+                    />
+                  </div>
+                )}
+              </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
                 <div>
@@ -1878,21 +2083,63 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
               </div>
 
-              <ImageFieldWithPicker
-                label="Article Header Photo / Diagram"
-                sublabel="Select technical diagram, multimeter snapshot, or remove image"
-                value={editingBlog.image || ''}
-                onChange={(url) => setEditingBlog({ ...editingBlog, image: url })}
-                onOpenPicker={() =>
-                  openMediaPicker(
-                    editingBlog.image || '',
-                    (url) => setEditingBlog({ ...editingBlog, image: url }),
-                    () => setEditingBlog({ ...editingBlog, image: '' })
-                  )
-                }
-                onAddMedia={handleAddMedia}
-                onNotify={showToast}
+              <MultiImageManager
+                images={editingBlog.images && editingBlog.images.length > 0 ? editingBlog.images : (editingBlog.image ? [editingBlog.image] : [])}
+                onChange={(imgs) => {
+                  setEditingBlog({
+                    ...editingBlog,
+                    images: imgs,
+                    image: imgs[0] || ''
+                  });
+                }}
+                onOpenPicker={(onSelect) => {
+                  openMediaPicker('', (url) => onSelect(url));
+                }}
+                maxImages={8}
+                label="Article Photo & Diagram Slider (Max 8)"
+                sublabel="Organize high-resolution photos and multimeter schematics for the shopping-app gallery slider."
               />
+
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <Film className="w-3.5 h-3.5 text-emerald-500" />
+                      <span>Teardown Video Link (Max 1)</span>
+                    </label>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700">
+                      Video: {editingBlog.videoUrl && editingBlog.videoUrl.trim() ? '1/1' : '0/1'}
+                    </span>
+                  </div>
+                  {editingBlog.videoUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setEditingBlog({ ...editingBlog, videoUrl: '' })}
+                      className="text-[11px] text-red-500 hover:text-red-600 font-semibold flex items-center gap-1 cursor-pointer"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      <span>Remove Video</span>
+                    </button>
+                  )}
+                </div>
+                <input
+                  type="url"
+                  placeholder="https://www.youtube.com/watch?v=... or tiktok.com/@user/video/..."
+                  value={editingBlog.videoUrl || ''}
+                  onChange={(e) => setEditingBlog({ ...editingBlog, videoUrl: e.target.value })}
+                  className="w-full h-10 px-3 text-xs rounded-lg bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none focus:border-emerald-500"
+                />
+                {editingBlog.videoUrl && (
+                  <div className="mt-2">
+                    <VideoEmbed 
+                      url={editingBlog.videoUrl} 
+                      title="Video Attachment Preview"
+                      showDetailsBar={false}
+                      className="max-h-[220px]"
+                    />
+                  </div>
+                )}
+              </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
                 <div>
@@ -2462,7 +2709,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         />
       )}
 
-      {/* ==================== TAB 6: SEO & OPEN GRAPH METADATA ==================== */}
+      {/* ==================== TAB 6: VIDEOS & TEARDOWNS ==================== */}
+      {adminTab === 'videos' && (
+        <VideoManager
+          portfolio={portfolio}
+          setPortfolio={setPortfolio}
+          blogs={blogs}
+          setBlogs={setBlogs}
+          onNotify={showToast}
+        />
+      )}
+
+      {/* ==================== TAB 7: SEO & OPEN GRAPH METADATA ==================== */}
       {adminTab === 'metadata' && (
         <MetadataManager onNotify={showToast} />
       )}

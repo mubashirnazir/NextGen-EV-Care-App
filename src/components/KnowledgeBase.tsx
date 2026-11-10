@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { BlogPost } from '../types';
+import { VideoEmbed } from './VideoEmbed';
+import { MediaCarouselView } from './MediaCarouselView';
 import { 
   BookOpen, 
   Search, 
@@ -11,7 +13,8 @@ import {
   Tag, 
   CheckCircle,
   FileText,
-  AlertCircle
+  AlertCircle,
+  Play
 } from 'lucide-react';
 
 interface KnowledgeBaseProps {
@@ -144,6 +147,12 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
                   <div className="absolute top-3 left-3 bg-slate-950/85 backdrop-blur-md px-2.5 py-1 rounded-lg text-[11px] font-semibold text-emerald-400 border border-white/10">
                     {post.tags[0] || 'Technical Guide'}
                   </div>
+                  {post.videoUrl && (
+                    <div className="absolute bottom-3 left-3 bg-slate-950/85 backdrop-blur-md px-2 py-0.5 rounded-lg text-[10px] font-bold text-emerald-400 border border-emerald-500/30 flex items-center gap-1 shadow-md">
+                      <Play className="w-2.5 h-2.5 fill-emerald-400 text-emerald-400" />
+                      <span>Video Teardown</span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -246,14 +255,21 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
                 </div>
               </div>
 
-              {/* Featured Image if present */}
-              {selectedPost.image && (
-                <div className="rounded-xl overflow-hidden border border-slate-200/80 dark:border-slate-800/80 bg-slate-950 aspect-[16/9]">
-                  <img
-                    src={selectedPost.image}
-                    alt={selectedPost.title}
-                    className="w-full h-full object-cover"
-                    referrerPolicy="no-referrer"
+              {/* Shopping App Style Media Slider (Photos + In-App Video) */}
+              {(selectedPost.image || (selectedPost.images && selectedPost.images.length > 0) || selectedPost.videoUrl) && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+                    <span className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                      <Play className="w-3.5 h-3.5 fill-emerald-500 text-emerald-500" />
+                      <span>Technical Photos & Teardown Video</span>
+                    </span>
+                  </div>
+                  <MediaCarouselView
+                    primaryImage={selectedPost.image}
+                    images={selectedPost.images}
+                    videoUrl={selectedPost.videoUrl}
+                    title={selectedPost.title}
+                    aspectRatio="photo"
                   />
                 </div>
               )}

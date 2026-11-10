@@ -49,6 +49,8 @@ export interface PortfolioItem {
   };
   image: string;
   images?: string[];
+  videoUrl?: string;
+  videoPlatform?: 'youtube' | 'tiktok' | 'instagram' | 'facebook' | 'direct' | 'unknown' | 'other';
   completedDate: string;
   clientFeedback?: string;
   highlights: string[];
@@ -71,6 +73,8 @@ export interface BlogPost {
   tags: string[];
   image?: string;
   images?: string[];
+  videoUrl?: string;
+  videoPlatform?: 'youtube' | 'tiktok' | 'instagram' | 'facebook' | 'direct' | 'unknown' | 'other';
   featured?: boolean;
 }
 

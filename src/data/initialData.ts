@@ -20,6 +20,14 @@ export const INITIAL_PORTFOLIO: PortfolioItem[] = [
       value: '90 Minutes'
     },
     image: '/src/assets/images/ev_diagnostics_motor_1792957576018.jpg',
+    images: [
+      '/src/assets/images/ev_diagnostics_motor_1792957576018.jpg',
+      '/src/assets/images/hero_ev_workshop_1792957574841.jpg',
+      '/src/assets/images/ev_battery_pack_tech_1792957574705.jpg',
+      '/src/assets/images/custom_ev_conversion_1792957575143.jpg'
+    ],
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    videoPlatform: 'youtube',
     completedDate: 'October 2026',
     clientFeedback: '"Next Gen EV Care\'s door-to-door service is incredible! I didn\'t have to arrange a loader rickshaw to tow my scooty to a mechanic. The technician arrived right at my home in Gujranwala Cantt and fixed the motor sensor right on my driveway."',
     highlights: [
@@ -48,6 +56,13 @@ export const INITIAL_PORTFOLIO: PortfolioItem[] = [
       value: '72% vs Rewinding'
     },
     image: '/src/assets/images/ev_diagnostics_motor_1792957576018.jpg',
+    images: [
+      '/src/assets/images/ev_diagnostics_motor_1792957576018.jpg',
+      '/src/assets/images/custom_ev_conversion_1792957575143.jpg',
+      '/src/assets/images/hero_ev_workshop_1792957574841.jpg'
+    ],
+    videoUrl: 'https://www.tiktok.com/@nextgenevcare/video/7345678901234567890',
+    videoPlatform: 'tiktok',
     completedDate: 'October 2026',
     clientFeedback: '"Other mechanics told me I had to rewind the motor for PKR 18,000 or buy a new motor for PKR 45,000. Next Gen EV Care showed me the windings were 100% fine, replaced the bearings and sensors for a fraction of that price, and it runs quieter than the day I bought it."',
     highlights: [
@@ -76,6 +91,8 @@ export const INITIAL_PORTFOLIO: PortfolioItem[] = [
       value: 'Same Day'
     },
     image: '/src/assets/images/hero_ev_workshop_1792957574841.jpg',
+    videoUrl: 'https://www.instagram.com/reel/C1234567890/',
+    videoPlatform: 'instagram',
     completedDate: 'September 2026',
     clientFeedback: '"The dealership wanted me to wait 3 weeks for an imported controller from China. Next Gen EV Care repaired my original controller on the same day. Throttle response is silky smooth!"',
     highlights: [
@@ -104,6 +121,8 @@ export const INITIAL_PORTFOLIO: PortfolioItem[] = [
       value: '94% SOH'
     },
     image: '/src/assets/images/ev_battery_pack_tech_1792957574705.jpg',
+    videoUrl: 'https://www.facebook.com/watch/?v=10158234567890123',
+    videoPlatform: 'facebook',
     completedDate: 'September 2026',
     clientFeedback: '"My electric scooty was cutting off on flyovers even with 70% charge showing. Their diagnostic found the exact weak cell in minutes, balanced the pack, and now I get my full original range."',
     highlights: [
@@ -222,7 +241,14 @@ export const INITIAL_BLOGS: BlogPost[] = [
     },
     tags: ['Door-to-Door', 'Doorstep Service', 'Maintenance', 'Gujranwala EV Care'],
     featured: true,
-    image: '/src/assets/images/hero_ev_workshop_1792957574841.jpg'
+    image: '/src/assets/images/hero_ev_workshop_1792957574841.jpg',
+    images: [
+      '/src/assets/images/hero_ev_workshop_1792957574841.jpg',
+      '/src/assets/images/ev_diagnostics_motor_1792957576018.jpg',
+      '/src/assets/images/ev_battery_pack_tech_1792957574705.jpg'
+    ],
+    videoUrl: 'https://www.youtube.com/shorts/5O9Z8T5xK3Q',
+    videoPlatform: 'youtube'
   },
   {
     id: 'blog-2',
@@ -245,7 +271,9 @@ export const INITIAL_BLOGS: BlogPost[] = [
     },
     tags: ['Motor Repair', 'No Winding', 'Hall Sensors', 'BLDC Hub Motor'],
     featured: true,
-    image: '/src/assets/images/ev_diagnostics_motor_1792957576018.jpg'
+    image: '/src/assets/images/ev_diagnostics_motor_1792957576018.jpg',
+    videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+    videoPlatform: 'youtube'
   },
   {
     id: 'blog-3',
