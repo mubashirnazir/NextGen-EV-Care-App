@@ -1,10 +1,37 @@
 import React from 'react';
 
-export interface JsonLdProps {
-  customSchema?: Record<string, any>;
+export interface BreadcrumbItem {
+  name: string;
+  item: string;
 }
 
-export const JsonLd: React.FC<JsonLdProps> = ({ customSchema }) => {
+export interface JsonLdProps {
+  customSchema?: Record<string, any>;
+  breadcrumbs?: BreadcrumbItem[];
+}
+
+export const CANONICAL_BREADCRUMBS: BreadcrumbItem[] = [
+  { name: 'Home', item: 'https://www.nextgenevcare.com/' },
+  { name: 'Doorstep EV Services', item: 'https://www.nextgenevcare.com/#services' },
+  { name: 'EV Savings & ROI Calculator', item: 'https://www.nextgenevcare.com/#calculator' },
+  { name: 'Verified Case Studies & Repairs', item: 'https://www.nextgenevcare.com/#portfolio' },
+  { name: 'Technical Knowledge Base', item: 'https://www.nextgenevcare.com/#blog' },
+  { name: 'FAQ & Powertrain Guides', item: 'https://www.nextgenevcare.com/#faq' },
+  { name: 'Book Doorstep Service', item: 'https://www.nextgenevcare.com/#contact' }
+];
+
+export const JsonLd: React.FC<JsonLdProps> = ({ customSchema, breadcrumbs = CANONICAL_BREADCRUMBS }) => {
+  const breadcrumbListSchema = {
+    '@type': 'BreadcrumbList',
+    '@id': 'https://www.nextgenevcare.com/#breadcrumbs',
+    'itemListElement': breadcrumbs.map((crumb, index) => ({
+      '@type': 'ListItem',
+      'position': index + 1,
+      'name': crumb.name,
+      'item': crumb.item
+    }))
+  };
+
   const defaultSchema = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -49,34 +76,13 @@ export const JsonLd: React.FC<JsonLdProps> = ({ customSchema }) => {
           }
         ],
         'areaServed': [
-          {
-            '@type': 'City',
-            'name': 'Gujranwala'
-          },
-          {
-            '@type': 'AdministrativeArea',
-            'name': 'Model Town, Gujranwala'
-          },
-          {
-            '@type': 'AdministrativeArea',
-            'name': 'DC Colony, Gujranwala'
-          },
-          {
-            '@type': 'AdministrativeArea',
-            'name': 'Peoples Colony, Gujranwala'
-          },
-          {
-            '@type': 'AdministrativeArea',
-            'name': 'Gujranwala Cantt'
-          },
-          {
-            '@type': 'AdministrativeArea',
-            'name': 'Satellite Town, Gujranwala'
-          },
-          {
-            '@type': 'AdministrativeArea',
-            'name': 'Wapda Town, Gujranwala'
-          }
+          { '@type': 'City', 'name': 'Gujranwala' },
+          { '@type': 'AdministrativeArea', 'name': 'Model Town, Gujranwala' },
+          { '@type': 'AdministrativeArea', 'name': 'DC Colony, Gujranwala' },
+          { '@type': 'AdministrativeArea', 'name': 'Peoples Colony, Gujranwala' },
+          { '@type': 'AdministrativeArea', 'name': 'Gujranwala Cantt' },
+          { '@type': 'AdministrativeArea', 'name': 'Satellite Town, Gujranwala' },
+          { '@type': 'AdministrativeArea', 'name': 'Wapda Town, Gujranwala' }
         ],
         'sameAs': [
           'https://www.facebook.com/nextgenevcare',
@@ -131,6 +137,7 @@ export const JsonLd: React.FC<JsonLdProps> = ({ customSchema }) => {
           ]
         }
       },
+      breadcrumbListSchema,
       {
         '@type': 'FAQPage',
         '@id': 'https://www.nextgenevcare.com/#faq',

@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { BlogPost } from '../types';
+import { updateDocumentOpenGraph } from '../utils/seo';
 import { VideoEmbed } from './VideoEmbed';
 import { MediaCarouselView } from './MediaCarouselView';
 import { 
@@ -33,6 +34,27 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Dynamic OpenGraph metadata updater for technical articles
+  useEffect(() => {
+    if (selectedPost) {
+      updateDocumentOpenGraph({
+        title: selectedPost.title,
+        description: selectedPost.excerpt,
+        path: `/#blog?id=${selectedPost.id}`,
+        image: selectedPost.image,
+        images: selectedPost.images,
+        type: 'article',
+        keywords: selectedPost.tags
+      });
+    } else {
+      updateDocumentOpenGraph({
+        title: 'Next Gen EV Care | Door-to-Door Electric Scooty & Bike Repair in Gujranwala',
+        description: 'Next Gen EV Care provides door-to-door electric scooty and bike repair in Gujranwala. Expert hall sensor diagnosis, controller repair with zero motor rewinding, and computerized diagnostics.',
+        path: '/'
+      });
+    }
+  }, [selectedPost]);
 
   const categories = [
     { id: 'all', label: 'All Articles' },

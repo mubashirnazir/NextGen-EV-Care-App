@@ -13,11 +13,35 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
+import { generateSitemapXml } from './src/utils/sitemap';
+
 app.use(express.json());
 
 // Health check endpoint for Cloud Run and uptime checks
 app.get(['/health', '/_ah/health'], (req, res) => {
   res.status(200).send('OK');
+});
+
+// Dynamic sitemap.xml endpoint for SEO crawlers and search engine indexing
+app.get('/sitemap.xml', (req, res) => {
+  try {
+    const xml = generateSitemapXml();
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+    res.status(200).send(xml);
+  } catch (err) {
+    console.error('Error generating dynamic sitemap:', err);
+    res.status(500).send('Error generating sitemap');
+  }
+});
+
+// Dynamic robots.txt endpoint referencing the sitemap
+app.get('/robots.txt', (req, res) => {
+  res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+  res.status(200).send(`User-agent: *
+Allow: /
+Sitemap: https://www.nextgenevcare.com/sitemap.xml
+`);
 });
 
 // In-memory cache and rate-limit guard for Pakistan energy rates

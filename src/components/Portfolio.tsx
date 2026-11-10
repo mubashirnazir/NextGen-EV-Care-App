@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { PortfolioItem, ServiceCategory } from '../types';
+import { updateDocumentOpenGraph } from '../utils/seo';
 import { VideoEmbed } from './VideoEmbed';
 import { MediaCarouselView } from './MediaCarouselView';
 import { 
@@ -39,6 +40,26 @@ export const Portfolio: React.FC<PortfolioProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<'all' | ServiceCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeVideoModal, setActiveVideoModal] = useState<{ url: string; title: string } | null>(null);
+
+  // Dynamic OpenGraph metadata updater for project previews
+  useEffect(() => {
+    if (selectedProject) {
+      updateDocumentOpenGraph({
+        title: `${selectedProject.title} (${selectedProject.vehicleModel})`,
+        description: selectedProject.description,
+        path: `/#portfolio?id=${selectedProject.id}`,
+        image: selectedProject.image,
+        images: selectedProject.images,
+        vehicleModel: selectedProject.vehicleModel
+      });
+    } else {
+      updateDocumentOpenGraph({
+        title: 'Next Gen EV Care | Door-to-Door Electric Scooty & Bike Repair in Gujranwala',
+        description: 'Next Gen EV Care provides door-to-door electric scooty and bike repair in Gujranwala. Expert hall sensor diagnosis, controller repair with zero motor rewinding, and computerized diagnostics.',
+        path: '/'
+      });
+    }
+  }, [selectedProject]);
 
   // Filtered Projects
   const filteredProjects = useMemo(() => {

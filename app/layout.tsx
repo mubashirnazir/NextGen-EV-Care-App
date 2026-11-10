@@ -1,5 +1,6 @@
 import React from 'react';
 import JsonLd from '../src/components/JsonLd';
+import { generateServiceMetadata, buildAbsoluteUrl, SITE_ORIGIN, ServiceMetadataOptions } from '../src/utils/seo';
 import '../src/index.css';
 
 // Type definitions matching Next.js App Router (next/types)
@@ -52,8 +53,19 @@ export const viewport: Viewport = {
   maximumScale: 5
 };
 
+/**
+ * Dynamic Metadata Generator for Next.js App Router Pages & Service Routes
+ * Produces project-specific OpenGraph images, titles, and descriptions dynamically
+ */
+export function generateDynamicMetadata(options: ServiceMetadataOptions): Metadata {
+  return generateServiceMetadata(options) as Metadata;
+}
+
+/**
+ * Site-wide Default Fallback Metadata
+ */
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.nextgenevcare.com'),
+  metadataBase: new URL(SITE_ORIGIN),
   title: {
     default: 'Next Gen EV Care | Door-to-Door Electric Scooty & E-Bike Repair in Gujranwala',
     template: '%s | Next Gen EV Care Gujranwala'
@@ -61,7 +73,7 @@ export const metadata: Metadata = {
   description:
     'Certified on-call doorstep electric scooty, e-bike, and lithium battery repair in Gujranwala. Zero-rewinding hall sensor replacements, active cell balancing, and BLDC controller micro-rework.',
   applicationName: 'Next Gen EV Care',
-  authors: [{ name: 'Next Gen EV Care Engineering Team', url: 'https://www.nextgenevcare.com' }],
+  authors: [{ name: 'Next Gen EV Care Engineering Team', url: SITE_ORIGIN }],
   generator: 'Next Gen EV Care Platform',
   keywords: [
     'electric scooty repair Gujranwala',
@@ -86,17 +98,17 @@ export const metadata: Metadata = {
     telephone: false
   },
   alternates: {
-    canonical: 'https://www.nextgenevcare.com'
+    canonical: SITE_ORIGIN
   },
   openGraph: {
     title: 'Next Gen EV Care | Door-to-Door Electric Scooty & E-Bike Repair in Gujranwala',
     description:
       'Expert mobile technicians dispatched to your doorstep in Gujranwala. Zero motor rewinding, certified lithium cell balancing, and BLDC electronics troubleshooting.',
-    url: 'https://www.nextgenevcare.com',
+    url: SITE_ORIGIN,
     siteName: 'Next Gen EV Care',
     images: [
       {
-        url: 'https://www.nextgenevcare.com/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png',
+        url: `${SITE_ORIGIN}/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png`,
         width: 1200,
         height: 630,
         alt: 'Next Gen EV Care - Mobile EV Scooty Workshop in Gujranwala'
@@ -111,7 +123,7 @@ export const metadata: Metadata = {
     description:
       'Certified door-to-door electric scooty and lithium battery repair in Gujranwala. 85% of issues resolved right on your driveway.',
     images: [
-      'https://www.nextgenevcare.com/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png'
+      `${SITE_ORIGIN}/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png`
     ],
     creator: '@nextgenevcare'
   },
@@ -127,9 +139,9 @@ export const metadata: Metadata = {
     }
   },
   icons: {
-    icon: '/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png',
-    shortcut: '/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png',
-    apple: '/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png'
+    icon: `${SITE_ORIGIN}/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png`,
+    shortcut: `${SITE_ORIGIN}/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png`,
+    apple: `${SITE_ORIGIN}/NextGen-EV-Care-for-Social-Media-on-call-Electric%20Scooty-services-gujranwala.png`
   }
 };
 

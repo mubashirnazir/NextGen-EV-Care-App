@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { ActiveTab } from '../types';
+import { FaqJsonLd } from './FaqJsonLd';
 import { 
   HelpCircle, 
   Search, 
@@ -178,6 +179,8 @@ export const FAQSection: React.FC<FAQSectionProps> = ({ setActiveTab }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-10 sm:space-y-12">
+      {/* Schema.org FAQPage Structured Data for Rich Search Snippets & AI Search Recognition */}
+      <FaqJsonLd faqs={faqList} />
       
       {/* FAQ Header & Introduction */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-slate-200/80 dark:border-slate-800/80">
