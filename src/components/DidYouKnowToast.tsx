@@ -1,15 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Lightbulb, 
-  X, 
-  ChevronLeft, 
-  ChevronRight, 
-  Sparkles, 
-  Info, 
-  ShieldAlert, 
-  BatteryCharging, 
-  Gauge, 
-  Wrench,
+import {
+  Lightbulb,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Info,
   Minimize2,
   Maximize2
 } from 'lucide-react';
@@ -102,7 +97,7 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
   });
   const [isMinimized, setIsMinimized] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const currentTip = EV_MAINTENANCE_TIPS[currentIndex];
 
@@ -143,45 +138,47 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
   };
 
   if (isDismissed) {
-    // Subtle button to restore if user wants to see maintenance tips
+    // Inverted restore trigger pill
     return (
       <div className="fixed bottom-5 left-5 z-30">
         <button
+          type="button"
           onClick={() => {
             setIsDismissed(false);
             sessionStorage.removeItem('nextgen_did_you_know_dismissed');
           }}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/70 dark:bg-slate-700/70 border border-slate-100 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-medium shadow-md hover:border-emerald-500/50 hover:text-emerald-500 dark:hover:text-emerald-400 backdrop-blur-sm transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 text-slate-100 border border-slate-800 shadow-xl hover:border-emerald-400/60 hover:text-emerald-300 dark:bg-white/90 dark:text-slate-900 dark:border-white/40 dark:shadow-2xl dark:hover:border-emerald-600/60 dark:hover:text-emerald-700 backdrop-blur-xl text-xs font-semibold transition-colors duration-300 cursor-pointer"
           title="Show EV Maintenance Tips"
         >
-          <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+          <Lightbulb className="w-3.5 h-3.5 text-amber-400 dark:text-amber-600 shrink-0" />
           <span>EV Pro Tips</span>
         </button>
       </div>
     );
   }
 
-  // Minimized compact pill state
+  // Minimized compact pill state (inverted theme)
   if (isMinimized) {
     return (
       <div className="fixed bottom-5 left-5 z-30 max-w-xs animate-in fade-in slide-in-from-bottom-2">
-        <div className="flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-white/95 dark:bg-slate-900/95 border border-emerald-500/30 dark:border-emerald-500/30 shadow-xl backdrop-blur-md text-xs">
-          <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-          <Lightbulb className="w-4 h-4 text-amber-500 shrink-0" />
-          <span className="font-semibold text-slate-900 dark:text-white truncate">
+        <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-slate-900 text-slate-100 border border-slate-800 shadow-xl dark:bg-white/90 dark:text-slate-900 dark:border-white/40 dark:shadow-2xl backdrop-blur-xl text-xs transition-colors duration-300">
+          <Lightbulb className="w-4 h-4 text-amber-400 dark:text-amber-600 shrink-0" />
+          <span className="font-semibold text-white dark:text-slate-900 truncate">
             {currentTip.title}
           </span>
           <button
+            type="button"
             onClick={() => setIsMinimized(false)}
-            className="p-1 text-slate-400 hover:text-slate-900 dark:hover:text-white ml-1"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white dark:text-slate-500 dark:hover:text-slate-900 transition-colors cursor-pointer"
             title="Expand tip card"
             aria-label="Expand maintenance tip"
           >
             <Maximize2 className="w-3.5 h-3.5" />
           </button>
           <button
+            type="button"
             onClick={handleDismiss}
-            className="p-1 text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white dark:text-slate-500 dark:hover:text-slate-900 transition-colors cursor-pointer"
             title="Dismiss for this session"
             aria-label="Dismiss toast"
           >
@@ -193,31 +190,30 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
   }
 
   return (
-    <aside 
+    <aside
       aria-label="EV Maintenance Tips"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      className="fixed bottom-5 left-4 sm:left-5 z-30 w-[calc(100%-2rem)] sm:w-[380px] max-w-[calc(100vw-2rem)] liquid-glass border border-white/80 dark:border-white/10 shadow-2xl rounded-2xl overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-bottom-3"
+      className="fixed bottom-5 left-4 sm:left-5 z-30 w-[calc(100%-2rem)] sm:w-[420px] max-w-[calc(100vw-2rem)] rounded-2xl p-6 md:p-8 space-y-5 bg-slate-900 text-slate-100 border border-slate-800 shadow-xl dark:bg-white/90 dark:text-slate-900 dark:border-white/40 dark:shadow-2xl backdrop-blur-xl transition-colors duration-300 animate-in fade-in slide-in-from-bottom-3"
     >
       {/* Top Banner & Control Bar */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 liquid-glass-subtle border-b border-slate-100 dark:border-slate-800/80">
-        <div className="flex items-center gap-2">
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-bold tracking-wide uppercase">
-            <Lightbulb className="w-3 h-3 text-amber-500 fill-amber-500" />
+      <div className="flex items-center justify-between gap-3 pb-4 border-b border-slate-800 dark:border-slate-200/80">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/35 text-amber-300 dark:bg-amber-100 dark:border-amber-300 dark:text-amber-900 text-[11px] font-bold tracking-wide uppercase whitespace-nowrap">
+            <Lightbulb className="w-3.5 h-3.5 text-amber-400 dark:text-amber-600 shrink-0" />
             <span>Did you know?</span>
           </span>
-          <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+          <span className="text-xs text-slate-400 dark:text-slate-500 font-mono tabular-nums">
             {currentIndex + 1}/{EV_MAINTENANCE_TIPS.length}
           </span>
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-1">
-          {/* Previous / Next Buttons */}
+        <div className="flex items-center gap-1.5 shrink-0">
           <button
             type="button"
             onClick={handlePrev}
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white liquid-glass transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-600 dark:hover:text-slate-900 dark:border-slate-200 transition-colors cursor-pointer"
             title="Previous tip"
             aria-label="Previous tip"
           >
@@ -226,29 +222,25 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
           <button
             type="button"
             onClick={handleNext}
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white liquid-glass transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-600 dark:hover:text-slate-900 dark:border-slate-200 transition-colors cursor-pointer"
             title="Next tip"
             aria-label="Next tip"
           >
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
-
-          {/* Minimize Button */}
           <button
             type="button"
             onClick={() => setIsMinimized(true)}
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white liquid-glass transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-600 dark:hover:text-slate-900 dark:border-slate-200 transition-colors cursor-pointer"
             title="Minimize toast"
             aria-label="Minimize toast"
           >
             <Minimize2 className="w-3.5 h-3.5" />
           </button>
-
-          {/* Close / Dismiss Button */}
           <button
             type="button"
             onClick={handleDismiss}
-            className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-900 dark:hover:text-white liquid-glass transition-colors"
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-600 dark:hover:text-slate-900 dark:border-slate-200 transition-colors cursor-pointer"
             title="Close for session"
             aria-label="Close notification"
           >
@@ -258,17 +250,17 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
       </div>
 
       {/* Main Toast Content */}
-      <div className="p-3.5 space-y-2.5">
-        <div>
-          <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">
+      <div className="space-y-3">
+        <div className="space-y-2">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/35 text-emerald-300 dark:bg-emerald-100 dark:border-emerald-300 dark:text-emerald-800 text-[11px] font-bold uppercase tracking-wider">
             {currentTip.category}
           </span>
-          <h3 className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white mt-0.5 leading-snug">
+          <h3 className="text-sm sm:text-base font-bold text-white dark:text-slate-900 leading-snug">
             {currentTip.title}
           </h3>
         </div>
 
-        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+        <p className="text-xs sm:text-sm text-slate-300 dark:text-slate-700 leading-relaxed">
           {currentTip.tip}
         </p>
 
@@ -278,23 +270,23 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
             <button
               type="button"
               onClick={() => handleActionClick(currentTip.actionTab)}
-              className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 group"
+              className="text-xs font-bold text-emerald-400 dark:text-emerald-700 hover:underline flex items-center gap-1 group cursor-pointer"
             >
               <span>{currentTip.actionText}</span>
-              <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
             </button>
           )}
 
-          <div className="flex items-center gap-1 ml-auto">
+          <div className="flex items-center gap-1.5 ml-auto">
             {EV_MAINTENANCE_TIPS.map((_, idx) => (
               <button
                 key={idx}
                 type="button"
                 onClick={() => setCurrentIndex(idx)}
-                className={`h-1 rounded-full transition-all ${
-                  idx === currentIndex 
-                    ? 'w-4 bg-emerald-500' 
-                    : 'w-1.5 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300'
+                className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                  idx === currentIndex
+                    ? 'w-4 bg-emerald-400 dark:bg-emerald-600'
+                    : 'w-1.5 bg-slate-700 hover:bg-slate-600 dark:bg-slate-300 dark:hover:bg-slate-400'
                 }`}
                 title={`Go to tip ${idx + 1}`}
                 aria-label={`Go to tip ${idx + 1}`}
@@ -302,14 +294,14 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Small AI Behaviour Disclaimer Note */}
-        <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-start gap-1.5 text-[10px] text-slate-400 dark:text-slate-500 leading-tight">
-          <Info className="w-3 h-3 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
-          <span>
-            <strong className="font-medium text-slate-500 dark:text-slate-400">Advisory Note:</strong> AI-generated info related to EV scooty behaviors is an advisory benchmark and not fully implemented on your specific vehicle.
-          </span>
-        </div>
+      {/* Advisory Note */}
+      <div className="pt-3.5 border-t border-slate-800 dark:border-slate-200/80 flex items-start gap-2 text-[11px] text-slate-400 dark:text-slate-600 leading-relaxed">
+        <Info className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 shrink-0 mt-0.5" />
+        <span>
+          <strong className="font-semibold text-slate-300 dark:text-slate-800">Advisory Note:</strong> AI-generated info related to EV scooty behaviors is an advisory benchmark and not fully implemented on your specific vehicle.
+        </span>
       </div>
     </aside>
   );

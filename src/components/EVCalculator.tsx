@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { motion } from 'motion/react';
 import {
   Gauge,
   BatteryCharging,
@@ -17,6 +18,7 @@ import {
   Thermometer,
   Cpu
 } from 'lucide-react';
+import { RangeTemperatureChart, ChemistryBaselineInput } from './RangeTemperatureChart';
 
 export type BatteryChemistry = 'li-ion' | 'lifepo4' | 'graphene';
 export type WeatherCondition = 'cold' | 'mild' | 'hot';
@@ -314,23 +316,23 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
     // Health Band Classification (Emerald 85-100%, Amber 60-84%, Red <60%)
     let healthBand: 'healthy' | 'moderate' | 'critical' = 'healthy';
     let healthLabel = 'Healthy pack / peak range';
-    let barColorClass = 'bg-emerald-500';
+    let barHexColor = '#10b981';
     let badgeColorClass = 'text-emerald-600 dark:text-emerald-400';
 
     if (efficiencyPct >= 85) {
       healthBand = 'healthy';
       healthLabel = 'Healthy pack / peak range';
-      barColorClass = 'bg-emerald-500';
+      barHexColor = '#10b981';
       badgeColorClass = 'text-emerald-600 dark:text-emerald-400';
     } else if (efficiencyPct >= 60) {
       healthBand = 'moderate';
       healthLabel = 'Moderate wear / routine balance recommended';
-      barColorClass = 'bg-amber-500';
+      barHexColor = '#f59e0b';
       badgeColorClass = 'text-amber-600 dark:text-amber-400';
     } else {
       healthBand = 'critical';
       healthLabel = 'Weak cells / urgent service needed';
-      barColorClass = 'bg-red-500';
+      barHexColor = '#ef4444';
       badgeColorClass = 'text-red-600 dark:text-red-400';
     }
 
@@ -347,7 +349,7 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
       efficiencyPct,
       healthBand,
       healthLabel,
-      barColorClass,
+      barHexColor,
       badgeColorClass,
       evCostPerKm: evCostPerKm.toFixed(2),
       petrolCostPerKm: petrolCostPerKm.toFixed(2),
@@ -369,6 +371,39 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
     petrolPrice,
     petrolMileageKmPerL,
   ]);
+
+  // --- Baseline Range by Chemistry (for D3 Temperature & Chemistry Trend Chart) ---
+  const chemistryBaselines = useMemo<Record<BatteryChemistry, ChemistryBaselineInput>>(() => {
+    const nominalWh = voltage * capacityAh;
+    const speedFactor = Math.pow(avgSpeed / 25, 1.45);
+    const loadFactor = 1 + ((combinedLoad - 75) / 100) * 0.35;
+    const terrainFactor =
+      terrain === 'moderate' ? 1.15 : terrain === 'steep' ? 1.35 : terrain === 'traffic' ? 1.24 : 1.0;
+    const heavyThrottleRatio = Math.max(0, (avgSpeed - 32) / 43);
+    const motorScaleFactor = 0.75 + (motorWatts / 1500) * 0.25;
+
+    const computeFor = (chemId: BatteryChemistry): ChemistryBaselineInput => {
+      const chem = CHEMISTRY_SPECS[chemId];
+      const voltageSagFactor = Math.max(0.74, 1 - heavyThrottleRatio * chem.sagSensitivity);
+      const whPerKm = Math.max(
+        10,
+        Math.round(18.5 * motorScaleFactor * speedFactor * loadFactor * terrainFactor * chem.weightDrag * 10) / 10
+      );
+      const effectiveWh =
+        nominalWh * (batterySOH / 100) * chem.usableFactor * chem.dischargeEfficiency * voltageSagFactor;
+      return {
+        id: chemId,
+        label: chem.name,
+        baseRangeKm: Math.max(1, Math.round(effectiveWh / whPerKm)),
+      };
+    };
+
+    return {
+      lifepo4: computeFor('lifepo4'),
+      'li-ion': computeFor('li-ion'),
+      graphene: computeFor('graphene'),
+    };
+  }, [voltage, capacityAh, avgSpeed, combinedLoad, terrain, motorWatts, batterySOH]);
 
   // --- Charge Time & Cost Engine ---
   const chargeSimulation = useMemo(() => {
@@ -415,15 +450,15 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
     const cycleWearPct = ((annualCycles / 12) * healthBatteryAgeMonths / totalCycles) * 30;
     const simulatedSOH = Math.max(35, Math.min(100, Math.round(100 - ageWearPct - cycleWearPct)));
 
-    let barColorClass = 'bg-emerald-500';
+    let barHexColor = '#10b981';
     let badgeColorClass = 'text-emerald-600 dark:text-emerald-400';
     let statusText = 'Healthy pack / peak range';
     if (simulatedSOH < 60) {
-      barColorClass = 'bg-red-500';
+      barHexColor = '#ef4444';
       badgeColorClass = 'text-red-600 dark:text-red-400';
       statusText = 'Weak cells / urgent service needed';
     } else if (simulatedSOH < 85) {
-      barColorClass = 'bg-amber-500';
+      barHexColor = '#f59e0b';
       badgeColorClass = 'text-amber-600 dark:text-amber-400';
       statusText = 'Moderate wear / routine balance recommended';
     }
@@ -433,7 +468,7 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
 
     return {
       simulatedSOH,
-      barColorClass,
+      barHexColor,
       badgeColorClass,
       statusText,
       remainingYears,
@@ -996,9 +1031,17 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
                     aria-label="Battery Health Simulation Efficiency"
                     className="w-full h-3.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden"
                   >
-                    <div
-                      className={`h-full rounded-full transition-all duration-300 ${rangeSimulation.barColorClass}`}
-                      style={{ width: `${rangeSimulation.efficiencyPct}%` }}
+                    <motion.div
+                      className="h-full rounded-full"
+                      initial={{ width: '0%', backgroundColor: rangeSimulation.barHexColor }}
+                      animate={{
+                        width: `${rangeSimulation.efficiencyPct}%`,
+                        backgroundColor: rangeSimulation.barHexColor,
+                      }}
+                      transition={{
+                        width: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+                        backgroundColor: { duration: 0.4, ease: 'easeOut' },
+                      }}
                     />
                   </div>
 
@@ -1039,6 +1082,14 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
               </div>
             </div>
           </div>
+
+          {/* D3 Temperature & Battery Chemistry Range Trend Chart */}
+          <RangeTemperatureChart
+            activeChemistry={batteryChemistry}
+            activeWeather={weatherCondition}
+            chemistryBaselines={chemistryBaselines}
+            onSelectChemistry={setBatteryChemistry}
+          />
         </div>
       )}
 
@@ -1361,9 +1412,17 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
                     aria-valuemax={100}
                     className="w-full h-3.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden"
                   >
-                    <div
-                      className={`h-full rounded-full transition-all duration-300 ${lifespanSimulation.barColorClass}`}
-                      style={{ width: `${lifespanSimulation.simulatedSOH}%` }}
+                    <motion.div
+                      className="h-full rounded-full"
+                      initial={{ width: '0%', backgroundColor: lifespanSimulation.barHexColor }}
+                      animate={{
+                        width: `${lifespanSimulation.simulatedSOH}%`,
+                        backgroundColor: lifespanSimulation.barHexColor,
+                      }}
+                      transition={{
+                        width: { duration: 0.45, ease: [0.16, 1, 0.3, 1] },
+                        backgroundColor: { duration: 0.4, ease: 'easeOut' },
+                      }}
                     />
                   </div>
                   <p className={`text-xs font-semibold ${lifespanSimulation.badgeColorClass}`}>
