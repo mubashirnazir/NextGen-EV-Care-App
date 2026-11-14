@@ -82,6 +82,46 @@ const BATTERY_TIPS_ENGINE: Record<BatteryChemistry, ChemistryTipProfile> = {
         ruleLabel: 'Minimum Cell Floor',
         ruleValue: '2.50V / cell cut-off',
       },
+      {
+        id: 'lfp-puddles',
+        tag: 'Monsoon & Rain',
+        accentTone: 'amber',
+        title: 'Never wade through deep puddles.',
+        guidance:
+          'Submerging the hub motor axle or floorboard controller housing above axle level will trigger a BMS lockout or short-circuit your controller.',
+        ruleLabel: 'Max Safe Water',
+        ruleValue: 'Below axle level',
+      },
+      {
+        id: 'lfp-dry-port',
+        tag: 'Monsoon & Rain',
+        accentTone: 'amber',
+        title: 'Dry the charging port completely.',
+        guidance:
+          'Always wipe the charging socket with a dry cloth before inserting the charger plug during humid or rainy days to prevent pin arcing.',
+        ruleLabel: 'Pre-Charge Check',
+        ruleValue: 'Wipe socket dry',
+      },
+      {
+        id: 'lfp-storage',
+        tag: 'Long-Term Standby',
+        accentTone: 'emerald',
+        title: 'Storing your EV for weeks?',
+        guidance:
+          'Charge or discharge the lithium battery to 50%–60% state-of-charge before parking. Disconnect the main circuit breaker or battery MCB under the seat, and top it up to 50% every 4 to 6 weeks to prevent deep self-discharge cell damage.',
+        ruleLabel: 'Standby Routine',
+        ruleValue: '50%–60% · MCB off · 4–6 wks',
+      },
+      {
+        id: 'lfp-washing',
+        tag: 'Safe Cleaning',
+        accentTone: 'emerald',
+        title: 'No high-pressure car-wash guns.',
+        guidance:
+          'Never spray high-pressure water directly under the seat compartment or near the hub motor axle seals. Always wash with a gentle bucket wash and wipe dry with a microfiber cloth.',
+        ruleLabel: 'Wash Method',
+        ruleValue: 'Bucket wash & microfiber',
+      },
     ],
   },
   'li-ion': {
@@ -95,9 +135,9 @@ const BATTERY_TIPS_ENGINE: Record<BatteryChemistry, ChemistryTipProfile> = {
         id: 'nmc-sweetspot',
         tag: '20% – 80% Rule',
         accentTone: 'emerald',
-        title: 'Keep Daily Charging Between 20% and 80% SOC',
+        title: 'Keep daily charging between 20% and 80%.',
         guidance:
-          'High-density 3.6V NMC/NCA cells experience high cathode lattice stress above 4.10V. Stopping daily top-ups around 80%–85% can nearly double usable cycle count compared to daily 100% charging.',
+          'Stopping daily charges around 80%–85% reduces stress on 3.6V NMC cells and nearly doubles overall battery life compared to charging to 100% every day.',
         ruleLabel: 'Optimal Daily Band',
         ruleValue: '20% – 80% SOC',
       },
@@ -105,31 +145,51 @@ const BATTERY_TIPS_ENGINE: Record<BatteryChemistry, ChemistryTipProfile> = {
         id: 'nmc-heat',
         tag: 'Summer Heat Alert',
         accentTone: 'amber',
-        title: 'Never Store at 100% Charge in Gujranwala Summer Heat',
+        title: 'Avoid 100% parking and plug-ins right after a hot ride.',
         guidance:
-          'Leaving a 3.6V/cell pack parked at 100% (4.20V/cell) inside a hot 40°C+ garage accelerates electrolyte oxidation and permanent range loss. Park at 40%–60% SOC if not riding for more than 48 hours.',
-        ruleLabel: 'Storage SOC in Heat',
-        ruleValue: '40% – 60% (< 30°C)',
-      },
-      {
-        id: 'nmc-cooldown',
-        tag: 'Thermal Protection',
-        accentTone: 'amber',
-        title: 'Wait 25 Minutes After High-Speed Rides Before Charging',
-        guidance:
-          'Sustained 45+ km/h throttle heats internal cylindrical cells. Letting the battery cool in shade for 20–30 minutes before plugging in prevents BMS thermal throttling and separator fatigue.',
+          'Let your scooty cool in shade for 20–30 minutes after riding in Gujranwala summer heat (>35°C) before plugging in, and avoid leaving it parked at 100% in high heat.',
         ruleLabel: 'Post-Ride Cooldown',
         ruleValue: '20 – 30 mins shaded',
       },
       {
-        id: 'nmc-cutoff',
-        tag: 'Cell Recovery Care',
-        accentTone: 'emerald',
-        title: 'Avoid Letting Pack Sit Below 3.0V Per Cell',
+        id: 'nmc-puddles',
+        tag: 'Monsoon & Rain',
+        accentTone: 'amber',
+        title: 'Never wade through deep puddles.',
         guidance:
-          'If your scooty trips low-voltage cut-off, plug it in the same evening. Parasitic BMS draw on an empty pack can pull cells below 2.5V and lock the pack out of standard charging.',
-        ruleLabel: 'Cut-Off Threshold',
-        ruleValue: '3.00V / cell minimum',
+          'Submerging the hub motor axle or floorboard controller housing above axle level will trigger a BMS lockout or short-circuit your controller.',
+        ruleLabel: 'Max Safe Water',
+        ruleValue: 'Below axle level',
+      },
+      {
+        id: 'nmc-dry-port',
+        tag: 'Monsoon & Rain',
+        accentTone: 'amber',
+        title: 'Dry the charging port completely.',
+        guidance:
+          'Always wipe the charging socket with a dry cloth before inserting the charger plug during humid or rainy days to prevent pin arcing.',
+        ruleLabel: 'Pre-Charge Check',
+        ruleValue: 'Wipe socket dry',
+      },
+      {
+        id: 'nmc-storage',
+        tag: 'Long-Term Standby',
+        accentTone: 'emerald',
+        title: 'Storing your EV for weeks?',
+        guidance:
+          'Charge or discharge the lithium battery to 50%–60% state-of-charge before parking. Disconnect the main circuit breaker or battery MCB under the seat, and top it up to 50% every 4 to 6 weeks to prevent deep self-discharge cell damage.',
+        ruleLabel: 'Standby Routine',
+        ruleValue: '50%–60% · MCB off · 4–6 wks',
+      },
+      {
+        id: 'nmc-washing',
+        tag: 'Safe Cleaning',
+        accentTone: 'emerald',
+        title: 'No high-pressure car-wash guns.',
+        guidance:
+          'Never spray high-pressure water directly under the seat compartment or near the hub motor axle seals. Always wash with a gentle bucket wash and wipe dry with a microfiber cloth.',
+        ruleLabel: 'Wash Method',
+        ruleValue: 'Bucket wash & microfiber',
       },
     ],
   },
@@ -144,41 +204,61 @@ const BATTERY_TIPS_ENGINE: Record<BatteryChemistry, ChemistryTipProfile> = {
         id: 'gr-floor',
         tag: 'Sulfation Prevention',
         accentTone: 'amber',
-        title: 'Never Drain Below 10.5V Per 12V Block Under Load',
+        title: 'Never drain below 10.5V per 12V block.',
         guidance:
-          'Deeply discharging a 48V/60V/72V Graphene or Lead-Acid Gel string below 10.5V per block rapidly forms hard lead-sulfate crystals on the plates, permanently slashing single-charge range.',
+          'Running Graphene or Lead-Acid Gel blocks down until the scooty cuts out permanently damages the plates. Plug in right after riding once the pack cools.',
         ruleLabel: 'Hard Voltage Floor',
         ruleValue: '10.5V / 12V block',
       },
       {
         id: 'gr-terminals',
-        tag: 'Terminal Anti-Oxidation',
+        tag: 'Terminal Care',
         accentTone: 'emerald',
-        title: 'Clean Sulfated Busbars & Torque Terminal Bolts Monthly',
+        title: 'Keep terminals clean and use the right charger.',
         guidance:
-          'Loose or oxidized M6/M8 terminal bridges create localized resistance spikes that overheat wiring and unbalance adjacent blocks. Brush terminals clean and apply anti-oxidation grease every 30 days.',
+          'Check battery terminal bolts monthly for white corrosion and only use a matched 3-stage automatic charger (2.5A–4A) so blocks do not overheat or swell.',
         ruleLabel: 'Inspection Cadence',
         ruleValue: 'Every 30 days',
       },
       {
-        id: 'gr-charger',
-        tag: 'Charger Current Rating',
+        id: 'gr-puddles',
+        tag: 'Monsoon & Rain',
         accentTone: 'amber',
-        title: 'Match Trickle / Float Charger Amps to 0.1C – 0.15C',
+        title: 'Never wade through deep puddles.',
         guidance:
-          'Oversized high-amp chargers boil Gel electrolyte and warp battery casings. Always use an automatic 3-stage charger rated around 2.5A–4A with a controlled 13.6V–13.8V per-block float stage.',
-        ruleLabel: 'Recommended Charge Rate',
-        ruleValue: '0.1C – 0.15C (3-stage)',
+          'Submerging the hub motor axle or floorboard controller housing above axle level will trigger a BMS lockout or short-circuit your controller.',
+        ruleLabel: 'Max Safe Water',
+        ruleValue: 'Below axle level',
       },
       {
-        id: 'gr-recharge',
-        tag: '100% Habit Rule',
-        accentTone: 'emerald',
-        title: 'Recharge Right After Every Ride — Never Leave Partial',
+        id: 'gr-dry-port',
+        tag: 'Monsoon & Rain',
+        accentTone: 'amber',
+        title: 'Dry the charging port completely.',
         guidance:
-          'Unlike lithium packs, Graphene and VRLA Gel batteries perform longest when kept topped up at 100% after cooling. Leaving them at 40% overnight accelerates irreversible plate sulfation.',
-        ruleLabel: 'Ideal Resting State',
-        ruleValue: '100% SOC after cooldown',
+          'Always wipe the charging socket with a dry cloth before inserting the charger plug during humid or rainy days to prevent pin arcing.',
+        ruleLabel: 'Pre-Charge Check',
+        ruleValue: 'Wipe socket dry',
+      },
+      {
+        id: 'gr-storage',
+        tag: 'Long-Term Standby',
+        accentTone: 'emerald',
+        title: 'Storing your EV for weeks?',
+        guidance:
+          'Unlike lithium (stored at 50%–60%), top Graphene blocks to 100% before parking, disconnect the main circuit breaker or battery MCB under the seat, and recharge every 4 weeks to stop plate sulfation.',
+        ruleLabel: 'Standby Routine',
+        ruleValue: '100% · MCB off · 4 wks',
+      },
+      {
+        id: 'gr-washing',
+        tag: 'Safe Cleaning',
+        accentTone: 'emerald',
+        title: 'No high-pressure car-wash guns.',
+        guidance:
+          'Never spray high-pressure water directly under the seat compartment or near the hub motor axle seals. Always wash with a gentle bucket wash and wipe dry with a microfiber cloth.',
+        ruleLabel: 'Wash Method',
+        ruleValue: 'Bucket wash & microfiber',
       },
     ],
   },
@@ -246,7 +326,7 @@ export const BatteryCareTips: React.FC<BatteryCareTipsProps> = ({
       aria-label="Battery Care Pro-Tips"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      className="mb-8 rounded-2xl p-6 sm:p-7 transition-colors duration-300 bg-slate-900 text-slate-100 border border-slate-800 shadow-xl dark:bg-white/90 dark:text-slate-900 dark:border-white/40 dark:shadow-2xl backdrop-blur-xl"
+      className="mb-8 rounded-2xl p-6 sm:p-7 transition-colors duration-300 bg-slate-900 text-slate-100 border border-slate-800 shadow-2xl dark:bg-white/85 dark:text-slate-900 dark:border-white/40 dark:shadow-2xl backdrop-blur-xl"
     >
       {/* Top Row: Eyebrow + Chemistry Sync Switcher */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-5 border-b border-slate-800 dark:border-slate-200/90">

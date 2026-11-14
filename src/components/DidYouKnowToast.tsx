@@ -23,66 +23,75 @@ interface MaintenanceTip {
 const EV_MAINTENANCE_TIPS: MaintenanceTip[] = [
   {
     id: 1,
-    category: 'Battery Thermal Health',
-    icon: 'battery',
-    title: 'Wait 20 Mins Before Hot Summer Charging',
-    tip: 'Never plug your lithium battery immediately after a long ride in peak Pakistani summer (>35°C). Let cells cool down for 20–30 mins to prevent accelerated capacity fade.',
-    actionText: 'Check Battery Diagnostic',
-    actionTab: 'calculator'
-  },
-  {
-    id: 2,
-    category: 'Motor & Ingress Safety',
+    category: 'Monsoon & Rainy Season',
     icon: 'safety',
-    title: 'Never Pressure-Wash Hub Motors or Under-Seat',
-    tip: 'Car-wash pressure guns force water past hub axle oil seals and into the controller compartment. Always clean motor wheels and harness covers with a damp microfiber cloth.',
+    title: 'Never wade through deep puddles.',
+    tip: 'Submerging the hub motor axle or floorboard controller housing above axle level will trigger a BMS lockout or short-circuit your controller.',
     actionText: 'Book Doorstep Inspection',
     actionTab: 'contact'
   },
   {
-    id: 3,
-    category: 'Battery Cycle Life',
-    icon: 'battery',
-    title: 'The 20% to 80% Daily Commuter Rule',
-    tip: 'For daily city commuting, charging between 20% and 80–85% can more than double your lithium battery cycle life from 1,000 cycles to over 2,500 cycles.',
-    actionText: 'Simulate Cycle Life',
-    actionTab: 'calculator'
-  },
-  {
-    id: 4,
-    category: 'Range Optimization',
-    icon: 'range',
-    title: 'Low Tire Pressure Can Steal 15–20% Range',
-    tip: 'Under-inflated scooty tires (under 32 PSI) cause severe rolling resistance, forcing your hub motor to draw 4–6 extra Amps and robbing up to 15 km per charge.',
-    actionText: 'Calculate Range & PSI',
-    actionTab: 'calculator'
-  },
-  {
-    id: 5,
-    category: 'BMS Cell Balancing',
+    id: 2,
+    category: 'Monsoon & Rainy Season',
     icon: 'maintenance',
-    title: 'Perform a Monthly Equalizing Charge',
-    tip: 'Once a month, leave your charger connected for an extra 60–90 minutes after reaching 100%. This allows the Smart BMS to balance individual series cell voltages.',
+    title: 'Dry the charging port completely.',
+    tip: 'Always wipe the charging socket with a dry cloth before inserting the charger plug during humid or rainy days to prevent pin arcing.',
     actionText: 'EV Knowledge Base',
     actionTab: 'blog'
   },
   {
+    id: 3,
+    category: 'Long-Term Standby Storage',
+    icon: 'battery',
+    title: 'Storing your EV for weeks?',
+    tip: 'Charge or discharge the lithium battery to 50%–60% state-of-charge before parking. Disconnect the main circuit breaker or battery MCB under the seat, and top it up to 50% every 4 to 6 weeks to prevent deep self-discharge cell damage.',
+    actionText: 'Battery Care Pro-Tips',
+    actionTab: 'blog'
+  },
+  {
+    id: 4,
+    category: 'Safe Cleaning & Washing',
+    icon: 'safety',
+    title: 'No high-pressure car-wash guns.',
+    tip: 'Never spray high-pressure water directly under the seat compartment or near the hub motor axle seals. Always wash with a gentle bucket wash and wipe dry with a microfiber cloth.',
+    actionText: 'Book Doorstep Inspection',
+    actionTab: 'contact'
+  },
+  {
+    id: 5,
+    category: 'Battery Thermal Health',
+    icon: 'battery',
+    title: 'Wait 20 mins before hot summer charging.',
+    tip: 'Let your battery cool for 20–30 minutes in shade after a long summer ride (>35°C) before plugging in the charger.',
+    actionText: 'Check Battery Diagnostic',
+    actionTab: 'calculator'
+  },
+  {
     id: 6,
-    category: 'Mechanical Protection',
-    icon: 'motor',
-    title: 'Replace Hub Wheel Bearings Promptly',
-    tip: 'If you feel vibration or faint grinding in the rear wheel, replace hub bearings with sealed Japanese SKF/NTN units immediately to prevent motor magnets from touching the stator.',
-    actionText: 'Our Repair Portfolio',
-    actionTab: 'portfolio'
+    category: 'Battery Cycle Life',
+    icon: 'battery',
+    title: 'Follow the 20% to 80% daily rule.',
+    tip: 'Charging between 20% and 80–85% for daily city commutes can more than double your lithium battery cycle life.',
+    actionText: 'Simulate Cycle Life',
+    actionTab: 'calculator'
   },
   {
     id: 7,
-    category: 'Electrical Diagnostics',
-    icon: 'safety',
-    title: 'Brake Lever Sensor Cutoffs',
-    tip: 'If your scooty suddenly loses acceleration after bumps, check your brake lever micro-switches. Road dust can stick the cutoff sensor, telling the controller to block throttle.',
-    actionText: 'Talk to EV Tech',
-    actionTab: 'contact'
+    category: 'Range Optimization',
+    icon: 'range',
+    title: 'Check tire pressure every two weeks.',
+    tip: 'Under-inflated scooty tires (below 32 PSI) add drag, pull extra amps from your hub motor, and cut range by 15%–20%.',
+    actionText: 'Calculate Range & PSI',
+    actionTab: 'calculator'
+  },
+  {
+    id: 8,
+    category: 'BMS Cell Balancing',
+    icon: 'maintenance',
+    title: 'Do one monthly full-balance charge.',
+    tip: 'Once a month, leave the charger plugged in for 60 minutes after reaching 100% so the Smart BMS can balance all cells.',
+    actionText: 'EV Knowledge Base',
+    actionTab: 'blog'
   }
 ];
 
@@ -138,7 +147,7 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
   };
 
   if (isDismissed) {
-    // Subtle frosted liquid-glass restore trigger pill
+    // Inverted frosted liquid-glass restore trigger pill
     return (
       <div className="fixed bottom-5 left-5 z-30">
         <button
@@ -147,29 +156,29 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
             setIsDismissed(false);
             sessionStorage.removeItem('nextgen_did_you_know_dismissed');
           }}
-          className="did-you-know-float-glow flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-xl bg-white/75 dark:bg-slate-900/65 border border-white/60 dark:border-white/10 text-slate-900 dark:text-slate-100 hover:border-emerald-500/60 hover:text-emerald-600 dark:hover:text-emerald-400 text-xs font-semibold transition-colors duration-300 cursor-pointer"
+          className="did-you-know-float-glow flex items-center gap-2 px-4 py-2 rounded-full backdrop-blur-xl bg-slate-900 text-slate-100 border border-slate-800 shadow-2xl hover:border-emerald-400/60 hover:text-emerald-300 dark:bg-white/85 dark:text-slate-900 dark:border-white/40 dark:shadow-2xl dark:hover:border-emerald-600/60 dark:hover:text-emerald-700 text-xs font-semibold transition-all duration-300 hover:scale-[1.01] cursor-pointer"
           title="Show EV Maintenance Tips"
         >
-          <Lightbulb className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
+          <Lightbulb className="w-3.5 h-3.5 text-amber-400 dark:text-amber-600 shrink-0" />
           <span>EV Pro Tips</span>
         </button>
       </div>
     );
   }
 
-  // Minimized compact pill state (frosted liquid-glass + gentle float & glow)
+  // Minimized compact pill state (inverted frosted liquid-glass + float & glow)
   if (isMinimized) {
     return (
       <div className="fixed bottom-5 left-5 z-30 max-w-xs animate-in fade-in slide-in-from-bottom-2">
-        <div className="did-you-know-float-glow flex items-center gap-2.5 px-4 py-2.5 rounded-2xl backdrop-blur-xl bg-white/75 dark:bg-slate-900/65 border border-white/60 dark:border-white/10 text-slate-900 dark:text-slate-100 text-xs transition-colors duration-300">
-          <Lightbulb className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0" />
-          <span className="font-semibold text-slate-900 dark:text-white truncate">
+        <div className="did-you-know-float-glow flex items-center gap-2.5 px-4 py-2.5 rounded-2xl backdrop-blur-xl bg-slate-900 text-slate-100 border border-slate-800 shadow-2xl dark:bg-white/85 dark:text-slate-900 dark:border-white/40 dark:shadow-2xl text-xs transition-all duration-300 hover:scale-[1.01]">
+          <Lightbulb className="w-4 h-4 text-amber-400 dark:text-amber-600 shrink-0" />
+          <span className="font-semibold text-white dark:text-slate-900 truncate">
             {currentTip.title}
           </span>
           <button
             type="button"
             onClick={() => setIsMinimized(false)}
-            className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white dark:text-slate-500 dark:hover:text-slate-900 transition-colors cursor-pointer"
             title="Expand tip card"
             aria-label="Expand maintenance tip"
           >
@@ -178,7 +187,7 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
           <button
             type="button"
             onClick={handleDismiss}
-            className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white dark:text-slate-500 dark:hover:text-slate-900 transition-colors cursor-pointer"
             title="Dismiss for this session"
             aria-label="Dismiss toast"
           >
@@ -194,7 +203,7 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
       aria-label="EV Maintenance Tips"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      className="did-you-know-float-glow fixed bottom-5 left-4 sm:left-5 z-30 w-[calc(100%-2rem)] sm:w-[420px] max-w-[calc(100vw-2rem)] rounded-2xl p-6 md:p-8 space-y-5 backdrop-blur-xl bg-white/75 dark:bg-slate-900/65 border border-white/60 dark:border-white/10 text-slate-900 dark:text-slate-100 transition-colors duration-300 animate-in fade-in slide-in-from-bottom-3 overflow-hidden"
+      className="did-you-know-float-glow fixed bottom-5 left-4 sm:left-5 z-30 w-[calc(100%-2rem)] sm:w-[420px] max-w-[calc(100vw-2rem)] rounded-2xl p-6 md:p-8 space-y-5 backdrop-blur-xl bg-slate-900 text-slate-100 border border-slate-800 shadow-2xl dark:bg-white/85 dark:text-slate-900 dark:border-white/40 dark:shadow-2xl transition-all duration-300 hover:scale-[1.01] animate-in fade-in slide-in-from-bottom-3 overflow-hidden"
     >
       {/* Subtle breathing emerald/cyan ambient neon sheen */}
       <div
@@ -204,13 +213,13 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
       />
 
       {/* Top Banner & Control Bar */}
-      <div className="flex items-center justify-between gap-3 pb-4 border-b border-slate-200/70 dark:border-white/10">
+      <div className="flex items-center justify-between gap-3 pb-4 border-b border-slate-800 dark:border-slate-200/80">
         <div className="flex items-center gap-2.5 min-w-0">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/35 text-amber-800 dark:text-amber-300 text-[11px] font-bold tracking-wide uppercase whitespace-nowrap">
-            <Lightbulb className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/35 text-amber-300 dark:bg-amber-100 dark:border-amber-300 dark:text-amber-900 text-[11px] font-bold tracking-wide uppercase whitespace-nowrap">
+            <Lightbulb className="w-3.5 h-3.5 text-amber-400 dark:text-amber-600 shrink-0" />
             <span>Did you know?</span>
           </span>
-          <span className="text-xs text-slate-500 dark:text-slate-400 font-mono tabular-nums">
+          <span className="text-xs text-slate-400 dark:text-slate-500 font-mono tabular-nums">
             {currentIndex + 1}/{EV_MAINTENANCE_TIPS.length}
           </span>
         </div>
@@ -220,7 +229,7 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
           <button
             type="button"
             onClick={handlePrev}
-            className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/60 hover:bg-white dark:bg-white/5 dark:hover:bg-white/15 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white border border-slate-200/80 dark:border-white/10 transition-colors cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-600 dark:hover:text-slate-900 dark:border-slate-200 transition-colors cursor-pointer"
             title="Previous tip"
             aria-label="Previous tip"
           >
@@ -229,7 +238,7 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
           <button
             type="button"
             onClick={handleNext}
-            className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/60 hover:bg-white dark:bg-white/5 dark:hover:bg-white/15 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white border border-slate-200/80 dark:border-white/10 transition-colors cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-600 dark:hover:text-slate-900 dark:border-slate-200 transition-colors cursor-pointer"
             title="Next tip"
             aria-label="Next tip"
           >
@@ -238,7 +247,7 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
           <button
             type="button"
             onClick={() => setIsMinimized(true)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/60 hover:bg-white dark:bg-white/5 dark:hover:bg-white/15 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white border border-slate-200/80 dark:border-white/10 transition-colors cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-600 dark:hover:text-slate-900 dark:border-slate-200 transition-colors cursor-pointer"
             title="Minimize toast"
             aria-label="Minimize toast"
           >
@@ -247,7 +256,7 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
           <button
             type="button"
             onClick={handleDismiss}
-            className="w-8 h-8 flex items-center justify-center rounded-lg bg-white/60 hover:bg-white dark:bg-white/5 dark:hover:bg-white/15 text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white border border-slate-200/80 dark:border-white/10 transition-colors cursor-pointer"
+            className="w-8 h-8 flex items-center justify-center rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 dark:bg-slate-100 dark:hover:bg-slate-200 dark:text-slate-600 dark:hover:text-slate-900 dark:border-slate-200 transition-colors cursor-pointer"
             title="Close for session"
             aria-label="Close notification"
           >
@@ -259,15 +268,15 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
       {/* Main Toast Content */}
       <div className="space-y-3">
         <div className="space-y-2">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/35 text-emerald-700 dark:text-emerald-300 text-[11px] font-bold uppercase tracking-wider">
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/35 text-emerald-300 dark:bg-emerald-100 dark:border-emerald-300 dark:text-emerald-800 text-[11px] font-bold uppercase tracking-wider">
             {currentTip.category}
           </span>
-          <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-snug">
+          <h3 className="text-sm sm:text-base font-bold text-white dark:text-slate-900 leading-snug">
             {currentTip.title}
           </h3>
         </div>
 
-        <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+        <p className="text-xs sm:text-sm text-slate-300 dark:text-slate-700 leading-relaxed">
           {currentTip.tip}
         </p>
 
@@ -277,7 +286,7 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
             <button
               type="button"
               onClick={() => handleActionClick(currentTip.actionTab)}
-              className="text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1 group cursor-pointer"
+              className="text-xs font-bold text-emerald-400 dark:text-emerald-700 hover:underline flex items-center gap-1 group cursor-pointer"
             >
               <span>{currentTip.actionText}</span>
               <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -292,8 +301,8 @@ export const DidYouKnowToast: React.FC<DidYouKnowToastProps> = ({ setActiveTab }
                 onClick={() => setCurrentIndex(idx)}
                 className={`h-1.5 rounded-full transition-all cursor-pointer ${
                   idx === currentIndex
-                    ? 'w-4 bg-emerald-500 dark:bg-emerald-400'
-                    : 'w-1.5 bg-slate-300 hover:bg-slate-400 dark:bg-slate-700 dark:hover:bg-slate-600'
+                    ? 'w-4 bg-emerald-400 dark:bg-emerald-600'
+                    : 'w-1.5 bg-slate-700 hover:bg-slate-600 dark:bg-slate-300 dark:hover:bg-slate-400'
                 }`}
                 title={`Go to tip ${idx + 1}`}
                 aria-label={`Go to tip ${idx + 1}`}

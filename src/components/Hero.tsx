@@ -1,10 +1,12 @@
 import React from 'react';
 import { ActiveTab, PortfolioItem, BlogPost } from '../types';
+import type { CalculatorTab } from './EVCalculator';
 import { HomeHero, ServicesGrid, DiagnosticPreview, HomeTestimonials, CTASection, ScrollFade } from './home';
 import { ArrowRight } from 'lucide-react';
 
 interface HeroProps {
   setActiveTab: (tab: ActiveTab) => void;
+  onOpenCalculator?: (tab: CalculatorTab) => void;
   featuredProjects: PortfolioItem[];
   topGuides: BlogPost[];
   onSelectProject: (project: PortfolioItem) => void;
@@ -13,6 +15,7 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({
   setActiveTab,
+  onOpenCalculator,
   featuredProjects,
   topGuides,
   onSelectProject,
@@ -23,7 +26,7 @@ export const Hero: React.FC<HeroProps> = ({
       
       {/* 1. Modular High-Performance Hero (Eager loaded, zero delay for primary fold performance) */}
       <ScrollFade delay={0} duration={500} distance={10}>
-        <HomeHero setActiveTab={setActiveTab} />
+        <HomeHero setActiveTab={setActiveTab} onOpenCalculator={onOpenCalculator} />
       </ScrollFade>
 
       {/* 2. Modular Services Grid with Technical Accordions & Infinite Brand Carousel */}

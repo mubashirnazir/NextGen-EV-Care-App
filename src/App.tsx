@@ -9,7 +9,7 @@ import { INITIAL_PORTFOLIO, INITIAL_BLOGS, INITIAL_INQUIRIES } from './data/init
 import { ShieldCheck, LogOut, LayoutDashboard, Wrench, FileText, Users } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
-import { EVCalculator, BatteryChemistry } from './components/EVCalculator';
+import { EVCalculator, BatteryChemistry, CalculatorTab } from './components/EVCalculator';
 import { Portfolio } from './components/Portfolio';
 import { KnowledgeBase } from './components/KnowledgeBase';
 import { AboutSection } from './components/AboutSection';
@@ -38,6 +38,7 @@ export default function App() {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
+  const [activeCalculatorTab, setActiveCalculatorTab] = useState<CalculatorTab>('range');
   const [activeBatteryChemistry, setActiveBatteryChemistry] = useState<BatteryChemistry>(() => {
     const saved = localStorage.getItem('nextgen_battery_chemistry');
     if (saved === 'li-ion' || saved === 'lifepo4' || saved === 'graphene') {
@@ -325,6 +326,11 @@ export default function App() {
         {activeTab === 'home' && (
           <Hero
             setActiveTab={setActiveTab}
+            onOpenCalculator={(tab) => {
+              setActiveCalculatorTab(tab);
+              setActiveTab('calculator');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
             featuredProjects={portfolio}
             topGuides={blogs}
             onSelectProject={(proj) => {
@@ -342,6 +348,8 @@ export default function App() {
           <EVCalculator
             batteryChemistry={activeBatteryChemistry}
             onChemistryChange={setActiveBatteryChemistry}
+            activeToolTab={activeCalculatorTab}
+            onToolTabChange={setActiveCalculatorTab}
             onBookService={() => {
               setActiveTab('contact');
               window.scrollTo({ top: 0, behavior: 'smooth' });

@@ -166,14 +166,23 @@ export interface EVCalculatorProps {
   onBookService?: () => void;
   batteryChemistry?: BatteryChemistry;
   onChemistryChange?: (chemistry: BatteryChemistry) => void;
+  activeToolTab?: CalculatorTab;
+  onToolTabChange?: (tab: CalculatorTab) => void;
 }
 
 export const EVCalculator: React.FC<EVCalculatorProps> = ({
   onBookService,
   batteryChemistry: controlledChemistry,
   onChemistryChange,
+  activeToolTab: controlledToolTab,
+  onToolTabChange,
 }) => {
-  const [activeTab, setActiveTab] = useState<CalculatorTab>('range');
+  const [internalTab, setInternalTab] = useState<CalculatorTab>('range');
+  const activeTab = controlledToolTab ?? internalTab;
+  const setActiveTab = (tab: CalculatorTab) => {
+    setInternalTab(tab);
+    onToolTabChange?.(tab);
+  };
 
   // --- Shared Ride, Weather & Battery Specs ---
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>('standard-scooty');
