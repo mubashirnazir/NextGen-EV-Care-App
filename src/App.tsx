@@ -328,7 +328,12 @@ export default function App() {
         )}
 
         {activeTab === 'calculator' && (
-          <EVCalculator />
+          <EVCalculator
+            onBookService={() => {
+              setActiveTab('contact');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+          />
         )}
 
         {activeTab === 'portfolio' && (
