@@ -97,3 +97,30 @@ export interface CustomerInquiry {
 export type ActiveTab = 'home' | 'calculator' | 'portfolio' | 'blog' | 'about' | 'faq' | 'contact' | 'admin' | 'privacy';
 
 export type ThemeMode = 'dark' | 'light' | 'system';
+
+export type UserRole = 'super_admin' | 'admin' | 'staff' | 'user';
+
+export type AdminPermission = 'manage_users' | 'edit_content' | 'delete_records' | 'view_analytics';
+
+export interface UserAccount {
+  id: string;
+  name: string;
+  email: string;
+  role: UserRole;
+  permissions: AdminPermission[];
+  isActive: boolean;
+  createdAt: string;
+  lastLoginAt?: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  actorId: string;
+  actorEmail: string;
+  action: 'LOGIN' | 'LOGOUT' | 'USER_CREATED' | 'ROLE_UPDATED' | 'PERMISSIONS_UPDATED' | 'ACCESS_REVOKED' | 'ACCESS_RESTORED' | 'USER_DELETED';
+  targetUserId?: string;
+  targetEmail?: string;
+  details: string;
+  timestamp: string;
+}
+

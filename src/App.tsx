@@ -4,8 +4,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { ActiveTab, ThemeMode, PortfolioItem, BlogPost, CustomerInquiry } from './types';
+import { ActiveTab, ThemeMode, PortfolioItem, BlogPost, CustomerInquiry, UserAccount } from './types';
 import { INITIAL_PORTFOLIO, INITIAL_BLOGS, INITIAL_INQUIRIES } from './data/initialData';
+import { ShieldCheck, LogOut, LayoutDashboard, Wrench, FileText, Users } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { Hero } from './components/Hero';
 import { EVCalculator } from './components/EVCalculator';
@@ -22,7 +23,17 @@ import { Footer } from './components/Footer';
 
 export default function App() {
   // --- Navigation & Views ---
-  const [activeTab, setActiveTab] = useState<ActiveTab>('home');
+  const [activeTab, setActiveTab] = useState<ActiveTab>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab') as ActiveTab | null;
+      const hashTab = window.location.hash.replace('#', '').split('?')[0] as ActiveTab;
+      const validTabs: ActiveTab[] = ['home', 'calculator', 'portfolio', 'blog', 'about', 'faq', 'contact', 'admin'];
+      if (tabParam && validTabs.includes(tabParam)) return tabParam;
+      if (hashTab && validTabs.includes(hashTab)) return hashTab;
+    }
+    return 'home';
+  });
   const [selectedProject, setSelectedProject] = useState<PortfolioItem | null>(null);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
@@ -78,10 +89,47 @@ export default function App() {
     });
   };
 
-  // --- Admin Authentication State ---
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem('nextgen_admin_auth') === 'true';
-  });
+  // --- HttpOnly Cookie RBAC Admin Authentication State ---
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
+
+  useEffect(() => {
+    // Clean up legacy browser storage tokens so sensitive auth never stays in sessionStorage/localStorage
+    sessionStorage.removeItem('nextgen_admin_auth');
+    let cancelled = false;
+
+    const verifySession = async () => {
+      try {
+        const res = await fetch('/api/auth/session', { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled && data.authenticated && data.user) {
+          setIsAdminAuthenticated(true);
+          setCurrentUser(data.user);
+        }
+      } catch {
+        // Silent fail when offline; keeps portal locked cleanly
+      }
+    };
+
+    verifySession();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleGlobalAdminLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch {
+      // Ignore network hiccup on logout
+    }
+    setIsAdminAuthenticated(false);
+    setCurrentUser(null);
+    if (activeTab === 'admin') {
+      setActiveTab('home');
+    }
+  };
 
   // --- Persistent Portfolio Data ---
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>(() => {
@@ -198,6 +246,69 @@ export default function App() {
         isAdminAuthenticated={isAdminAuthenticated}
       />
 
+      {/* Universal Admin Quick-Access Strip (Visible ONLY when authenticated via HttpOnly RBAC cookie) */}
+      {isAdminAuthenticated && currentUser && (
+        <div className="bg-slate-900/95 dark:bg-slate-900/90 backdrop-blur-xl border-b border-emerald-500/30 text-slate-200 text-xs py-2 px-4 z-30">
+          <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 font-mono text-[10px] font-bold uppercase shrink-0">
+                <ShieldCheck className="w-3 h-3" />
+                {currentUser.role.replace('_', ' ')}
+              </span>
+              <span className="text-slate-300 truncate">
+                Active Session: <strong className="text-white font-mono">{currentUser.email}</strong>
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <button
+                onClick={() => {
+                  setActiveTab('admin');
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className={`px-2.5 py-1 rounded-lg font-semibold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  activeTab === 'admin'
+                    ? 'bg-emerald-400 text-slate-950'
+                    : 'bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/20'
+                }`}
+              >
+                <LayoutDashboard className="w-3.5 h-3.5" />
+                <span>Admin Console</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('portfolio')}
+                className="hidden sm:inline-flex px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 items-center gap-1 transition-colors cursor-pointer"
+              >
+                <Wrench className="w-3 h-3 text-emerald-400" />
+                <span>Projects View</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('blog')}
+                className="hidden sm:inline-flex px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 items-center gap-1 transition-colors cursor-pointer"
+              >
+                <FileText className="w-3 h-3 text-emerald-400" />
+                <span>Guides View</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('contact')}
+                className="hidden md:inline-flex px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-200 items-center gap-1 transition-colors cursor-pointer"
+              >
+                <Users className="w-3 h-3 text-emerald-400" />
+                <span>Booking Page</span>
+              </button>
+              <button
+                onClick={handleGlobalAdminLogout}
+                className="px-2.5 py-1 rounded-lg bg-red-500/15 hover:bg-red-500/25 text-red-300 border border-red-500/30 font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                title="Terminate HttpOnly Admin Session"
+              >
+                <LogOut className="w-3 h-3" />
+                <span>Sign Out</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content Area */}
       <main className="flex-1 w-full max-w-full min-w-0 overflow-x-clip">
         {activeTab === 'home' && (
@@ -257,6 +368,8 @@ export default function App() {
           <AdminDashboard
             isAuthenticated={isAdminAuthenticated}
             setIsAuthenticated={setIsAdminAuthenticated}
+            currentUser={currentUser}
+            setCurrentUser={setCurrentUser}
             portfolio={portfolio}
             setPortfolio={setPortfolio}
             blogs={blogs}

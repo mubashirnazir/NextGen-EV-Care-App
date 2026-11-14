@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { PortfolioItem, BlogPost, CustomerInquiry, ServiceCategory, CategoryDefinition, MediaAsset } from '../types';
+import { PortfolioItem, BlogPost, CustomerInquiry, ServiceCategory, CategoryDefinition, MediaAsset, UserAccount } from '../types';
 import { INITIAL_CATEGORIES, INITIAL_MEDIA_ASSETS } from '../data/initialData';
 import { 
   ShieldCheck, 
@@ -35,7 +35,9 @@ import {
   FolderOpen,
   Layers,
   Upload,
-  Film
+  Film,
+  UserCog,
+  Mail
 } from 'lucide-react';
 import { MetadataManager } from './MetadataManager';
 import { MediaManager } from './MediaManager';
@@ -45,10 +47,13 @@ import { VideoEmbed } from './VideoEmbed';
 import { MediaPickerModal } from './MediaPickerModal';
 import { ImageFieldWithPicker } from './ImageFieldWithPicker';
 import { MultiImageManager } from './MultiImageManager';
+import { StaffAccessManager } from './StaffAccessManager';
 
 interface AdminDashboardProps {
   isAuthenticated: boolean;
   setIsAuthenticated: (auth: boolean) => void;
+  currentUser?: UserAccount | null;
+  setCurrentUser?: (user: UserAccount | null) => void;
   portfolio: PortfolioItem[];
   setPortfolio: React.Dispatch<React.SetStateAction<PortfolioItem[]>>;
   blogs: BlogPost[];
@@ -61,6 +66,8 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   isAuthenticated,
   setIsAuthenticated,
+  currentUser = null,
+  setCurrentUser,
   portfolio,
   setPortfolio,
   blogs,
@@ -69,9 +76,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   setInquiries,
   onResetToDefaults
 }) => {
+  const [loginEmail, setLoginEmail] = useState('nextgenevcare@gmail.com');
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [adminTab, setAdminTab] = useState<'portfolio' | 'blogs' | 'inquiries' | 'categories' | 'media' | 'videos' | 'metadata' | 'settings'>('portfolio');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [adminTab, setAdminTab] = useState<'portfolio' | 'blogs' | 'inquiries' | 'categories' | 'media' | 'videos' | 'metadata' | 'access' | 'settings'>('portfolio');
+
+  const canEditContent = !currentUser || currentUser.role === 'super_admin' || currentUser.permissions?.includes('edit_content');
+  const canDeleteRecords = !currentUser || currentUser.role === 'super_admin' || currentUser.permissions?.includes('delete_records');
 
   // Dynamic Categories State with Persistence
   const [categories, setCategories] = useState<CategoryDefinition[]>(() => {
@@ -217,28 +229,57 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [newInqDate, setNewInqDate] = useState('Today / Immediate');
   const [newInqMessage, setNewInqMessage] = useState('');
 
-  // Authentication Handler
-  const handleLogin = (e: React.FormEvent) => {
+  // HttpOnly Cookie + RBAC Authentication Handlers
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwordInput === 'evcare2026' || passwordInput === 'admin123' || passwordInput === 'admin') {
+    setLoginError('');
+    setIsLoggingIn(true);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          email: loginEmail.trim(),
+          passcode: passwordInput
+        })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setLoginError(data.error || 'Authentication failed. Check email and passcode.');
+        return;
+      }
+      sessionStorage.removeItem('nextgen_admin_auth');
+      setCurrentUser?.(data.user);
       setIsAuthenticated(true);
-      setLoginError('');
-      sessionStorage.setItem('nextgen_admin_auth', 'true');
-      showToast('Welcome back, Admin!');
-    } else {
-      setLoginError('Invalid password. Default demo passcode is: evcare2026');
+      setPasswordInput('');
+      showToast(`Signed in as ${data.user.name} (${data.user.role})`);
+    } catch {
+      setLoginError('Unable to reach authentication server. Please retry.');
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
-  const handleLogout = () => {
-    setIsAuthenticated(false);
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+    } catch {
+      // Ignore transient network error
+    }
     sessionStorage.removeItem('nextgen_admin_auth');
+    setIsAuthenticated(false);
+    setCurrentUser?.(null);
     setPasswordInput('');
   };
 
   // ==================== PORTFOLIO CRUD ====================
   const handleAddPortfolio = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canEditContent) {
+      showToast('Permission denied: edit_content privilege required.');
+      return;
+    }
     if (!newPortTitle.trim() || !newPortVehicle.trim() || !newPortDesc.trim()) {
       alert('Please fill in title, vehicle model, and description');
       return;
@@ -304,6 +345,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const handleSaveEditPortfolio = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canEditContent) {
+      showToast('Permission denied: edit_content privilege required.');
+      return;
+    }
     if (!editingPortfolio) return;
 
     if (!editingPortfolio.title.trim() || !editingPortfolio.vehicleModel.trim()) {
@@ -325,6 +370,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   const handleDeletePortfolio = (id: string, title: string) => {
+    if (!canDeleteRecords) {
+      showToast('Permission denied: delete_records privilege required.');
+      return;
+    }
     if (window.confirm(`Are you sure you want to delete "${title}"? This cannot be undone.`)) {
       setPortfolio(portfolio.filter((p) => p.id !== id));
       showToast(`Project "${title}" deleted.`);
@@ -334,6 +383,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // ==================== BLOG CRUD ====================
   const handleAddBlog = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canEditContent) {
+      showToast('Permission denied: edit_content privilege required.');
+      return;
+    }
     if (!newBlogTitle.trim() || !newBlogExcerpt.trim() || !newBlogContent.trim()) {
       alert('Please fill in article title, excerpt, and content paragraphs');
       return;
@@ -392,6 +445,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const handleSaveEditBlog = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canEditContent) {
+      showToast('Permission denied: edit_content privilege required.');
+      return;
+    }
     if (!editingBlog) return;
 
     if (!editingBlog.title.trim() || !editingBlog.excerpt.trim()) {
@@ -412,6 +469,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   const handleDeleteBlog = (id: string, title: string) => {
+    if (!canDeleteRecords) {
+      showToast('Permission denied: delete_records privilege required.');
+      return;
+    }
     if (window.confirm(`Are you sure you want to delete article "${title}"? This cannot be undone.`)) {
       setBlogs(blogs.filter((b) => b.id !== id));
       showToast(`Article "${title}" deleted.`);
@@ -464,6 +525,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   };
 
   const handleDeleteInquiry = (id: string) => {
+    if (!canDeleteRecords) {
+      showToast('Permission denied: delete_records privilege required.');
+      return;
+    }
     if (window.confirm('Delete this inquiry record from the database?')) {
       setInquiries(inquiries.filter((inq) => inq.id !== id));
       showToast('Inquiry record deleted.');
@@ -524,34 +589,52 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   if (!isAuthenticated) {
     return (
       <div className="max-w-md mx-auto px-4 py-12 sm:py-20">
-        <div className="p-6 sm:p-8 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
+        <div className="p-6 sm:p-8 rounded-2xl backdrop-blur-xl saturate-180 bg-white/80 dark:bg-slate-900/80 border border-white/80 dark:border-white/10 shadow-xl space-y-6">
           <div className="text-center space-y-2">
             <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500 mx-auto">
               <Lock className="w-6 h-6" />
             </div>
             <h1 className="text-xl font-bold text-slate-900 dark:text-white">
-              Business Owner Portal
+              Owner & Staff RBAC Portal
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Sign in with your master passcode to manage portfolio projects, knowledge base guides, and customer leads across all devices.
+              Sign in via <code className="font-mono text-emerald-600 dark:text-emerald-400">HttpOnly</code> JWT session cookies with short-lived token rotation and role-based permissions.
             </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
+                Admin / Staff Email
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="email"
+                  required
+                  value={loginEmail}
+                  onChange={(e) => setLoginEmail(e.target.value)}
+                  placeholder="nextgenevcare@gmail.com"
+                  className="w-full h-11 pl-10 pr-4 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 font-mono"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1.5">
                 Passcode
               </label>
               <input
                 type="password"
+                required
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
-                placeholder="Enter password..."
-                className="w-full px-3.5 py-2.5 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 font-mono"
+                placeholder="Enter passcode..."
+                className="w-full h-11 px-4 text-sm rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 font-mono"
               />
               {loginError && (
                 <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1">
-                  <AlertCircle className="w-3.5 h-3.5" />
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                   <span>{loginError}</span>
                 </p>
               )}
@@ -559,16 +642,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
             <button
               type="submit"
-              className="w-full py-2.5 px-4 text-xs sm:text-sm font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm"
+              disabled={isLoggingIn}
+              className="w-full h-11 px-4 text-xs sm:text-sm font-semibold text-slate-950 bg-emerald-400 hover:bg-emerald-300 disabled:opacity-60 rounded-xl transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
             >
               <Unlock className="w-4 h-4 text-slate-950" />
-              <span>Unlock Admin Dashboard</span>
+              <span>{isLoggingIn ? 'Verifying RBAC Session...' : 'Sign In Securely'}</span>
             </button>
           </form>
 
-          <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 space-y-1">
-            <span className="font-semibold text-slate-700 dark:text-slate-300 block">Default Demo Passcode:</span>
-            <code className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">evcare2026</code>
+          <div className="p-3.5 rounded-xl bg-slate-100/80 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 space-y-1.5">
+            <span className="font-semibold text-slate-700 dark:text-slate-300 block">Primary Owner (Super Admin):</span>
+            <div className="flex items-center justify-between gap-2">
+              <span>Email:</span>
+              <code className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">nextgenevcare@gmail.com</code>
+            </div>
+            <div className="flex items-center justify-between gap-2">
+              <span>Default Passcode:</span>
+              <code className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">evcare2026</code>
+            </div>
           </div>
         </div>
       </div>
@@ -601,12 +692,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white truncate">
                 Next Gen EV Care Owner Dashboard
               </h1>
-              <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono shrink-0">
-                Live Sync
+              <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono font-bold uppercase shrink-0">
+                {currentUser ? `${currentUser.role.replace('_', ' ')} · HttpOnly JWT` : 'Live Sync'}
               </span>
             </div>
             <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-              Manage case studies, knowledge base articles, and doorstep booking leads.
+              {currentUser
+                ? `Signed in as ${currentUser.name} (${currentUser.email}) — manage case studies, guides, leads, and staff access.`
+                : 'Manage case studies, knowledge base articles, and doorstep booking leads.'}
             </p>
           </div>
         </div>
@@ -790,6 +883,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         >
           <Globe className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
           <span>SEO & Social</span>
+        </button>
+
+        <button
+          onClick={() => setAdminTab('access')}
+          className={`flex-1 py-2 px-3 text-xs font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 flex items-center justify-center gap-1.5 ${
+            adminTab === 'access'
+              ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm border border-slate-200 dark:border-slate-700'
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+          }`}
+        >
+          <UserCog className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+          <span>Staff & Access</span>
         </button>
 
         <button
@@ -2725,7 +2830,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         <MetadataManager onNotify={showToast} />
       )}
 
-      {/* ==================== TAB 7: SETTINGS & RESET ==================== */}
+      {/* ==================== TAB 8: STAFF & ACCESS CONTROL (RBAC) ==================== */}
+      {adminTab === 'access' && (
+        <StaffAccessManager
+          currentUser={currentUser}
+          onNotify={showToast}
+          onSessionInvalidated={() => {
+            setIsAuthenticated(false);
+            setCurrentUser?.(null);
+          }}
+        />
+      )}
+
+      {/* ==================== TAB 9: SETTINGS & RESET ==================== */}
       {adminTab === 'settings' && (
         <div className="p-4 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 sm:space-y-6">
           <div className="space-y-1">
