@@ -488,8 +488,8 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
-      {/* Section Header + Clean Mode Switcher */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+      {/* Section Header + Liquid-Glass Neon Pill Tool Switcher */}
+      <div className="space-y-6">
         <div className="max-w-2xl space-y-2">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
             EV Range & Battery Health Calculator
@@ -499,46 +499,138 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
           </p>
         </div>
 
-        {/* Clean Segmented Tool Switcher (Uniform h-12) */}
-        <div className="grid grid-cols-3 gap-2 p-1.5 backdrop-blur-xl bg-white/70 dark:bg-white/5 border border-slate-200/80 dark:border-white/10 rounded-2xl w-full lg:w-auto shrink-0">
-          <button
-            type="button"
-            onClick={() => setActiveTab('range')}
-            className={`h-12 px-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-              activeTab === 'range'
-                ? 'bg-emerald-400 text-slate-950 shadow-sm'
-                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <Gauge className="w-4 h-4 shrink-0" />
-            <span>Range & Savings</span>
-          </button>
+        {/* Sleek Horizontal Frosted Liquid-Glass Neon Pill Tabs */}
+        <div
+          role="tablist"
+          aria-label="Calculator tools"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 w-full"
+        >
+          {(
+            [
+              {
+                id: 'range' as CalculatorTab,
+                label: 'Range & Savings',
+                subtitle: 'Distance & PKR savings',
+                icon: Gauge,
+                activeGradient: 'from-emerald-500/20 via-teal-500/10 to-cyan-500/25',
+                activeBorder: 'border-emerald-500 dark:border-emerald-400',
+                activeShadow:
+                  'shadow-[0_0_35px_rgba(16,185,129,0.35),0_8px_20px_-4px_rgba(6,182,212,0.28)]',
+                activeText: 'text-emerald-700 dark:text-emerald-300',
+                activeIconBg:
+                  'bg-emerald-500/20 border-emerald-500/40 text-emerald-600 dark:text-emerald-300',
+                activeDot: 'bg-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.9)]',
+                activePing: 'bg-emerald-400/75',
+                inactiveHover:
+                  'hover:border-emerald-500/40 hover:shadow-[0_0_20px_rgba(16,185,129,0.14)]',
+              },
+              {
+                id: 'charge' as CalculatorTab,
+                label: 'Charge Time',
+                subtitle: 'Amps & WAPDA cost',
+                icon: BatteryCharging,
+                activeGradient: 'from-amber-500/20 via-orange-500/10 to-yellow-500/25',
+                activeBorder: 'border-amber-500 dark:border-amber-400',
+                activeShadow:
+                  'shadow-[0_0_35px_rgba(245,158,11,0.35),0_8px_20px_-4px_rgba(234,179,8,0.28)]',
+                activeText: 'text-amber-700 dark:text-amber-300',
+                activeIconBg:
+                  'bg-amber-500/20 border-amber-500/40 text-amber-600 dark:text-amber-300',
+                activeDot: 'bg-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.9)]',
+                activePing: 'bg-amber-400/75',
+                inactiveHover:
+                  'hover:border-amber-500/40 hover:shadow-[0_0_20px_rgba(245,158,11,0.14)]',
+              },
+              {
+                id: 'health' as CalculatorTab,
+                label: 'Lifespan',
+                subtitle: 'Battery SOH & cycles',
+                icon: HeartPulse,
+                activeGradient: 'from-violet-500/20 via-purple-500/10 to-pink-500/25',
+                activeBorder: 'border-violet-500 dark:border-violet-400',
+                activeShadow:
+                  'shadow-[0_0_35px_rgba(139,92,246,0.35),0_8px_20px_-4px_rgba(236,72,153,0.28)]',
+                activeText: 'text-violet-700 dark:text-violet-300',
+                activeIconBg:
+                  'bg-violet-500/20 border-violet-500/40 text-violet-600 dark:text-violet-300',
+                activeDot: 'bg-violet-400 shadow-[0_0_12px_rgba(139,92,246,0.9)]',
+                activePing: 'bg-violet-400/75',
+                inactiveHover:
+                  'hover:border-violet-500/40 hover:shadow-[0_0_20px_rgba(139,92,246,0.14)]',
+              },
+            ] as const
+          ).map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('charge')}
-            className={`h-12 px-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-              activeTab === 'charge'
-                ? 'bg-emerald-400 text-slate-950 shadow-sm'
-                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <BatteryCharging className="w-4 h-4 shrink-0" />
-            <span>Charge Time</span>
-          </button>
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative overflow-hidden rounded-2xl px-6 py-4 flex items-center justify-between gap-3 backdrop-blur-2xl border transition-all duration-300 cursor-pointer text-left ${
+                  isActive
+                    ? `bg-white/80 dark:bg-slate-900/75 ${tab.activeBorder} ${tab.activeShadow} ${tab.activeText} scale-[1.03] z-10`
+                    : `bg-white/50 dark:bg-slate-900/40 border-white/20 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:scale-[1.01] hover:text-slate-900 dark:hover:text-white ${tab.inactiveHover}`
+                }`}
+              >
+                {/* Inherited Neon Ambient Gradient Overlay */}
+                <span
+                  aria-hidden="true"
+                  className={`pointer-events-none absolute inset-0 bg-gradient-to-r ${tab.activeGradient} transition-opacity duration-300 -z-10 ${
+                    isActive ? 'opacity-100' : 'opacity-0'
+                  }`}
+                />
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('health')}
-            className={`h-12 px-4 rounded-xl text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 whitespace-nowrap transition-all cursor-pointer ${
-              activeTab === 'health'
-                ? 'bg-emerald-400 text-slate-950 shadow-sm'
-                : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            <HeartPulse className="w-4 h-4 shrink-0" />
-            <span>Lifespan</span>
-          </button>
+                <span className="flex items-center gap-3 min-w-0">
+                  <span
+                    className={`w-10 h-10 rounded-xl border flex items-center justify-center shrink-0 transition-colors duration-300 ${
+                      isActive
+                        ? tab.activeIconBg
+                        : 'bg-slate-100/70 dark:bg-white/5 border-slate-200/70 dark:border-white/10 text-slate-500 dark:text-slate-400'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5 shrink-0" />
+                  </span>
+
+                  <span className="min-w-0">
+                    <span
+                      className={`block text-sm sm:text-base font-extrabold tracking-tight whitespace-nowrap truncate ${
+                        isActive ? 'text-slate-900 dark:text-white' : ''
+                      }`}
+                    >
+                      {tab.label}
+                    </span>
+                    <span
+                      className={`block text-xs font-medium whitespace-nowrap truncate ${
+                        isActive ? tab.activeText : 'text-slate-500 dark:text-slate-400'
+                      }`}
+                    >
+                      {tab.subtitle}
+                    </span>
+                  </span>
+                </span>
+
+                {/* Animated Breathing / Glowing Status Indicator Dot */}
+                <span className="relative flex h-2.5 w-2.5 shrink-0 items-center justify-center">
+                  {isActive && (
+                    <span
+                      className={`absolute inline-flex h-full w-full rounded-full animate-ping motion-reduce:animate-none ${tab.activePing}`}
+                    />
+                  )}
+                  <span
+                    className={`relative inline-flex h-2.5 w-2.5 rounded-full transition-all duration-300 ${
+                      isActive
+                        ? `${tab.activeDot} animate-pulse motion-reduce:animate-none`
+                        : 'bg-slate-400/35 dark:bg-slate-600/50'
+                    }`}
+                  />
+                </span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
