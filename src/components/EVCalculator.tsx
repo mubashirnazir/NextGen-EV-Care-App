@@ -126,7 +126,7 @@ const CHEMISTRY_SPECS: Record<BatteryChemistry, ChemistrySpec> = {
     id: 'li-ion',
     name: 'Lithium-Ion (NMC/NCA)',
     shortName: 'Li-Ion (3.6V/cell)',
-    cellSpec: '3.6V nominal/cell · High density',
+    cellSpec: '3.6V /cell · High density',
     cutoffNote: '3.0V/cell BMS cut-off',
     usableFactor: 0.92,
     dischargeEfficiency: 0.97,
@@ -137,7 +137,7 @@ const CHEMISTRY_SPECS: Record<BatteryChemistry, ChemistrySpec> = {
     id: 'lifepo4',
     name: 'LiFePO4 (LFP)',
     shortName: 'LiFePO4 (3.2V/cell)',
-    cellSpec: '3.2V nominal/cell · Flat curve',
+    cellSpec: '3.2V /cell · Flat curve',
     cutoffNote: '2.5V/cell flat discharge',
     usableFactor: 0.96,
     dischargeEfficiency: 0.99,
@@ -148,7 +148,7 @@ const CHEMISTRY_SPECS: Record<BatteryChemistry, ChemistrySpec> = {
     id: 'graphene',
     name: 'Lead-Acid / Graphene Gel',
     shortName: 'Lead-Acid (12V block)',
-    cellSpec: '12V block nominal · Heavy sag',
+    cellSpec: '12V /Block · Heavy sag',
     cutoffNote: '10.5V/block Peukert sag',
     usableFactor: 0.78,
     dischargeEfficiency: 0.85,
@@ -865,7 +865,7 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
                           type="number"
                           min={250}
                           max={5000}
-                          step={100}
+                          step={50}
                           value={motorWatts}
                           onChange={(e) => setMotorWatts(Math.max(250, Number(e.target.value) || 250))}
                           className="w-full h-12 px-3 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 text-xs font-mono text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
