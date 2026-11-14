@@ -13,10 +13,13 @@ import {
   AlertCircle,
   Wrench,
   Clock,
-  Coins
+  Coins,
+  Thermometer,
+  Cpu
 } from 'lucide-react';
 
 export type BatteryChemistry = 'li-ion' | 'lifepo4' | 'graphene';
+export type WeatherCondition = 'cold' | 'mild' | 'hot';
 export type CalculatorTab = 'range' | 'charge' | 'health';
 
 interface VehiclePreset {
@@ -59,7 +62,7 @@ const VEHICLE_PRESETS: VehiclePreset[] = [
   },
   {
     id: 'graphene-scooty',
-    name: 'Graphene Scooty',
+    name: 'Lead-Acid / Graphene',
     voltage: 60,
     capacityAh: 24,
     motorWatts: 1200,
@@ -68,6 +71,90 @@ const VEHICLE_PRESETS: VehiclePreset[] = [
   },
 ];
 
+interface WeatherOption {
+  id: WeatherCondition;
+  title: string;
+  rangeLabel: string;
+  statusLabel: string;
+  rangeMultiplier: number;
+  efficiencyPenaltyPct: number;
+}
+
+const WEATHER_OPTIONS: WeatherOption[] = [
+  {
+    id: 'cold',
+    title: 'Freezing / Winter',
+    rangeLabel: '0°C – 10°C',
+    statusLabel: '❄️ Cold Weather (Reduced Range)',
+    rangeMultiplier: 0.75,
+    efficiencyPenaltyPct: 25,
+  },
+  {
+    id: 'mild',
+    title: 'Moderate / Spring',
+    rangeLabel: '11°C – 25°C',
+    statusLabel: '⛅ Mild / Normal',
+    rangeMultiplier: 1.0,
+    efficiencyPenaltyPct: 0,
+  },
+  {
+    id: 'hot',
+    title: 'Hot Summer',
+    rangeLabel: '26°C – 45°C',
+    statusLabel: '☀️ Hot Weather',
+    rangeMultiplier: 0.9,
+    efficiencyPenaltyPct: 10,
+  },
+];
+
+interface ChemistrySpec {
+  id: BatteryChemistry;
+  name: string;
+  shortName: string;
+  cellSpec: string;
+  cutoffNote: string;
+  usableFactor: number;
+  dischargeEfficiency: number;
+  weightDrag: number;
+  sagSensitivity: number;
+}
+
+const CHEMISTRY_SPECS: Record<BatteryChemistry, ChemistrySpec> = {
+  'li-ion': {
+    id: 'li-ion',
+    name: 'Lithium-Ion (NMC/NCA)',
+    shortName: 'Li-Ion (3.6V/cell)',
+    cellSpec: '3.6V nominal/cell · High density',
+    cutoffNote: '3.0V/cell BMS cut-off',
+    usableFactor: 0.92,
+    dischargeEfficiency: 0.97,
+    weightDrag: 1.0,
+    sagSensitivity: 0.12,
+  },
+  lifepo4: {
+    id: 'lifepo4',
+    name: 'LiFePO4 (LFP)',
+    shortName: 'LiFePO4 (3.2V/cell)',
+    cellSpec: '3.2V nominal/cell · Flat curve',
+    cutoffNote: '2.5V/cell flat discharge',
+    usableFactor: 0.96,
+    dischargeEfficiency: 0.99,
+    weightDrag: 1.02,
+    sagSensitivity: 0.04,
+  },
+  graphene: {
+    id: 'graphene',
+    name: 'Lead-Acid / Graphene Gel',
+    shortName: 'Lead-Acid (12V block)',
+    cellSpec: '12V block nominal · Heavy sag',
+    cutoffNote: '10.5V/block Peukert sag',
+    usableFactor: 0.78,
+    dischargeEfficiency: 0.85,
+    weightDrag: 1.1,
+    sagSensitivity: 0.45,
+  },
+};
+
 const CHARGER_AMPS_OPTIONS = [3, 5, 6, 10, 15];
 
 const GLASS_CARD_CLASS =
@@ -75,14 +162,26 @@ const GLASS_CARD_CLASS =
 
 export interface EVCalculatorProps {
   onBookService?: () => void;
+  batteryChemistry?: BatteryChemistry;
+  onChemistryChange?: (chemistry: BatteryChemistry) => void;
 }
 
-export const EVCalculator: React.FC<EVCalculatorProps> = ({ onBookService }) => {
+export const EVCalculator: React.FC<EVCalculatorProps> = ({
+  onBookService,
+  batteryChemistry: controlledChemistry,
+  onChemistryChange,
+}) => {
   const [activeTab, setActiveTab] = useState<CalculatorTab>('range');
 
-  // --- Shared Ride & Battery Specs ---
+  // --- Shared Ride, Weather & Battery Specs ---
   const [selectedPresetId, setSelectedPresetId] = useState<string | null>('standard-scooty');
-  const [batteryChemistry, setBatteryChemistry] = useState<BatteryChemistry>('li-ion');
+  const [internalChemistry, setInternalChemistry] = useState<BatteryChemistry>('li-ion');
+  const batteryChemistry = controlledChemistry ?? internalChemistry;
+  const setBatteryChemistry = (chem: BatteryChemistry) => {
+    setInternalChemistry(chem);
+    onChemistryChange?.(chem);
+  };
+  const [weatherCondition, setWeatherCondition] = useState<WeatherCondition>('mild');
   const [voltage, setVoltage] = useState<number>(60);
   const [capacityAh, setCapacityAh] = useState<number>(30);
   const [avgSpeed, setAvgSpeed] = useState<number>(35);
@@ -146,22 +245,16 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({ onBookService }) => 
     setBatteryChemistry(preset.chemistry);
   };
 
-  // --- Range & Battery Health Simulation Engine ---
+  // --- Range, Weather & Battery Chemistry Simulation Engine ---
+  const activeWeather = useMemo(
+    () => WEATHER_OPTIONS.find((w) => w.id === weatherCondition) || WEATHER_OPTIONS[1],
+    [weatherCondition]
+  );
+  const activeChemistry = CHEMISTRY_SPECS[batteryChemistry];
+
   const rangeSimulation = useMemo(() => {
     const nominalWh = voltage * capacityAh;
-
-    let chemUsableFactor = 0.92;
-    let chemWeightDrag = 1.0;
-    let chemEfficiency = 0.98;
-    if (batteryChemistry === 'lifepo4') {
-      chemUsableFactor = 0.95;
-      chemWeightDrag = 1.02;
-      chemEfficiency = 1.0;
-    } else if (batteryChemistry === 'graphene') {
-      chemUsableFactor = 0.84;
-      chemWeightDrag = 1.08;
-      chemEfficiency = 0.85;
-    }
+    const chem = CHEMISTRY_SPECS[batteryChemistry];
 
     const speedFactor = Math.pow(avgSpeed / 25, 1.45);
     const loadFactor = 1 + ((combinedLoad - 75) / 100) * 0.35;
@@ -179,33 +272,46 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({ onBookService }) => 
       terrainStressPenalty = 6;
     }
 
+    // Dynamic voltage cut-off sag under heavy throttle/speed (Peukert effect strongest on Lead-Acid/Graphene Gel)
+    const heavyThrottleRatio = Math.max(0, (avgSpeed - 32) / 43);
+    const voltageSagFactor = Math.max(0.74, 1 - heavyThrottleRatio * chem.sagSensitivity);
+
     const motorScaleFactor = 0.75 + (motorWatts / 1500) * 0.25;
     const whPerKm = Math.max(
       10,
-      Math.round(18.5 * motorScaleFactor * speedFactor * loadFactor * terrainFactor * chemWeightDrag * 10) / 10
+      Math.round(18.5 * motorScaleFactor * speedFactor * loadFactor * terrainFactor * chem.weightDrag * 10) / 10
     );
 
-    const effectiveWh = nominalWh * (batterySOH / 100) * chemUsableFactor;
+    const effectiveWh = nominalWh * (batterySOH / 100) * chem.usableFactor * chem.dischargeEfficiency * voltageSagFactor;
     const factoryEffectiveWh = nominalWh * 0.95;
 
-    const estimatedRangeKm = Math.max(1, Math.round(effectiveWh / whPerKm));
+    const baseRangeKm = effectiveWh / whPerKm;
+    const estimatedRangeKm = Math.max(1, Math.round(baseRangeKm * activeWeather.rangeMultiplier));
     const factoryConditionRangeKm = Math.max(
       estimatedRangeKm,
       Math.round(factoryEffectiveWh / (18.5 * motorScaleFactor * speedFactor * loadFactor))
     );
 
-    // Calculate Range Efficiency % (combines pack SOH, chemistry stability, and heavy-load stress)
-    const speedStressPenalty = avgSpeed > 44 ? (avgSpeed - 44) * 0.5 : 0;
+    // Calculate Range Efficiency % (combines SOH, chemistry discharge curve, throttle voltage sag, load & temperature)
+    const speedStressPenalty = avgSpeed > 44 ? (avgSpeed - 44) * 0.45 : 0;
     const loadStressPenalty = combinedLoad > 120 ? (combinedLoad - 120) * 0.2 : 0;
+    const sagPenaltyPct = Math.round((1 - voltageSagFactor) * 100);
     const efficiencyPct = Math.max(
       20,
       Math.min(
         100,
-        Math.round(batterySOH * chemEfficiency - terrainStressPenalty - speedStressPenalty - loadStressPenalty)
+        Math.round(
+          batterySOH * chem.dischargeEfficiency -
+            activeWeather.efficiencyPenaltyPct -
+            terrainStressPenalty -
+            speedStressPenalty -
+            loadStressPenalty -
+            sagPenaltyPct * 0.5
+        )
       )
     );
 
-    // Health Band Classification
+    // Health Band Classification (Emerald 85-100%, Amber 60-84%, Red <60%)
     let healthBand: 'healthy' | 'moderate' | 'critical' = 'healthy';
     let healthLabel = 'Healthy pack / peak range';
     let barColorClass = 'bg-emerald-500';
@@ -229,7 +335,7 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({ onBookService }) => 
     }
 
     // PKR Savings vs Petrol Bike (750 km/month daily commute baseline)
-    const evCostPerKm = (whPerKm / 1000) * electricityTariff;
+    const evCostPerKm = (whPerKm / 1000 / Math.max(0.7, activeWeather.rangeMultiplier)) * electricityTariff;
     const petrolCostPerKm = petrolPrice / petrolMileageKmPerL;
     const monthlySavingsPkr = Math.max(0, Math.round((petrolCostPerKm - evCostPerKm) * 750));
     const yearlySavingsPkr = monthlySavingsPkr * 12;
@@ -253,6 +359,7 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({ onBookService }) => 
     voltage,
     capacityAh,
     batteryChemistry,
+    activeWeather,
     avgSpeed,
     combinedLoad,
     terrain,
@@ -441,38 +548,6 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({ onBookService }) => 
                 );
               })}
             </div>
-
-            {/* Battery Chemistry Selector Row */}
-            <div className="mt-5 pt-5 border-t border-slate-200/70 dark:border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">
-                Battery Chemistry
-              </span>
-              <div className="grid grid-cols-3 gap-2.5 w-full sm:w-auto">
-                {(
-                  [
-                    { id: 'li-ion', label: 'Lithium-Ion' },
-                    { id: 'lifepo4', label: 'LiFePO4' },
-                    { id: 'graphene', label: 'Graphene' },
-                  ] as const
-                ).map((chem) => {
-                  const active = batteryChemistry === chem.id;
-                  return (
-                    <button
-                      key={chem.id}
-                      type="button"
-                      onClick={() => setBatteryChemistry(chem.id)}
-                      className={`h-12 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all whitespace-nowrap cursor-pointer border ${
-                        active
-                          ? 'bg-emerald-500/15 border-emerald-500 text-emerald-700 dark:text-emerald-300'
-                          : 'bg-slate-50 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:border-emerald-500/40'
-                      }`}
-                    >
-                      {chem.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
           </div>
 
           {/* STEPS 2 & 3 SIDE BY SIDE ON DESKTOP, STACKED CLEANLY ON MOBILE */}
@@ -627,6 +702,83 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({ onBookService }) => 
                   </div>
                 </div>
 
+                {/* Real-World Environment & Chemistry Controls */}
+                <div className="pt-5 border-t border-slate-200/70 dark:border-white/10 space-y-5">
+                  {/* 1. Weather & Temperature Conditions Toggle */}
+                  <div className="space-y-2.5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                        <Thermometer className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        <span>Weather & Temperature Conditions</span>
+                      </span>
+                      <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+                        {activeWeather.statusLabel}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                      {WEATHER_OPTIONS.map((option) => {
+                        const isSelected = weatherCondition === option.id;
+                        return (
+                          <button
+                            key={option.id}
+                            type="button"
+                            onClick={() => setWeatherCondition(option.id)}
+                            className={`h-12 px-4 rounded-full text-xs font-semibold transition-all flex items-center justify-between gap-2 whitespace-nowrap cursor-pointer border ${
+                              isSelected
+                                ? 'bg-emerald-400 text-slate-950 border-emerald-400 shadow-sm'
+                                : 'bg-slate-100/80 dark:bg-white/5 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-white/10 hover:border-emerald-500/50'
+                            }`}
+                          >
+                            <span className="truncate">{option.title}</span>
+                            <span
+                              className={`font-mono text-[11px] tabular-nums shrink-0 ${
+                                isSelected ? 'text-slate-900 font-bold' : 'text-slate-500 dark:text-slate-400'
+                              }`}
+                            >
+                              {option.rangeLabel}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 2. Battery Chemistry Selector Pills */}
+                  <div className="space-y-2.5">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
+                        <Cpu className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                        <span>Battery Chemistry</span>
+                      </span>
+                      <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                        {activeChemistry.cellSpec} · {activeChemistry.cutoffNote}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                      {(['li-ion', 'lifepo4', 'graphene'] as BatteryChemistry[]).map((chemId) => {
+                        const spec = CHEMISTRY_SPECS[chemId];
+                        const isSelected = batteryChemistry === chemId;
+                        return (
+                          <button
+                            key={chemId}
+                            type="button"
+                            onClick={() => setBatteryChemistry(chemId)}
+                            className={`h-12 px-4 rounded-full text-xs font-semibold transition-all flex items-center justify-center whitespace-nowrap cursor-pointer border ${
+                              isSelected
+                                ? 'bg-emerald-500/15 border-emerald-500 text-emerald-700 dark:text-emerald-300 shadow-xs'
+                                : 'bg-slate-100/80 dark:bg-white/5 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-white/10 hover:border-emerald-500/50'
+                            }`}
+                          >
+                            <span className="truncate">{spec.name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
                 {/* Collapsible Advanced Technical Settings */}
                 {showAdvanced && (
                   <div className="pt-5 border-t border-slate-200/70 dark:border-white/10 space-y-5 animate-in fade-in duration-150">
@@ -760,17 +912,36 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({ onBookService }) => 
                   </span>
                 </div>
 
-                {/* Focal Distance Figure */}
-                <div className="py-2">
+                {/* Focal Distance Figure + Active Chemistry & Weather Badges */}
+                <div className="py-2 space-y-3">
                   <span className="text-xs font-medium text-slate-500 dark:text-slate-400 block">
                     Estimated Single-Charge Distance
                   </span>
-                  <div className="flex items-baseline gap-2.5 mt-1">
+                  <div className="flex items-baseline gap-2.5">
                     <span className="text-6xl font-extrabold font-mono tracking-tight text-slate-900 dark:text-white tabular-nums">
                       {rangeSimulation.estimatedRangeKm}
                     </span>
                     <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                       km
+                    </span>
+                  </div>
+
+                  {/* Active Chemistry & Weather Impact Badges */}
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <span className="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-100 dark:bg-white/10 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-white/10">
+                      {activeChemistry.shortName}
+                    </span>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-medium border ${
+                        activeWeather.id === 'cold'
+                          ? 'bg-sky-500/10 text-sky-700 dark:text-sky-300 border-sky-500/30'
+                          : activeWeather.id === 'hot'
+                          ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/30'
+                          : 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                      }`}
+                    >
+                      {activeWeather.statusLabel}
+                      {activeWeather.efficiencyPenaltyPct > 0 ? ` (-${activeWeather.efficiencyPenaltyPct}%)` : ''}
                     </span>
                   </div>
                 </div>

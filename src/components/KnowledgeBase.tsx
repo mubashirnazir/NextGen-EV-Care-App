@@ -3,6 +3,8 @@ import { BlogPost } from '../types';
 import { updateDocumentOpenGraph } from '../utils/seo';
 import { VideoEmbed } from './VideoEmbed';
 import { MediaCarouselView } from './MediaCarouselView';
+import { BatteryCareTips } from './BatteryCareTips';
+import { BatteryChemistry } from './EVCalculator';
 import { 
   BookOpen, 
   Search, 
@@ -23,13 +25,17 @@ interface KnowledgeBaseProps {
   selectedPost: BlogPost | null;
   setSelectedPost: (post: BlogPost | null) => void;
   onNavigateToCalculator?: () => void;
+  activeChemistry?: BatteryChemistry;
+  onSelectChemistry?: (chemistry: BatteryChemistry) => void;
 }
 
 export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
   posts,
   selectedPost,
   setSelectedPost,
-  onNavigateToCalculator
+  onNavigateToCalculator,
+  activeChemistry = 'li-ion',
+  onSelectChemistry
 }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -125,6 +131,13 @@ export const KnowledgeBase: React.FC<KnowledgeBaseProps> = ({
           )}
         </div>
       </div>
+
+      {/* Battery Care Pro-Tips Carousel (Synced with EV Calculator Chemistry) */}
+      <BatteryCareTips
+        activeChemistry={activeChemistry}
+        onSelectChemistry={onSelectChemistry}
+        onNavigateToCalculator={onNavigateToCalculator}
+      />
 
       {/* Category Tabs in Liquid Glass */}
       <div className="flex items-center gap-1.5 p-1.5 liquid-glass rounded-xl max-w-3xl mb-8 overflow-x-auto">
