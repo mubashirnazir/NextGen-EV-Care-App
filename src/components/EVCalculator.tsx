@@ -115,45 +115,73 @@ interface ChemistrySpec {
   shortName: string;
   cellSpec: string;
   cutoffNote: string;
+  lifespanBadge: string;
   usableFactor: number;
   dischargeEfficiency: number;
   weightDrag: number;
   sagSensitivity: number;
+  baseCycles: number;
+  annualCalendarWearPct: number;
+  sweetSpotMult: number;
+  deepDrainMult: number;
+  hotPlugMult: number;
+  baseWhPerKm: number;
 }
 
 const CHEMISTRY_SPECS: Record<BatteryChemistry, ChemistrySpec> = {
-  'li-ion': {
-    id: 'li-ion',
-    name: 'Lithium-Ion (NMC/NCA)',
-    shortName: 'Li-Ion (3.6V/cell)',
-    cellSpec: '3.6V /cell · High density',
-    cutoffNote: '3.0V/cell BMS cut-off',
-    usableFactor: 0.92,
-    dischargeEfficiency: 0.97,
-    weightDrag: 1.0,
-    sagSensitivity: 0.12,
-  },
   lifepo4: {
     id: 'lifepo4',
     name: 'LiFePO4 (LFP)',
     shortName: 'LiFePO4 (3.2V/cell)',
     cellSpec: '3.2V /cell · Flat curve',
     cutoffNote: '2.5V/cell flat discharge',
+    lifespanBadge: '3,000+ base cycles · 1.4%/yr wear',
     usableFactor: 0.96,
     dischargeEfficiency: 0.99,
     weightDrag: 1.02,
     sagSensitivity: 0.04,
+    baseCycles: 3000,
+    annualCalendarWearPct: 1.4,
+    sweetSpotMult: 1.5,
+    deepDrainMult: 0.72,
+    hotPlugMult: 0.85,
+    baseWhPerKm: 20.5,
+  },
+  'li-ion': {
+    id: 'li-ion',
+    name: 'Li-Ion (NMC/NCA)',
+    shortName: 'Li-Ion (3.6V/cell)',
+    cellSpec: '3.6V /cell · High density',
+    cutoffNote: '3.0V/cell BMS cut-off',
+    lifespanBadge: '1,000+ base cycles · 2.8%/yr wear',
+    usableFactor: 0.92,
+    dischargeEfficiency: 0.97,
+    weightDrag: 1.0,
+    sagSensitivity: 0.12,
+    baseCycles: 1000,
+    annualCalendarWearPct: 2.8,
+    sweetSpotMult: 1.85,
+    deepDrainMult: 0.62,
+    hotPlugMult: 0.75,
+    baseWhPerKm: 20.0,
   },
   graphene: {
     id: 'graphene',
-    name: 'Lead-Acid / Graphene Gel',
-    shortName: 'Lead-Acid (12V block)',
+    name: 'Graphene / Lead-Acid',
+    shortName: 'Graphene (12V block)',
     cellSpec: '12V /Block · Heavy sag',
     cutoffNote: '10.5V/block Peukert sag',
+    lifespanBadge: '500+ base cycles · 6.5%/yr wear',
     usableFactor: 0.78,
     dischargeEfficiency: 0.85,
     weightDrag: 1.1,
     sagSensitivity: 0.45,
+    baseCycles: 500,
+    annualCalendarWearPct: 6.5,
+    sweetSpotMult: 1.25,
+    deepDrainMult: 0.55,
+    hotPlugMult: 0.7,
+    baseWhPerKm: 22.5,
   },
 };
 
@@ -414,50 +442,105 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
     };
   }, [voltage, capacityAh, avgSpeed, combinedLoad, terrain, motorWatts, batterySOH]);
 
-  // --- Charge Time & Cost Engine ---
+  // --- Charge Time & Cost Engine (Chemistry-Exact CC/CV Taper Model) ---
   const chargeSimulation = useMemo(() => {
+    const chem = CHEMISTRY_SPECS[batteryChemistry];
+
     const chargerVoltage =
-      voltage === 36 ? 42.0 : voltage === 48 ? 54.6 : voltage === 60 ? 67.2 : 84.0;
+      batteryChemistry === 'lifepo4'
+        ? voltage === 36
+          ? 43.8
+          : voltage === 48
+          ? 58.4
+          : voltage === 60
+          ? 73.0
+          : 87.6
+        : batteryChemistry === 'graphene'
+        ? voltage === 36
+          ? 44.1
+          : voltage === 48
+          ? 58.8
+          : voltage === 60
+          ? 73.5
+          : 88.2
+        : voltage === 36
+        ? 42.0
+        : voltage === 48
+        ? 54.6
+        : voltage === 60
+        ? 67.2
+        : 84.0;
+
     const totalWh = voltage * capacityAh;
     const socDelta = Math.max(5, targetSOC - currentSOC);
     const energyNeededWh = (totalWh * socDelta) / 100;
     const chargerWatts = chargerVoltage * chargerAmps;
-    const wallEfficiency = batteryChemistry === 'lifepo4' ? 0.9 : batteryChemistry === 'graphene' ? 0.82 : 0.88;
-    const lineLossFactor = batteryChemistry === 'graphene' ? 1.24 : 1.08;
 
-    const hoursFloat = (energyNeededWh / chargerWatts) * lineLossFactor;
+    // Chemistry-specific charging efficiency, CV/absorption taper threshold & slowdown
+    const wallEfficiency =
+      batteryChemistry === 'lifepo4' ? 0.91 : batteryChemistry === 'graphene' ? 0.78 : 0.88;
+    const lineLossFactor =
+      batteryChemistry === 'lifepo4' ? 1.04 : batteryChemistry === 'graphene' ? 1.14 : 1.06;
+    const taperThreshold =
+      batteryChemistry === 'lifepo4' ? 92 : batteryChemistry === 'graphene' ? 75 : 80;
+    const cvSlowdown =
+      batteryChemistry === 'lifepo4' ? 1.35 : batteryChemistry === 'graphene' ? 2.45 : 1.85;
+    const avgDcPowerFactor = batteryChemistry === 'graphene' ? 0.92 : 0.94;
+
+    const ccPct = Math.max(0, Math.min(targetSOC, taperThreshold) - currentSOC);
+    const cvPct = Math.max(0, targetSOC - Math.max(currentSOC, taperThreshold));
+    const effectiveWhNeeded = (totalWh * (ccPct + cvPct * cvSlowdown)) / 100;
+
+    const hoursFloat = (effectiveWhNeeded / (chargerWatts * avgDcPowerFactor)) * lineLossFactor;
     const totalMinutes = Math.max(10, Math.round(hoursFloat * 60));
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
 
     const wallKwh = energyNeededWh / wallEfficiency / 1000;
     const sessionCostPkr = (wallKwh * electricityTariff).toFixed(0);
-    const kmPerHour = Math.round((chargerWatts * wallEfficiency) / 22);
+
+    const kmAdded = (energyNeededWh * chem.usableFactor * chem.dischargeEfficiency) / chem.baseWhPerKm;
+    const kmPerHour = Math.max(1, Math.round(kmAdded / Math.max(0.25, hoursFloat)));
 
     return {
       chargerWatts: Math.round(chargerWatts),
+      chargerVoltage: chargerVoltage.toFixed(1),
       hours,
       minutes,
       wallKwh: wallKwh.toFixed(2),
       sessionCostPkr,
       kmPerHour,
+      taperThreshold,
+      wallEfficiencyPct: Math.round(wallEfficiency * 100),
+      chemistryName: chem.name,
     };
   }, [voltage, capacityAh, chargerAmps, currentSOC, targetSOC, batteryChemistry, electricityTariff]);
 
-  // --- Battery Lifespan Diagnostic Engine ---
+  // --- Battery Lifespan Diagnostic Engine (Chemistry-Exact Model) ---
   const lifespanSimulation = useMemo(() => {
-    const baseCycles = batteryChemistry === 'lifepo4' ? 3000 : batteryChemistry === 'graphene' ? 500 : 1000;
-    const habitMult = healthChargeHabit === 'sweet_spot' ? 1.9 : healthChargeHabit === 'deep_drain' ? 0.65 : 1.0;
-    const heatMult = healthCoolingHabit === 'hot_plug' ? 0.76 : 1.0;
+    const chem = CHEMISTRY_SPECS[batteryChemistry];
+    const habitMult =
+      healthChargeHabit === 'sweet_spot'
+        ? chem.sweetSpotMult
+        : healthChargeHabit === 'deep_drain'
+        ? chem.deepDrainMult
+        : 1.0;
+    const heatMult = healthCoolingHabit === 'hot_plug' ? chem.hotPlugMult : 1.0;
 
-    const totalCycles = Math.round(baseCycles * habitMult * heatMult);
-    const packKwh = Math.max(0.5, (voltage * capacityAh) / 1000);
-    const annualCycles = Math.max(30, ((healthDailyKm * 22) / 1000 / packKwh) * 365);
-    const expectedYears = totalCycles / annualCycles;
+    const totalCycles = Math.round(chem.baseCycles * habitMult * heatMult);
+    const nominalWh = Math.max(500, voltage * capacityAh);
+    const usableWh = nominalWh * chem.usableFactor;
+    const effectiveWhPerKm = chem.baseWhPerKm / chem.dischargeEfficiency;
+    const rangePerFullCycleKm = usableWh / effectiveWhPerKm;
 
-    const ageWearPct = (healthBatteryAgeMonths / 12) * (batteryChemistry === 'lifepo4' ? 1.5 : 2.5);
-    const cycleWearPct = ((annualCycles / 12) * healthBatteryAgeMonths / totalCycles) * 30;
-    const simulatedSOH = Math.max(35, Math.min(100, Math.round(100 - ageWearPct - cycleWearPct)));
+    const annualCycles = Math.max(15, (healthDailyKm * 365) / rangePerFullCycleKm);
+    const ageYears = healthBatteryAgeMonths / 12;
+
+    // 30% SOH loss (100% -> 70% serviceable EV threshold) over rated cycle + calendar wear
+    const annualCycleWearPct = (annualCycles / totalCycles) * 30;
+    const annualDegradationPct = chem.annualCalendarWearPct + annualCycleWearPct;
+    const exactSOH = 100 - ageYears * annualDegradationPct;
+    const simulatedSOH = Math.max(35, Math.min(100, Math.round(exactSOH)));
 
     let barHexColor = '#10b981';
     let badgeColorClass = 'text-emerald-600 dark:text-emerald-400';
@@ -472,8 +555,8 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
       statusText = 'Moderate wear / routine balance recommended';
     }
 
-    const remainingYears = Math.max(0.2, ((simulatedSOH - 65) / 35) * expectedYears).toFixed(1);
-    const lifetimeKm = Math.round(totalCycles * ((packKwh * 1000) / 22));
+    const remainingYears = Math.max(0, (exactSOH - 70) / Math.max(0.5, annualDegradationPct)).toFixed(1);
+    const lifetimeKm = Math.round(totalCycles * rangePerFullCycleKm);
 
     return {
       simulatedSOH,
@@ -483,6 +566,9 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
       remainingYears,
       lifetimeKm,
       totalCycles,
+      annualCycles: Math.round(annualCycles),
+      annualDegradationPct: annualDegradationPct.toFixed(1),
+      chemistryName: chem.name,
     };
   }, [voltage, capacityAh, batteryChemistry, healthDailyKm, healthBatteryAgeMonths, healthChargeHabit, healthCoolingHabit]);
 
@@ -1123,6 +1209,30 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
                     </span>
                   </div>
 
+                  {/* Quick Chemistry Selector inside Battery Health Simulation */}
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    {(['lifepo4', 'li-ion', 'graphene'] as BatteryChemistry[]).map((chemId) => {
+                      const selected = batteryChemistry === chemId;
+                      return (
+                        <button
+                          key={chemId}
+                          type="button"
+                          onClick={() => setBatteryChemistry(chemId)}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-colors cursor-pointer whitespace-nowrap ${
+                            selected
+                              ? 'bg-emerald-500/15 border-emerald-500 text-emerald-700 dark:text-emerald-300'
+                              : 'bg-slate-100/70 dark:bg-white/5 border-slate-200/80 dark:border-white/10 text-slate-600 dark:text-slate-300 hover:border-emerald-500/40'
+                          }`}
+                        >
+                          {chemId === 'lifepo4' ? 'LiFePO4' : chemId === 'li-ion' ? 'Li-Ion' : 'Graphene'}
+                        </button>
+                      );
+                    })}
+                    <span className="text-[11px] font-mono text-slate-500 dark:text-slate-400 ml-auto">
+                      {Math.round(activeChemistry.usableFactor * 100)}% usable
+                    </span>
+                  </div>
+
                   {/* Color-coded Progress Bar (Emerald 85-100%, Amber 60-84%, Red <60%) */}
                   <div
                     role="progressbar"
@@ -1152,7 +1262,7 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
                   </div>
 
                   <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
-                    Your pack delivers {rangeSimulation.estimatedRangeKm} km real-world distance compared to {rangeSimulation.factoryConditionRangeKm} km in brand-new factory condition.
+                    Your {activeChemistry.name} pack delivers {rangeSimulation.estimatedRangeKm} km real-world distance compared to {rangeSimulation.factoryConditionRangeKm} km in brand-new factory condition.
                   </p>
                 </div>
               </div>
@@ -1197,57 +1307,109 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
       {/* ===================== VIEW 2: CHARGE TIME & COST (3-STEP HIERARCHY) ===================== */}
       {activeTab === 'charge' && (
         <div className="space-y-6">
-          {/* Step 1: Choose Charger Speed */}
-          <div className={GLASS_CARD_CLASS}>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-5">
-              <div>
-                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 tracking-wide">
-                  Step 1 of 3
+          {/* Step 1: Battery Chemistry & Charger Speed */}
+          <div className={`${GLASS_CARD_CLASS} space-y-6`}>
+            <div>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                <div>
+                  <span className="text-xs font-bold text-amber-600 dark:text-amber-400 tracking-wide">
+                    Step 1 of 3
+                  </span>
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                    Select Battery Chemistry & Charger Amperage
+                  </h2>
+                </div>
+                <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                  Cutoff: {chargeSimulation.chargerVoltage}V · Output: {chargeSimulation.chargerWatts}W ({voltage}V · {capacityAh}Ah)
                 </span>
-                <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                  Choose Your Charger Amperage
-                </h2>
               </div>
-              <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
-                Output: {chargeSimulation.chargerWatts}W ({voltage}V · {capacityAh}Ah Pack)
-              </span>
+
+              {/* Battery Chemistry Type Cards (LiFePO4, Li-Ion, Graphene) */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {(['lifepo4', 'li-ion', 'graphene'] as BatteryChemistry[]).map((chemId) => {
+                  const spec = CHEMISTRY_SPECS[chemId];
+                  const isSelected = batteryChemistry === chemId;
+                  const chargeNote =
+                    chemId === 'lifepo4'
+                      ? '91% wall eff · Fast CC to 92%'
+                      : chemId === 'li-ion'
+                      ? '88% wall eff · CV taper >80%'
+                      : '78% wall eff · Slow taper >75%';
+                  return (
+                    <button
+                      key={chemId}
+                      type="button"
+                      onClick={() => setBatteryChemistry(chemId)}
+                      className={`px-4 py-3.5 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                        isSelected
+                          ? 'bg-amber-500/15 border-amber-500 text-slate-900 dark:text-white shadow-[0_0_24px_rgba(245,158,11,0.2)]'
+                          : 'bg-slate-100/80 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-amber-500/50'
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <span className="block text-sm font-bold truncate">{spec.name}</span>
+                        <span className="block text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                          {chargeNote}
+                        </span>
+                      </div>
+                      <span
+                        className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                          isSelected
+                            ? 'bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.85)]'
+                            : 'bg-slate-300 dark:bg-slate-600'
+                        }`}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-3">
-              {CHARGER_AMPS_OPTIONS.map((amps) => {
-                const active = chargerAmps === amps;
-                return (
-                  <button
-                    key={amps}
-                    type="button"
-                    onClick={() => setChargerAmps(amps)}
-                    className={`h-12 px-5 rounded-full text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer border ${
-                      active
-                        ? 'bg-emerald-400 text-slate-950 border-emerald-400 shadow-md shadow-emerald-500/20'
-                        : 'bg-slate-100/80 dark:bg-white/5 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-white/10 hover:border-emerald-500/60'
-                    }`}
-                  >
-                    <span className="font-mono font-bold">{amps}A Charger</span>
-                    <span className={active ? 'text-slate-900 text-xs' : 'text-slate-500 dark:text-slate-400 text-xs'}>
-                      {amps <= 3 ? 'Gentle' : amps <= 6 ? 'Standard' : 'Fast'}
-                    </span>
-                  </button>
-                );
-              })}
+            <div className="pt-5 border-t border-slate-200/70 dark:border-white/10 space-y-3">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 block">
+                Charger Amperage
+              </span>
+              <div className="flex flex-wrap gap-3">
+                {CHARGER_AMPS_OPTIONS.map((amps) => {
+                  const active = chargerAmps === amps;
+                  return (
+                    <button
+                      key={amps}
+                      type="button"
+                      onClick={() => setChargerAmps(amps)}
+                      className={`h-12 px-5 rounded-full text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer border ${
+                        active
+                          ? 'bg-emerald-400 text-slate-950 border-emerald-400 shadow-md shadow-emerald-500/20'
+                          : 'bg-slate-100/80 dark:bg-white/5 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-white/10 hover:border-emerald-500/60'
+                      }`}
+                    >
+                      <span className="font-mono font-bold">{amps}A Charger</span>
+                      <span className={active ? 'text-slate-900 text-xs' : 'text-slate-500 dark:text-slate-400 text-xs'}>
+                        {amps <= 3 ? 'Gentle' : amps <= 6 ? 'Standard' : 'Fast'}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            {/* Step 2: Charge Level Sliders */}
+            {/* Step 2: Charge Level & Pack Spec Sliders */}
             <div className={`lg:col-span-7 flex flex-col justify-between space-y-6 ${GLASS_CARD_CLASS}`}>
               <div className="space-y-6">
-                <div>
-                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 tracking-wide">
-                    Step 2 of 3
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400 tracking-wide">
+                      Step 2 of 3
+                    </span>
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                      Charge Level & Pack Sliders
+                    </h2>
+                  </div>
+                  <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                    Pack: {voltage}V · {capacityAh}Ah ({((voltage * capacityAh) / 1000).toFixed(2)} kWh)
                   </span>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                    Charge Level Sliders
-                  </h2>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -1294,24 +1456,95 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
                       className="w-full h-2 accent-emerald-500 cursor-pointer"
                     />
                   </div>
+
+                  <div className="space-y-2.5">
+                    <div className="flex items-baseline justify-between">
+                      <label htmlFor="charge-voltage" className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Pack Voltage
+                      </label>
+                      <div className="flex items-baseline gap-1 font-mono tabular-nums">
+                        <span className="text-2xl font-extrabold text-slate-900 dark:text-white">{voltage}</span>
+                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">V</span>
+                      </div>
+                    </div>
+                    <input
+                      id="charge-voltage"
+                      type="range"
+                      min={36}
+                      max={72}
+                      step={12}
+                      value={voltage}
+                      onChange={(e) => {
+                        setSelectedPresetId(null);
+                        setVoltage(Number(e.target.value));
+                      }}
+                      className="w-full h-2 accent-emerald-500 cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[11px] font-mono tabular-nums text-slate-400">
+                      <span>36V</span>
+                      <span>48V</span>
+                      <span>60V</span>
+                      <span>72V</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <div className="flex items-baseline justify-between">
+                      <label htmlFor="charge-ah" className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Pack Capacity
+                      </label>
+                      <div className="flex items-baseline gap-1 font-mono tabular-nums">
+                        <span className="text-2xl font-extrabold text-slate-900 dark:text-white">{capacityAh}</span>
+                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Ah</span>
+                      </div>
+                    </div>
+                    <input
+                      id="charge-ah"
+                      type="range"
+                      min={12}
+                      max={60}
+                      step={1}
+                      value={capacityAh}
+                      onChange={(e) => {
+                        setSelectedPresetId(null);
+                        setCapacityAh(Number(e.target.value));
+                      }}
+                      className="w-full h-2 accent-emerald-500 cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[11px] font-mono tabular-nums text-slate-400">
+                      <span>12 Ah</span>
+                      <span>30 Ah</span>
+                      <span>60 Ah</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-200/70 dark:border-white/10 text-xs text-slate-600 dark:text-slate-300">
-                Stopping daily charges at 85% reduces cell heat stress and preserves battery longevity.
+              <div className="pt-4 border-t border-slate-200/70 dark:border-white/10 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-300">
+                <span>
+                  CV taper slows above <strong className="font-mono text-slate-900 dark:text-white">{chargeSimulation.taperThreshold}%</strong> for {chargeSimulation.chemistryName}.
+                </span>
+                <span className="font-mono tabular-nums">
+                  Efficiency: <strong>{chargeSimulation.wallEfficiencyPct}%</strong>
+                </span>
               </div>
             </div>
 
             {/* Step 3: Instant Charge Results */}
             <div className={`lg:col-span-5 flex flex-col justify-between space-y-6 ${GLASS_CARD_CLASS}`}>
               <div className="space-y-6">
-                <div>
-                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 tracking-wide">
-                    Step 3 of 3
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <span className="text-xs font-bold text-amber-600 dark:text-amber-400 tracking-wide">
+                      Step 3 of 3
+                    </span>
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                      Charge Duration & PKR Cost
+                    </h2>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-amber-500/15 border border-amber-500/30 text-amber-700 dark:text-amber-300 whitespace-nowrap">
+                    {chargeSimulation.chemistryName}
                   </span>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                    Charge Duration & PKR Cost
-                  </h2>
                 </div>
 
                 <div>
@@ -1343,8 +1576,8 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
 
               <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
                 <span className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4 text-emerald-500 shrink-0" />
-                  <span>Recovery Speed</span>
+                  <Clock className="w-4 h-4 text-amber-500 shrink-0" />
+                  <span>Recovery Speed ({chargeSimulation.chargerVoltage}V)</span>
                 </span>
                 <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
                   +{chargeSimulation.kmPerHour} km / hour
@@ -1355,80 +1588,131 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
         </div>
       )}
 
-      {/* ===================== VIEW 3: BATTERY LIFESPAN (3-STEP HIERARCHY) ===================== */}
+      {/* ===================== VIEW 3: BATTERY LIFESPAN & HEALTH (3-STEP HIERARCHY) ===================== */}
       {activeTab === 'health' && (
         <div className="space-y-6">
-          {/* Step 1: Charging Habits */}
-          <div className={GLASS_CARD_CLASS}>
-            <div className="mb-5">
-              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 tracking-wide">
-                Step 1 of 3
-              </span>
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                Select Your Charging & Heat Routine
-              </h2>
+          {/* Step 1: Battery Chemistry & Charging/Heat Routine */}
+          <div className={`${GLASS_CARD_CLASS} space-y-6`}>
+            <div>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                <div>
+                  <span className="text-xs font-bold text-violet-600 dark:text-violet-400 tracking-wide">
+                    Step 1 of 3
+                  </span>
+                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                    Select Battery Chemistry & Charging Routine
+                  </h2>
+                </div>
+                <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+                  {activeChemistry.cellSpec} · {activeChemistry.lifespanBadge}
+                </span>
+              </div>
+
+              {/* Battery Chemistry Type Cards (LiFePO4, Li-Ion, Graphene) */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {(['lifepo4', 'li-ion', 'graphene'] as BatteryChemistry[]).map((chemId) => {
+                  const spec = CHEMISTRY_SPECS[chemId];
+                  const isSelected = batteryChemistry === chemId;
+                  return (
+                    <button
+                      key={chemId}
+                      type="button"
+                      onClick={() => setBatteryChemistry(chemId)}
+                      className={`px-4 py-3.5 rounded-2xl border text-left transition-all cursor-pointer flex items-center justify-between gap-3 ${
+                        isSelected
+                          ? 'bg-violet-500/15 border-violet-500 text-slate-900 dark:text-white shadow-[0_0_24px_rgba(139,92,246,0.2)]'
+                          : 'bg-slate-100/80 dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-200 hover:border-violet-500/50'
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <span className="block text-sm font-bold truncate">{spec.name}</span>
+                        <span className="block text-[11px] font-mono text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                          {spec.lifespanBadge}
+                        </span>
+                      </div>
+                      <span
+                        className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                          isSelected
+                            ? 'bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.8)]'
+                            : 'bg-slate-300 dark:bg-slate-600'
+                        }`}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-              {[
-                { id: 'sweet_spot', label: '20% - 85% Routine' },
-                { id: 'regular_100', label: 'Full 100% Daily' },
-                { id: 'deep_drain', label: 'Drain Below 10%' },
-              ].map((habit) => {
-                const active = healthChargeHabit === habit.id;
-                return (
-                  <button
-                    key={habit.id}
-                    type="button"
-                    onClick={() => setHealthChargeHabit(habit.id as 'sweet_spot' | 'regular_100' | 'deep_drain')}
-                    className={`h-12 px-4 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer border ${
-                      active
-                        ? 'bg-emerald-400 text-slate-950 border-emerald-400 shadow-sm'
-                        : 'bg-slate-100/80 dark:bg-white/5 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-white/10 hover:border-emerald-500/60'
-                    }`}
-                  >
-                    {habit.label}
-                  </button>
-                );
-              })}
+            <div className="pt-5 border-t border-slate-200/70 dark:border-white/10 space-y-3">
+              <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 block">
+                Charging & Thermal Habit
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                {[
+                  { id: 'sweet_spot', label: '20% - 85% Routine' },
+                  { id: 'regular_100', label: 'Full 100% Daily' },
+                  { id: 'deep_drain', label: 'Drain Below 10%' },
+                ].map((habit) => {
+                  const active = healthChargeHabit === habit.id;
+                  return (
+                    <button
+                      key={habit.id}
+                      type="button"
+                      onClick={() => setHealthChargeHabit(habit.id as 'sweet_spot' | 'regular_100' | 'deep_drain')}
+                      className={`h-12 px-4 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer border ${
+                        active
+                          ? 'bg-emerald-400 text-slate-950 border-emerald-400 shadow-sm'
+                          : 'bg-slate-100/80 dark:bg-white/5 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-white/10 hover:border-emerald-500/60'
+                      }`}
+                    >
+                      {habit.label}
+                    </button>
+                  );
+                })}
 
-              <button
-                type="button"
-                onClick={() => setHealthCoolingHabit('shaded_cooled')}
-                className={`h-12 px-4 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer border ${
-                  healthCoolingHabit === 'shaded_cooled'
-                    ? 'bg-emerald-500/15 border-emerald-500 text-emerald-700 dark:text-emerald-300'
-                    : 'bg-slate-100/80 dark:bg-white/5 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-white/10'
-                }`}
-              >
-                Cool 20 min Before Charge
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setHealthCoolingHabit('shaded_cooled')}
+                  className={`h-12 px-4 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer border ${
+                    healthCoolingHabit === 'shaded_cooled'
+                      ? 'bg-emerald-500/15 border-emerald-500 text-emerald-700 dark:text-emerald-300'
+                      : 'bg-slate-100/80 dark:bg-white/5 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-white/10'
+                  }`}
+                >
+                  Cool 20 min Before Charge
+                </button>
 
-              <button
-                type="button"
-                onClick={() => setHealthCoolingHabit('hot_plug')}
-                className={`h-12 px-4 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer border ${
-                  healthCoolingHabit === 'hot_plug'
-                    ? 'bg-amber-500/15 border-amber-500 text-amber-700 dark:text-amber-300'
-                    : 'bg-slate-100/80 dark:bg-white/5 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-white/10'
-                }`}
-              >
-                Plugged In Hot
-              </button>
+                <button
+                  type="button"
+                  onClick={() => setHealthCoolingHabit('hot_plug')}
+                  className={`h-12 px-4 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer border ${
+                    healthCoolingHabit === 'hot_plug'
+                      ? 'bg-amber-500/15 border-amber-500 text-amber-700 dark:text-amber-300'
+                      : 'bg-slate-100/80 dark:bg-white/5 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-white/10'
+                  }`}
+                >
+                  Plugged In Hot
+                </button>
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            {/* Step 2: Usage & Pack Age Sliders */}
+            {/* Step 2: Usage, Pack Spec & Age Sliders */}
             <div className={`lg:col-span-7 flex flex-col justify-between space-y-6 ${GLASS_CARD_CLASS}`}>
               <div className="space-y-6">
-                <div>
-                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 tracking-wide">
-                    Step 2 of 3
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <span className="text-xs font-bold text-violet-600 dark:text-violet-400 tracking-wide">
+                      Step 2 of 3
+                    </span>
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                      Daily Distance & Pack Age
+                    </h2>
+                  </div>
+                  <span className="text-xs font-mono tabular-nums text-slate-500 dark:text-slate-400">
+                    Pack: {voltage}V · {capacityAh}Ah ({((voltage * capacityAh) / 1000).toFixed(2)} kWh)
                   </span>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                    Daily Distance & Pack Age
-                  </h2>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -1452,6 +1736,11 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
                       onChange={(e) => setHealthDailyKm(Number(e.target.value))}
                       className="w-full h-2 accent-emerald-500 cursor-pointer"
                     />
+                    <div className="flex justify-between text-[11px] font-mono tabular-nums text-slate-400">
+                      <span>5 km</span>
+                      <span>45 km</span>
+                      <span>90 km</span>
+                    </div>
                   </div>
 
                   <div className="space-y-2.5">
@@ -1474,26 +1763,102 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
                       onChange={(e) => setHealthBatteryAgeMonths(Number(e.target.value))}
                       className="w-full h-2 accent-emerald-500 cursor-pointer"
                     />
+                    <div className="flex justify-between text-[11px] font-mono tabular-nums text-slate-400">
+                      <span>0 mo</span>
+                      <span>24 mo</span>
+                      <span>48 mo</span>
+                    </div>
+                  </div>
+
+                  {/* Voltage & Ah Sliders so Lifespan calculates exact kWh cycles independently too */}
+                  <div className="space-y-2.5">
+                    <div className="flex items-baseline justify-between">
+                      <label htmlFor="health-voltage" className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Pack Voltage
+                      </label>
+                      <div className="flex items-baseline gap-1 font-mono tabular-nums">
+                        <span className="text-2xl font-extrabold text-slate-900 dark:text-white">{voltage}</span>
+                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">V</span>
+                      </div>
+                    </div>
+                    <input
+                      id="health-voltage"
+                      type="range"
+                      min={36}
+                      max={72}
+                      step={12}
+                      value={voltage}
+                      onChange={(e) => {
+                        setSelectedPresetId(null);
+                        setVoltage(Number(e.target.value));
+                      }}
+                      className="w-full h-2 accent-emerald-500 cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[11px] font-mono tabular-nums text-slate-400">
+                      <span>36V</span>
+                      <span>48V</span>
+                      <span>60V</span>
+                      <span>72V</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <div className="flex items-baseline justify-between">
+                      <label htmlFor="health-ah" className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                        Pack Capacity
+                      </label>
+                      <div className="flex items-baseline gap-1 font-mono tabular-nums">
+                        <span className="text-2xl font-extrabold text-slate-900 dark:text-white">{capacityAh}</span>
+                        <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Ah</span>
+                      </div>
+                    </div>
+                    <input
+                      id="health-ah"
+                      type="range"
+                      min={12}
+                      max={60}
+                      step={1}
+                      value={capacityAh}
+                      onChange={(e) => {
+                        setSelectedPresetId(null);
+                        setCapacityAh(Number(e.target.value));
+                      }}
+                      className="w-full h-2 accent-emerald-500 cursor-pointer"
+                    />
+                    <div className="flex justify-between text-[11px] font-mono tabular-nums text-slate-400">
+                      <span>12 Ah</span>
+                      <span>30 Ah</span>
+                      <span>60 Ah</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-slate-200/70 dark:border-white/10 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
-                <span>Estimated Pack Cycles</span>
-                <span className="font-mono font-bold tabular-nums">{lifespanSimulation.totalCycles.toLocaleString()} cycles</span>
+              <div className="pt-4 border-t border-slate-200/70 dark:border-white/10 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 dark:text-slate-300">
+                <span>
+                  Rated Life: <strong className="font-mono text-slate-900 dark:text-white tabular-nums">{lifespanSimulation.totalCycles.toLocaleString()} cycles</strong>
+                </span>
+                <span>
+                  Usage: <strong className="font-mono tabular-nums">{lifespanSimulation.annualCycles} cycles/yr</strong> · Wear: <strong className="font-mono tabular-nums">{lifespanSimulation.annualDegradationPct}%/yr</strong>
+                </span>
               </div>
             </div>
 
             {/* Step 3: Health & Remaining Life */}
             <div className={`lg:col-span-5 flex flex-col justify-between space-y-6 ${GLASS_CARD_CLASS}`}>
               <div className="space-y-5">
-                <div>
-                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 tracking-wide">
-                    Step 3 of 3
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <span className="text-xs font-bold text-violet-600 dark:text-violet-400 tracking-wide">
+                      Step 3 of 3
+                    </span>
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                      Battery Health Simulation
+                    </h2>
+                  </div>
+                  <span className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-violet-500/15 border border-violet-500/30 text-violet-700 dark:text-violet-300 whitespace-nowrap">
+                    {lifespanSimulation.chemistryName}
                   </span>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">
-                    Battery Health Simulation
-                  </h2>
                 </div>
 
                 <div className="flex items-baseline gap-2 font-mono tabular-nums">
@@ -1533,7 +1898,7 @@ export const EVCalculator: React.FC<EVCalculatorProps> = ({
 
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-200/70 dark:border-white/10">
                   <div>
-                    <span className="text-xs text-slate-500 dark:text-slate-400 block">Remaining Life</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 block">Remaining Life (to 70%)</span>
                     <span className="text-xl font-extrabold font-mono text-slate-900 dark:text-white tabular-nums">
                       ~{lifespanSimulation.remainingYears} yrs
                     </span>
